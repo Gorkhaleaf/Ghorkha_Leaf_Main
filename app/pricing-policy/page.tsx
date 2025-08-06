@@ -47,7 +47,7 @@ export default function PricingPolicyPage() {
             <div className="bg-green-50 p-6 rounded-lg mt-8">
               <h3 className="text-xl font-semibold text-green-800 mb-3">Contact Us</h3>
               <p className="text-gray-700">
-                For any pricing inquiries, bulk orders, or wholesale partnerships, please reach out to us at info@gorkhaleaf.com or call +91-9800341000. Our team is committed to providing personalized pricing solutions that meet your specific needs.
+                For any pricing inquiries, bulk orders, or wholesale partnerships, please reach out to us at info@gorkhaleaf.com or call +91-7204390477. Our team is committed to providing personalized pricing solutions that meet your specific needs.
               </p>
             </div>
           </div>

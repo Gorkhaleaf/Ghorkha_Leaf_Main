@@ -57,7 +57,7 @@ export default function TermsAndConditionsPage() {
             <div className="bg-green-50 p-6 rounded-lg mt-8">
               <h3 className="text-xl font-semibold text-green-800 mb-3">Contact Information</h3>
               <p className="text-gray-700">
-                If you have any questions about these Terms and Conditions, please contact us at info@gorkhaleaf.com or call +91-9800341000. We are committed to addressing your concerns and ensuring a positive experience with Gorkha Leaf.
+                If you have any questions about these Terms and Conditions, please contact us at info@gorkhaleaf.com or call +91-7204390477. We are committed to addressing your concerns and ensuring a positive experience with Gorkha Leaf.
               </p>
             </div>
           </div>

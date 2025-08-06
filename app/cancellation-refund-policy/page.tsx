@@ -16,7 +16,7 @@ export default function CancellationRefundPolicyPage() {
 
             <h2 className="text-2xl font-semibold text-green-800 mt-8 mb-4">Order Cancellation Policy</h2>
             <p className="text-gray-700 mb-4">
-              You may cancel your order within 24 hours of placement, provided the order has not been processed or shipped. Orders can be cancelled by logging into your account, contacting our customer service team at info@gorkhaleaf.com, or calling +91-9800341000. Once an order has been processed and shipped, it cannot be cancelled, but you may be eligible for a return under our refund policy.
+              You may cancel your order within 24 hours of placement, provided the order has not been processed or shipped. Orders can be cancelled by logging into your account, contacting our customer service team at info@gorkhaleaf.com, or calling +91-7204390477. Once an order has been processed and shipped, it cannot be cancelled, but you may be eligible for a return under our refund policy.
             </p>
 
             <h2 className="text-2xl font-semibold text-green-800 mt-8 mb-4">Return Eligibility and Conditions</h2>
@@ -57,7 +57,7 @@ export default function CancellationRefundPolicyPage() {
             <div className="bg-green-50 p-6 rounded-lg mt-8">
               <h3 className="text-xl font-semibold text-green-800 mb-3">Need Help with Returns?</h3>
               <p className="text-gray-700">
-                For any questions about cancellations, returns, or refunds, please contact our customer service team at info@gorkhaleaf.com or call +91-9800341000. We're here to help ensure your Gorkha Leaf experience exceeds your expectations.
+                For any questions about cancellations, returns, or refunds, please contact our customer service team at info@gorkhaleaf.com or call +91-7204390477. We're here to help ensure your Gorkha Leaf experience exceeds your expectations.
               </p>
             </div>
           </div>
