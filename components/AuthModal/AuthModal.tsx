@@ -12,12 +12,21 @@ interface AuthModalProps {
 const AuthModal = ({ onClose, onAuthSuccess }: AuthModalProps) => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   const supabase = createClient();
+
+  const normalizePhone = (p: string) => {
+    try {
+      return String(p).replace(/\D/g, '');
+    } catch {
+      return p;
+    }
+  };
 
   const handleAuthAction = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,10 +35,33 @@ const AuthModal = ({ onClose, onAuthSuccess }: AuthModalProps) => {
 
     try {
       if (isSignUp) {
-        const { error } = await supabase.auth.signUp({ email, password });
+        // Create account
+        const { data, error } = await supabase.auth.signUp({ email, password });
         if (error) throw error;
+
+        // If user object returned immediately, upsert profile with phone
+        const user = (data as any)?.user ?? null;
+        if (user && user.id) {
+          try {
+            await supabase
+              .from('profiles')
+              .upsert({
+                id: user.id,
+                email,
+                phone,
+                phone_normalized: normalizePhone(phone)
+              });
+          } catch (pfErr) {
+            console.warn('[AuthModal] failed to upsert profile with phone', pfErr);
+          }
+        } else {
+          // For magic-link flows user may not be available until confirmation.
+          // Optionally, you can persist phone in a temporary store and run a server-side job to attach after confirmation.
+        }
+
         setMessage('Check your email for the confirmation link!');
       } else {
+        // Sign in
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         setMessage('Logged in successfully!');
@@ -37,7 +69,7 @@ const AuthModal = ({ onClose, onAuthSuccess }: AuthModalProps) => {
         setTimeout(onClose, 1500);
       }
     } catch (error: any) {
-      setMessage(error.message);
+      setMessage(error?.message ?? String(error));
     } finally {
       setLoading(false);
     }
@@ -58,12 +90,24 @@ const AuthModal = ({ onClose, onAuthSuccess }: AuthModalProps) => {
               <i className="icon user-icon"></i>
               <input
                 type="email"
-                placeholder="Username or Email"
+                placeholder="Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
               />
             </div>
+
+            <div className="input-group">
+              <i className="icon phone-icon"></i>
+              <input
+                type="tel"
+                placeholder={isSignUp ? "Phone (required)" : "Phone (optional)"}
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                required={isSignUp}
+              />
+            </div>
+
             <div className="input-group">
               <i className="icon lock-icon"></i>
               <input
@@ -78,17 +122,21 @@ const AuthModal = ({ onClose, onAuthSuccess }: AuthModalProps) => {
                 onClick={() => setShowPassword(!showPassword)}
               ></i>
             </div>
+
             <div className="options">
               <label>
                 <input type="checkbox" /> Remember Me
               </label>
               <a href="#">Forgot Password?</a>
             </div>
+
             <button type="submit" className="action-button" disabled={loading}>
               {loading ? 'Processing...' : (isSignUp ? 'Sign Up' : 'Login')}
             </button>
           </form>
+
           {message && <p className="message">{message}</p>}
+
           <div className="toggle-auth">
             {isSignUp ? (
               <p>
@@ -112,4 +160,4 @@ const AuthModal = ({ onClose, onAuthSuccess }: AuthModalProps) => {
   );
 };
 
-export default AuthModal; // Ensure default export
+export default AuthModal;
