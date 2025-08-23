@@ -123,7 +123,10 @@ export async function POST(req: NextRequest) {
 if (derivedUserId) updates.user_uid = derivedUserId;
 
 // Save customer contact info for phone-based lookups
-    if (possibleEmail) updates.customer_email = possibleEmail;
+    if (possibleEmail) {
+      updates.customer_email = possibleEmail;
+      updates.customer_email_canonical = String(possibleEmail).trim().toLowerCase();
+    }
     if (possibleContact) {
       updates.customer_phone = possibleContact;
       updates.customer_phone_normalized = String(possibleContact).replace(/\D/g, '');
