@@ -122,6 +122,12 @@ export async function POST(req: NextRequest) {
       if (amount !== null) updates.amount = amount;
 if (derivedUserId) updates.user_uid = derivedUserId;
 
+// Save customer contact info for phone-based lookups
+    if (possibleEmail) updates.customer_email = possibleEmail;
+    if (possibleContact) {
+      updates.customer_phone = possibleContact;
+      updates.customer_phone_normalized = String(possibleContact).replace(/\D/g, '');
+    }
       const { data, error } = await admin
         .from('orders')
         .update(updates)
