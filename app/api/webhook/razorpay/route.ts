@@ -46,11 +46,81 @@ export async function POST(req: NextRequest) {
     const admin = createAdminClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 
     try {
+// Attempt to derive a user from payload so the update can set user_uid when possible
+      let derivedUserId: string | null = null;
+      const possibleEmail = entity.email || payload?.payload?.order?.entity?.email || payload?.payload?.customer?.email || null;
+      const possibleContact = entity.contact || payload?.payload?.order?.entity?.contact || payload?.payload?.customer?.contact || null;
+
+      if (possibleEmail) {
+        try {
+          if (typeof (admin.auth as any).getUserByEmail === 'function') {
+            const res: any = await (admin.auth as any).getUserByEmail(possibleEmail);
+            const user = res?.data?.user ?? res?.user ?? res;
+            if (user?.id) derivedUserId = user.id;
+          } else if (typeof (admin.auth as any).admin?.getUserByEmail === 'function') {
+            const res: any = await (admin.auth as any).admin.getUserByEmail(possibleEmail);
+            const user = res?.data?.user ?? res?.user ?? res;
+            if (user?.id) derivedUserId = user.id;
+          }
+        } catch (e) {
+          console.warn('[webhook/razorpay] email lookup on update failed', e);
+        }
+
+        if (!derivedUserId) {
+          try {
+            const { data: profile, error: profileErr } = await admin
+              .from('profiles')
+              .select('id')
+              .eq('email', possibleEmail)
+              .maybeSingle();
+            if (profile && (profile as any).id) {
+              derivedUserId = (profile as any).id;
+              console.log('[webhook/razorpay] derived user from profiles.email on update', derivedUserId);
+            } else if (profileErr) {
+              console.warn('[webhook/razorpay] profiles lookup error (email) on update', profileErr);
+            }
+          } catch (pfErr) {
+            console.warn('[webhook/razorpay] profiles lookup exception (email) on update', pfErr);
+          }
+        }
+      }
+
+      if (!derivedUserId && possibleContact) {
+        try {
+          if (typeof (admin.auth as any).getUserByPhone === 'function') {
+            const res: any = await (admin.auth as any).getUserByPhone(possibleContact);
+            const user = res?.data?.user ?? res?.user ?? res;
+            if (user?.id) derivedUserId = user.id;
+          }
+        } catch (e) {
+          console.warn('[webhook/razorpay] phone auth lookup failed on update', e);
+        }
+
+        if (!derivedUserId) {
+          try {
+            const normalized = String(possibleContact).replace(/\D/g, '');
+            const { data: profileByPhone, error: profilePhoneErr } = await admin
+              .from('profiles')
+              .select('id')
+              .like('phone', `%${normalized}%`)
+              .maybeSingle();
+            if (profileByPhone && (profileByPhone as any).id) {
+              derivedUserId = (profileByPhone as any).id;
+              console.log('[webhook/razorpay] derived user from profiles.phone on update', derivedUserId);
+            } else if (profilePhoneErr) {
+              console.warn('[webhook/razorpay] profiles phone lookup error (phone) on update', profilePhoneErr);
+            }
+          } catch (pfErr2) {
+            console.warn('[webhook/razorpay] profiles phone lookup exception (phone) on update', pfErr2);
+          }
+        }
+      }
       const updates: any = {
         status: status === 'captured' || status === 'paid' || status === 'authorized' ? 'success' : status,
         razorpay_payment_id
       };
       if (amount !== null) updates.amount = amount;
+if (derivedUserId) updates.user_uid = derivedUserId;
 
       const { data, error } = await admin
         .from('orders')
