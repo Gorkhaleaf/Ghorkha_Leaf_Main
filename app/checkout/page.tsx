@@ -38,6 +38,7 @@ const CheckoutPage = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${(session as any).access_token}`,
         },
         body: JSON.stringify({
           amount: currentTotal * 100, // Convert to paise

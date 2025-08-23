@@ -87,10 +87,29 @@ export async function POST(req: NextRequest) {
                 const user = res?.data?.user ?? res?.user ?? res;
                 if (user?.id) derivedUserId = user.id;
               } else {
-                console.warn('[webhook/razorpay] admin.auth.getUserByEmail not available, skipping email lookup');
+                console.warn('[webhook/razorpay] admin.auth.getUserByEmail not available, skipping auth email lookup');
               }
             } catch (e) {
               console.warn('[webhook/razorpay] getUserByEmail failed', e);
+            }
+
+            // Fallback: try public.profiles table (many apps store email in profiles)
+            if (!derivedUserId) {
+              try {
+                const { data: profile, error: profileErr } = await admin
+                  .from('profiles')
+                  .select('id')
+                  .eq('email', possibleEmail)
+                  .maybeSingle();
+                if (profile && (profile as any).id) {
+                  derivedUserId = (profile as any).id;
+                  console.log('[webhook/razorpay] derived user from profiles.email', derivedUserId);
+                } else if (profileErr) {
+                  console.warn('[webhook/razorpay] profiles lookup error', profileErr);
+                }
+              } catch (pfErr) {
+                console.warn('[webhook/razorpay] profiles lookup exception', pfErr);
+              }
             }
           }
 
@@ -103,10 +122,30 @@ export async function POST(req: NextRequest) {
                 if (user?.id) derivedUserId = user.id;
               } else {
                 // some Supabase stacks might not expose phone lookup; skip quietly
-                console.warn('[webhook/razorpay] admin.auth.getUserByPhone not available, skipping phone lookup');
+                console.warn('[webhook/razorpay] admin.auth.getUserByPhone not available, skipping auth phone lookup');
               }
             } catch (e) {
               console.warn('[webhook/razorpay] getUserByPhone failed', e);
+            }
+
+            // Fallback: lookup profiles by phone/contact (normalize numbers)
+            if (!derivedUserId) {
+              try {
+                const normalized = String(possibleContact).replace(/\D/g, '');
+                const { data: profileByPhone, error: profilePhoneErr } = await admin
+                  .from('profiles')
+                  .select('id')
+                  .like('phone', `%${normalized}%`)
+                  .maybeSingle();
+                if (profileByPhone && (profileByPhone as any).id) {
+                  derivedUserId = (profileByPhone as any).id;
+                  console.log('[webhook/razorpay] derived user from profiles.phone', derivedUserId);
+                } else if (profilePhoneErr) {
+                  console.warn('[webhook/razorpay] profiles phone lookup error', profilePhoneErr);
+                }
+              } catch (pfErr2) {
+                console.warn('[webhook/razorpay] profiles phone lookup exception', pfErr2);
+              }
             }
           }
 
