@@ -45,12 +45,20 @@ export async function POST(req: NextRequest) {
 
     const admin = createAdminClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 
-    try {
-// Attempt to derive a user from payload so the update can set user_uid when possible
-      let derivedUserId: string | null = null;
-      const possibleEmail = entity.email || payload?.payload?.order?.entity?.email || payload?.payload?.customer?.email || null;
-      const possibleContact = entity.contact || payload?.payload?.order?.entity?.contact || payload?.payload?.customer?.contact || null;
+    // derive possible contact info
+    const possibleEmail = entity.email || payload?.payload?.order?.entity?.email || payload?.payload?.customer?.email || null;
+    const possibleContact = entity.contact || payload?.payload?.order?.entity?.contact || payload?.payload?.customer?.contact || null;
 
+    // build updates
+    const updatesBase: any = {
+      status: status === 'captured' || status === 'paid' || status === 'authorized' ? 'success' : status,
+      razorpay_payment_id
+    };
+    if (amount !== null) updatesBase.amount = amount;
+
+    // try to derive user uid (reuse existing logic)
+    let derivedUserId: string | null = null;
+    try {
       if (possibleEmail) {
         try {
           if (typeof (admin.auth as any).getUserByEmail === 'function') {
@@ -65,14 +73,9 @@ export async function POST(req: NextRequest) {
         } catch (e) {
           console.warn('[webhook/razorpay] email lookup on update failed', e);
         }
-
         if (!derivedUserId) {
           try {
-            const { data: profile, error: profileErr } = await admin
-              .from('profiles')
-              .select('id')
-              .eq('email', possibleEmail)
-              .maybeSingle();
+            const { data: profile, error: profileErr } = await admin.from('profiles').select('id').eq('email', possibleEmail).maybeSingle();
             if (profile && (profile as any).id) {
               derivedUserId = (profile as any).id;
               console.log('[webhook/razorpay] derived user from profiles.email on update', derivedUserId);
@@ -84,7 +87,6 @@ export async function POST(req: NextRequest) {
           }
         }
       }
-
       if (!derivedUserId && possibleContact) {
         try {
           if (typeof (admin.auth as any).getUserByPhone === 'function') {
@@ -95,15 +97,10 @@ export async function POST(req: NextRequest) {
         } catch (e) {
           console.warn('[webhook/razorpay] phone auth lookup failed on update', e);
         }
-
         if (!derivedUserId) {
           try {
             const normalized = String(possibleContact).replace(/\D/g, '');
-            const { data: profileByPhone, error: profilePhoneErr } = await admin
-              .from('profiles')
-              .select('id')
-              .like('phone', `%${normalized}%`)
-              .maybeSingle();
+            const { data: profileByPhone, error: profilePhoneErr } = await admin.from('profiles').select('id').like('phone', `%${normalized}%`).maybeSingle();
             if (profileByPhone && (profileByPhone as any).id) {
               derivedUserId = (profileByPhone as any).id;
               console.log('[webhook/razorpay] derived user from profiles.phone on update', derivedUserId);
@@ -115,152 +112,109 @@ export async function POST(req: NextRequest) {
           }
         }
       }
-      const updates: any = {
-        status: status === 'captured' || status === 'paid' || status === 'authorized' ? 'success' : status,
-        razorpay_payment_id
-      };
-      if (amount !== null) updates.amount = amount;
-if (derivedUserId) updates.user_uid = derivedUserId;
+    } catch (e) {
+      console.warn('[webhook/razorpay] user derivation failed', e);
+    }
 
-// Save customer contact info for phone-based lookups
+    // prepare updates object
+    const updates: any = { ...updatesBase };
+    if (derivedUserId) updates.user_uid = derivedUserId;
     if (possibleEmail) {
       updates.customer_email = possibleEmail;
-      updates.customer_email_canonical = String(possibleEmail).trim().toLowerCase();
+      try {
+        // Test whether the canonical column exists (PostgREST schema/cache may lag)
+        await admin.from('orders').select('customer_email_canonical').limit(1);
+        updates.customer_email_canonical = String(possibleEmail).trim().toLowerCase();
+      } catch (schemaErr) {
+        console.warn('[webhook/razorpay] orders.customer_email_canonical not present, skipping canonical field', schemaErr);
+      }
     }
     if (possibleContact) {
       updates.customer_phone = possibleContact;
       updates.customer_phone_normalized = String(possibleContact).replace(/\D/g, '');
     }
-      const { data, error } = await admin
-        .from('orders')
-        .update(updates)
-        .eq('razorpay_order_id', razorpay_order_id)
-        .select();
 
-      const rowsCount = Array.isArray(data as any) ? (data as any).length : (data ? 1 : 0);
-      console.log('[webhook/razorpay] updated orders:', { rows: rowsCount, error: error || null });
-
-      if (error) {
-        console.error('[webhook/razorpay] update error', error);
-        // If update failed due to constraint (e.g., NOT NULL on razorpay_payment_id), return error so migration can be applied.
-        return NextResponse.json({ error: 'DB update failed', details: error }, { status: 500 });
-      }
-
-      // If no rows updated, attempt to create a provisional order and try to associate with a user by email/contact
-      if (rowsCount === 0) {
+    // Attempt update; if schema/cache lacks canonical column (PGRST204), retry without it
+    let updateResult: any = null;
+    try {
+      const res = await admin.from('orders').update(updates).eq('razorpay_order_id', razorpay_order_id).select();
+      updateResult = res;
+    } catch (e: any) {
+      const msg = String(e || '');
+      console.error('[webhook/razorpay] update exception', e);
+      if (msg.includes('customer_email_canonical') || msg.includes("Could not find the 'customer_email_canonical' column") || String(e?.code) === 'PGRST204') {
+        console.warn('[webhook/razorpay] schema missing customer_email_canonical, retrying update without it');
+        delete updates.customer_email_canonical;
         try {
-          // Attempt to derive a user from payload (common fields: entity.email, entity.contact, payload.customer, payload.payment.entity)
-          let derivedUserId: string | null = null;
-          const possibleEmail = entity.email || payload?.payload?.order?.entity?.email || payload?.payload?.customer?.email || null;
-          const possibleContact = entity.contact || payload?.payload?.order?.entity?.contact || payload?.payload?.customer?.contact || null;
+          const res2 = await admin.from('orders').update(updates).eq('razorpay_order_id', razorpay_order_id).select();
+          updateResult = res2;
+        } catch (e2) {
+          console.error('[webhook/razorpay] update retry failed', e2);
+          return NextResponse.json({ error: 'DB update failed (retry)', details: String(e2) }, { status: 500 });
+        }
+      } else {
+        return NextResponse.json({ error: 'DB update failed', details: String(e) }, { status: 500 });
+      }
+    }
 
-          if (possibleEmail) {
-            try {
-              // Try common supabase admin auth methods to lookup user by email.
-              if (typeof (admin.auth as any).getUserByEmail === 'function') {
-                const res: any = await (admin.auth as any).getUserByEmail(possibleEmail);
-                const user = res?.data?.user ?? res?.user ?? res;
-                if (user?.id) derivedUserId = user.id;
-              } else if (typeof (admin.auth as any).admin?.getUserByEmail === 'function') {
-                const res: any = await (admin.auth as any).admin.getUserByEmail(possibleEmail);
-                const user = res?.data?.user ?? res?.user ?? res;
-                if (user?.id) derivedUserId = user.id;
-              } else {
-                console.warn('[webhook/razorpay] admin.auth.getUserByEmail not available, skipping auth email lookup');
-              }
-            } catch (e) {
-              console.warn('[webhook/razorpay] getUserByEmail failed', e);
-            }
+    const rowsCount = Array.isArray(updateResult?.data) ? updateResult.data.length : (updateResult?.data ? 1 : 0);
+    console.log('[webhook/razorpay] updated orders:', { rows: rowsCount, error: updateResult?.error || null });
 
-            // Fallback: try public.profiles table (many apps store email in profiles)
-            if (!derivedUserId) {
-              try {
-                const { data: profile, error: profileErr } = await admin
-                  .from('profiles')
-                  .select('id')
-                  .eq('email', possibleEmail)
-                  .maybeSingle();
-                if (profile && (profile as any).id) {
-                  derivedUserId = (profile as any).id;
-                  console.log('[webhook/razorpay] derived user from profiles.email', derivedUserId);
-                } else if (profileErr) {
-                  console.warn('[webhook/razorpay] profiles lookup error', profileErr);
-                }
-              } catch (pfErr) {
-                console.warn('[webhook/razorpay] profiles lookup exception', pfErr);
-              }
-            }
+    if (updateResult?.error) {
+      console.error('[webhook/razorpay] update error', updateResult.error);
+      return NextResponse.json({ error: 'DB update failed', details: updateResult.error }, { status: 500 });
+    }
+
+    // If no rows updated, create provisional order, similarly retry without canonical if needed
+    if (rowsCount === 0) {
+      const insertPayload: any = {
+        user_uid: derivedUserId,
+        amount: amount ?? null,
+        currency: (entity.currency || payload?.payload?.order?.entity?.currency) || null,
+        items: [],
+        razorpay_order_id,
+        razorpay_payment_id,
+        status: updatesBase.status || 'pending',
+        customer_email: possibleEmail ?? null,
+        customer_email_canonical: possibleEmail ? String(possibleEmail).trim().toLowerCase() : null
+      };
+
+      let insertResult: any = null;
+      try {
+        const resIns = await admin.from('orders').insert([insertPayload]).select();
+        insertResult = resIns;
+      } catch (ie: any) {
+        const msg = String(ie || '');
+        console.error('[webhook/razorpay] provisional insert exception (first attempt)', ie);
+        if (msg.includes('customer_email_canonical') || msg.includes("Could not find the 'customer_email_canonical' column") || String(ie?.code) === 'PGRST204') {
+          console.warn('[webhook/razorpay] schema missing customer_email_canonical, retrying provisional insert without it');
+          delete insertPayload.customer_email_canonical;
+          try {
+            const resIns2 = await admin.from('orders').insert([insertPayload]).select();
+            insertResult = resIns2;
+          } catch (ie2) {
+            console.error('[webhook/razorpay] provisional insert retry failed', ie2);
+            return NextResponse.json({ error: 'Provisional insert failed', details: String(ie2) }, { status: 500 });
           }
-
-          // Optionally try contact/phone lookup if email not found and method available
-          if (!derivedUserId && possibleContact) {
-            try {
-              if (typeof (admin.auth as any).getUserByPhone === 'function') {
-                const res: any = await (admin.auth as any).getUserByPhone(possibleContact);
-                const user = res?.data?.user ?? res?.user ?? res;
-                if (user?.id) derivedUserId = user.id;
-              } else {
-                // some Supabase stacks might not expose phone lookup; skip quietly
-                console.warn('[webhook/razorpay] admin.auth.getUserByPhone not available, skipping auth phone lookup');
-              }
-            } catch (e) {
-              console.warn('[webhook/razorpay] getUserByPhone failed', e);
-            }
-
-            // Fallback: lookup profiles by phone/contact (normalize numbers)
-            if (!derivedUserId) {
-              try {
-                const normalized = String(possibleContact).replace(/\D/g, '');
-                const { data: profileByPhone, error: profilePhoneErr } = await admin
-                  .from('profiles')
-                  .select('id')
-                  .like('phone', `%${normalized}%`)
-                  .maybeSingle();
-                if (profileByPhone && (profileByPhone as any).id) {
-                  derivedUserId = (profileByPhone as any).id;
-                  console.log('[webhook/razorpay] derived user from profiles.phone', derivedUserId);
-                } else if (profilePhoneErr) {
-                  console.warn('[webhook/razorpay] profiles phone lookup error', profilePhoneErr);
-                }
-              } catch (pfErr2) {
-                console.warn('[webhook/razorpay] profiles phone lookup exception', pfErr2);
-              }
-            }
-          }
-
-          const insertPayload: any = {
-            user_uid: derivedUserId,
-            amount: amount ?? null,
-            currency: (entity.currency || payload?.payload?.order?.entity?.currency) || null,
-            items: [],
-            razorpay_order_id,
-            razorpay_payment_id: razorpay_payment_id,
-            status: updates.status || 'pending'
-          };
-
-          const { data: inserted, error: insertErr } = await admin.from('orders').insert([insertPayload]).select();
-          const insertedCount = Array.isArray(inserted as any) ? (inserted as any).length : (inserted ? 1 : 0);
-          console.log('[webhook/razorpay] provisional order inserted by webhook:', { rows: insertedCount, error: insertErr || null, derivedUserId });
-
-          if (insertErr) {
-            console.error('[webhook/razorpay] provisional insert failed', insertErr);
-            return NextResponse.json({ error: 'Provisional insert failed', details: insertErr }, { status: 500 });
-          }
-
-          return NextResponse.json({ success: true, created: insertedCount, orders: inserted }, { status: 201 });
-        } catch (e) {
-          console.error('[webhook/razorpay] provisional insert exception', e);
-          return NextResponse.json({ error: 'Provisional insert exception' }, { status: 500 });
+        } else {
+          return NextResponse.json({ error: 'Provisional insert failed', details: String(ie) }, { status: 500 });
         }
       }
 
-      return NextResponse.json({ success: true, updated: rowsCount, orders: data }, { status: 200 });
-    } catch (e) {
-      console.error('[webhook/razorpay] processing failed', e);
-      return NextResponse.json({ error: 'Processing failed' }, { status: 500 });
+      const insertedCount = Array.isArray(insertResult?.data) ? insertResult.data.length : (insertResult?.data ? 1 : 0);
+      console.log('[webhook/razorpay] provisional order inserted by webhook:', { rows: insertedCount, error: insertResult?.error || null, derivedUserId });
+
+      if (insertResult?.error) {
+        console.error('[webhook/razorpay] provisional insert failed', insertResult.error);
+        return NextResponse.json({ error: 'Provisional insert failed', details: insertResult.error }, { status: 500 });
+      }
+
+      return NextResponse.json({ success: true, created: insertedCount, orders: insertResult.data }, { status: 201 });
     }
+
+    return NextResponse.json({ success: true, updated: rowsCount, orders: updateResult.data }, { status: 200 });
   } catch (e) {
-    console.error('[webhook/razorpay] unexpected error', e);
-    return NextResponse.json({ error: 'Bad Request' }, { status: 400 });
+    console.error('[webhook/razorpay] processing failed', e);
+    return NextResponse.json({ error: 'Processing failed', details: String(e) }, { status: 500 });
   }
 }
