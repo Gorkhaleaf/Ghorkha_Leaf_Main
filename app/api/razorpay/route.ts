@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
     // Always attempt to create a provisional pending order so webhook can reconcile
     try {
       const insertPayload: any = {
-        user_id: derivedUserId,
+        user_uid: derivedUserId,
         amount: amount,
         currency,
         items: items ?? [],

@@ -67,11 +67,51 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'DB update failed', details: error }, { status: 500 });
       }
 
-      // If no rows updated, attempt to create a provisional order so webhook can reconcile future events
+      // If no rows updated, attempt to create a provisional order and try to associate with a user by email/contact
       if (rowsCount === 0) {
         try {
+          // Attempt to derive a user from payload (common fields: entity.email, entity.contact, payload.customer, payload.payment.entity)
+          let derivedUserId: string | null = null;
+          const possibleEmail = entity.email || payload?.payload?.order?.entity?.email || payload?.payload?.customer?.email || null;
+          const possibleContact = entity.contact || payload?.payload?.order?.entity?.contact || payload?.payload?.customer?.contact || null;
+
+          if (possibleEmail) {
+            try {
+              // Try common supabase admin auth methods to lookup user by email.
+              if (typeof (admin.auth as any).getUserByEmail === 'function') {
+                const res: any = await (admin.auth as any).getUserByEmail(possibleEmail);
+                const user = res?.data?.user ?? res?.user ?? res;
+                if (user?.id) derivedUserId = user.id;
+              } else if (typeof (admin.auth as any).admin?.getUserByEmail === 'function') {
+                const res: any = await (admin.auth as any).admin.getUserByEmail(possibleEmail);
+                const user = res?.data?.user ?? res?.user ?? res;
+                if (user?.id) derivedUserId = user.id;
+              } else {
+                console.warn('[webhook/razorpay] admin.auth.getUserByEmail not available, skipping email lookup');
+              }
+            } catch (e) {
+              console.warn('[webhook/razorpay] getUserByEmail failed', e);
+            }
+          }
+
+          // Optionally try contact/phone lookup if email not found and method available
+          if (!derivedUserId && possibleContact) {
+            try {
+              if (typeof (admin.auth as any).getUserByPhone === 'function') {
+                const res: any = await (admin.auth as any).getUserByPhone(possibleContact);
+                const user = res?.data?.user ?? res?.user ?? res;
+                if (user?.id) derivedUserId = user.id;
+              } else {
+                // some Supabase stacks might not expose phone lookup; skip quietly
+                console.warn('[webhook/razorpay] admin.auth.getUserByPhone not available, skipping phone lookup');
+              }
+            } catch (e) {
+              console.warn('[webhook/razorpay] getUserByPhone failed', e);
+            }
+          }
+
           const insertPayload: any = {
-            user_id: null,
+            user_uid: derivedUserId,
             amount: amount ?? null,
             currency: (entity.currency || payload?.payload?.order?.entity?.currency) || null,
             items: [],
@@ -82,7 +122,7 @@ export async function POST(req: NextRequest) {
 
           const { data: inserted, error: insertErr } = await admin.from('orders').insert([insertPayload]).select();
           const insertedCount = Array.isArray(inserted as any) ? (inserted as any).length : (inserted ? 1 : 0);
-          console.log('[webhook/razorpay] provisional order inserted by webhook:', { rows: insertedCount, error: insertErr || null });
+          console.log('[webhook/razorpay] provisional order inserted by webhook:', { rows: insertedCount, error: insertErr || null, derivedUserId });
 
           if (insertErr) {
             console.error('[webhook/razorpay] provisional insert failed', insertErr);

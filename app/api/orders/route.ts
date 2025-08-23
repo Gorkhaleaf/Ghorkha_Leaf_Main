@@ -203,7 +203,7 @@ export async function POST(req: NextRequest) {
   try {
     // Ensure items saved as JSONB/JSON by passing the object directly
     const insertPayload = {
-      user_id: body.user_id,
+      user_uid: body.user_id,
       amount: body.amount,
       currency: body.currency,
       items: body.items ?? [],
@@ -213,7 +213,7 @@ export async function POST(req: NextRequest) {
       status: body?.status ?? 'success'
     };
 
-    console.log('[API /orders POST] inserting order (admin) user_id:', insertPayload.user_id, 'amount:', insertPayload.amount, 'itemsCount:', Array.isArray(insertPayload.items) ? insertPayload.items.length : undefined);
+    console.log('[API /orders POST] inserting order (admin) user_id:', insertPayload.user_uid, 'amount:', insertPayload.amount, 'itemsCount:', Array.isArray(insertPayload.items) ? insertPayload.items.length : undefined);
 
     const { data, error } = await admin
       .from('orders')
@@ -276,7 +276,7 @@ export async function GET(req: NextRequest) {
     const { data, error } = await admin
       .from('orders')
       .select('*')
-      .eq('user_id', session.user.id)
+      .eq('user_uid', session.user.id)
       .order('created_at', { ascending: false });
 
     const rowsCount = Array.isArray(data as any) ? (data as any).length : (data ? 1 : 0);
