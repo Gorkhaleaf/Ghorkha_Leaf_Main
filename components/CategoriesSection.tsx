@@ -50,11 +50,11 @@ const CategoriesSection = () => {
   }, [api]);
 
   return (
-    <section className="py-12 bg-background">
+    <section className="pt-6 pb-12 bg-white">
       <div className="container mx-auto px-4">
         <div className="text-center mb-10">
-          <h2 className="text-5xl font-bold mb-4" style={{ color: '#7d806a' }}>Our Collections</h2>
-          <p className="text-lg" style={{ color: '#7d806a' }}>
+          <h2 className="text-5xl font-bold mb-4 text-brand-green">Our Collections</h2>
+          <p className="text-lg text-brand-green">
             Discover a world of exquisite teas, each with a unique story and flavor.
           </p>
         </div>
@@ -92,10 +92,7 @@ const CategoriesSection = () => {
                         height={150}
                         className="rounded-full mb-2 object-cover h-[150px] w-[150px] shadow-lg"
                       />
-                      <h3
-                        className="font-semibold text-base"
-                        style={{ color: "#7d806a" }}
-                      >
+                      <h3 className="font-semibold text-base text-brand-green">
                         {category.name}
                       </h3>
                     </CardContent>

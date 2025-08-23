@@ -3,6 +3,15 @@ import type { Metadata } from "next"
 import { Inter, Playfair_Display, Gloock, Fira_Sans_Condensed, Philosopher } from "next/font/google"
 import "./globals.css"
 import { CartProvider } from "@/context/CartContext"
+import { LazyPromoModalProvider, initializeModalPerformance } from "@/components/promo-modal/LazyPromoModal"
+import { LenisProvider } from "@/components/LenisProvider"
+import { Toaster } from "@/components/ui/toaster"
+import Script from "next/script"
+
+// Initialize performance optimizations
+if (typeof window !== 'undefined') {
+  initializeModalPerformance()
+}
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
 const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair" })
@@ -80,7 +89,22 @@ export default function RootLayout({
       className={`${inter.variable} ${playfair.variable} ${gloock.variable} ${firaSansCondensed.variable} ${philosopher.variable}`}
     >
       <body className={inter.className}>
-        <CartProvider>{children}</CartProvider>
+        <LenisProvider>
+          <CartProvider>
+            <LazyPromoModalProvider
+              heroImageSrc="/teacup.jpg"
+              logoSrc="/logo.png"
+              couponCode="IDAY30"
+              campaignId="iday25"
+              variant="A"
+              autoTriggerDelay={2000}
+            >
+              {children}
+              <Toaster />
+            </LazyPromoModalProvider>
+          </CartProvider>
+        </LenisProvider>
+        <Script src="https://checkout.razorpay.com/v1/checkout.js" />
       </body>
     </html>
   );

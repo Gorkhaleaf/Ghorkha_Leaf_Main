@@ -66,7 +66,12 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const applyCoupon = (couponCode: string) => {
-    if (couponCode === 'GORKHA10') {
+    const validCoupons = {
+      'GORKHA10': 0.1,  // 10% discount
+      'IDAY30': 0.3     // 30% discount for Independence Day
+    };
+
+    if (validCoupons[couponCode as keyof typeof validCoupons]) {
       setCoupon(couponCode);
       setCouponError('');
     } else {
@@ -79,7 +84,15 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   const subtotal = cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
 
-  const discount = coupon === 'GORKHA10' ? subtotal * 0.1 : 0;
+  const getDiscountRate = (couponCode: string): number => {
+    const discountRates = {
+      'GORKHA10': 0.1,  // 10% discount
+      'IDAY30': 0.3     // 30% discount
+    };
+    return discountRates[couponCode as keyof typeof discountRates] || 0;
+  };
+
+  const discount = coupon ? subtotal * getDiscountRate(coupon) : 0;
 
   const totalPrice = subtotal - discount;
 

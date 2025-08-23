@@ -27,7 +27,7 @@ const config: Config = {
       },
       colors: {
         "brand-beige": "#fcf5ef",
-        "brand-green": "#7d806a",
+        "brand-green": "#166434",
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

@@ -1,0 +1,391 @@
+/**
+ * Promo Modal Custom Styles
+ * Provides enhanced styling and animations for the promo modal
+ */
+
+/* CSS Variables for Gorkha Leaf Brand Colors */
+:root {
+  --gl-green: #166434;
+  --gl-green-dark: #0f4a26;
+  --gl-beige: #fcf5ef;
+  --gl-orange: #FF7A00;
+  --gl-text: #1F2937;
+  --gl-text-light: #6B7280;
+  --gl-text-muted: #9CA3AF;
+  --gl-white: #FFFFFF;
+  --gl-black: #000000;
+  
+  /* Modal specific variables */
+  --modal-backdrop: rgba(17, 24, 39, 0.45);
+  --modal-shadow: 0 20px 60px rgba(0, 0, 0, 0.22);
+  --modal-border-radius: 16px;
+  --modal-max-width: 920px;
+  --modal-z-backdrop: 9990;
+  --modal-z-container: 9991;
+  --modal-z-close: 9992;
+  
+  /* Animation variables */
+  --modal-transition-duration: 220ms;
+  --modal-transition-easing: cubic-bezier(0.16, 1, 0.3, 1);
+  --backdrop-transition-duration: 180ms;
+}
+
+/* Modal Backdrop */
+.promo-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: var(--modal-backdrop);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: var(--modal-z-backdrop);
+  opacity: 0;
+  transition: opacity var(--backdrop-transition-duration) ease;
+}
+
+.promo-modal-backdrop--visible {
+  opacity: 1;
+}
+
+/* Modal Container */
+.promo-modal-container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -46%) scale(0.98);
+  width: min(92vw, var(--modal-max-width));
+  max-height: min(88vh, 760px);
+  min-width: 320px;
+  background: var(--gl-white);
+  border-radius: var(--modal-border-radius);
+  overflow: hidden;
+  box-shadow: var(--modal-shadow);
+  z-index: var(--modal-z-container);
+  opacity: 0;
+  transition: 
+    transform var(--modal-transition-duration) var(--modal-transition-easing),
+    opacity var(--modal-transition-duration) var(--modal-transition-easing);
+  
+  /* Grid layout */
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+}
+
+.promo-modal-container--visible {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+/* Mobile responsive layout */
+@media (max-width: 767px) {
+  .promo-modal-container {
+    grid-template-columns: 1fr;
+    width: min(94vw, 560px);
+  }
+}
+
+/* Modal Close Button */
+.promo-modal-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: var(--modal-z-close);
+  transition: all 0.15s ease;
+}
+
+.promo-modal-close:hover {
+  background: var(--gl-white);
+  transform: scale(1.05);
+}
+
+.promo-modal-close:focus-visible {
+  outline: 3px solid rgba(22, 100, 52, 0.4);
+  outline-offset: 2px;
+}
+
+/* Modal Media Pane */
+.promo-modal-media {
+  position: relative;
+  min-height: 260px;
+  background: var(--gl-beige);
+  overflow: hidden;
+}
+
+.promo-modal-media img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Optional gradient overlay for better text contrast */
+.promo-modal-media::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(22, 100, 52, 0.1) 0%,
+    rgba(252, 245, 239, 0.2) 100%
+  );
+  pointer-events: none;
+}
+
+/* Modal Content Pane */
+.promo-modal-content {
+  padding: clamp(20px, 3.5vw, 40px);
+  background: var(--gl-beige);
+  overflow-y: auto;
+  max-height: 88vh;
+}
+
+/* Typography Styles */
+.promo-modal-logo {
+  height: 28px;
+  width: auto;
+  margin-bottom: 16px;
+}
+
+.promo-modal-eyebrow {
+  font: 600 12px/1.2 system-ui;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gl-text);
+  margin-bottom: 6px;
+}
+
+.promo-modal-flat {
+  font: 600 13px/1.2 system-ui;
+  text-transform: uppercase;
+  color: var(--gl-text);
+  margin: 6px 0;
+}
+
+.promo-modal-discount {
+  font: 800 clamp(36px, 6vw, 48px)/1.05 system-ui;
+  color: #d97706; /* Using amber-600 equivalent */
+  margin: 6px 0 2px;
+  letter-spacing: -0.02em;
+}
+
+.promo-modal-sitewide {
+  font: 700 12px/1.2 system-ui;
+  text-transform: uppercase;
+  color: var(--gl-green);
+  margin-bottom: 14px;
+}
+
+.promo-modal-helper {
+  font: 400 16px/1.5 system-ui;
+  color: #374151; /* gray-700 equivalent */
+  margin: 12px 0 16px;
+}
+
+/* Form Styles */
+.promo-modal-form {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+  margin-top: 12px;
+}
+
+.promo-modal-input {
+  flex: 1 1 auto;
+  height: 48px;
+  padding: 0 14px;
+  border: 1px solid #D1D5DB;
+  border-radius: 10px;
+  font: 400 16px/1.2 system-ui;
+  color: #111827;
+  background: var(--gl-white);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.promo-modal-input:focus {
+  border-color: var(--gl-green);
+  outline: 2px solid rgba(22, 100, 52, 0.25);
+  outline-offset: 0;
+}
+
+.promo-modal-input--invalid {
+  border-color: #EF4444;
+}
+
+.promo-modal-input--invalid:focus {
+  border-color: #EF4444;
+  outline: 2px solid rgba(239, 68, 68, 0.25);
+}
+
+/* Button Styles */
+.promo-modal-btn-primary {
+  height: 48px;
+  padding: 0 18px;
+  background: var(--gl-green);
+  color: var(--gl-white);
+  border: none;
+  border-radius: 10px;
+  font: 600 15px/1 system-ui;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.05s ease;
+  white-space: nowrap;
+}
+
+.promo-modal-btn-primary:hover:not(:disabled) {
+  background: var(--gl-green-dark);
+}
+
+.promo-modal-btn-primary:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.promo-modal-btn-primary:disabled {
+  background: #9CA3AF;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.promo-modal-btn-secondary {
+  height: 48px;
+  padding: 0 16px;
+  background: #E5E7EB;
+  color: #111827;
+  border: none;
+  border-radius: 10px;
+  font: 600 15px/1 system-ui;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.promo-modal-btn-secondary:hover {
+  background: #D1D5DB;
+}
+
+/* Error Message */
+.promo-modal-error {
+  margin-top: 8px;
+  font: 600 12px/1.2 system-ui;
+  color: #B91C1C;
+}
+
+/* No Thanks Link */
+.promo-modal-no-thanks {
+  margin-top: 16px;
+  text-align: left;
+}
+
+.promo-modal-no-thanks button {
+  font: 400 14px/1.2 system-ui;
+  color: var(--gl-text-light);
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-decoration: underline;
+  transition: color 0.15s ease;
+}
+
+.promo-modal-no-thanks button:hover {
+  color: var(--gl-text);
+}
+
+/* Body scroll lock */
+.modal-open {
+  overflow: hidden !important;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .promo-modal-backdrop,
+  .promo-modal-container,
+  .promo-modal-close,
+  .promo-modal-input,
+  .promo-modal-btn-primary,
+  .promo-modal-btn-secondary {
+    transition: none !important;
+    animation: none !important;
+  }
+  
+  .promo-modal-container {
+    transform: translate(-50%, -50%) scale(1) !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .promo-modal-container {
+    border: 2px solid var(--gl-black);
+  }
+  
+  .promo-modal-input {
+    border-width: 2px;
+  }
+  
+  .promo-modal-btn-primary {
+    border: 2px solid var(--gl-black);
+  }
+}
+
+/* Focus visible styles for better accessibility */
+.promo-modal-input:focus-visible,
+.promo-modal-btn-primary:focus-visible,
+.promo-modal-btn-secondary:focus-visible {
+  outline: 3px solid rgba(22, 100, 52, 0.4);
+  outline-offset: 2px;
+}
+
+/* Loading state animation */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.promo-modal-loading {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* Success state styles */
+.promo-modal-success {
+  color: var(--gl-green);
+  font-weight: 600;
+}
+
+/* Mobile-specific adjustments */
+@media (max-width: 480px) {
+  .promo-modal-content {
+    padding: 20px;
+  }
+  
+  .promo-modal-form {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .promo-modal-discount {
+    font-size: clamp(28px, 8vw, 36px);
+  }
+}
+
+/* Print styles (hide modal when printing) */
+@media print {
+  .promo-modal-backdrop,
+  .promo-modal-container {
+    display: none !important;
+  }
+}
+
+/* Dark mode support (if needed in future) */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --modal-backdrop: rgba(0, 0, 0, 0.7);
+  }
+}

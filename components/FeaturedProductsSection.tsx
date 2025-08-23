@@ -11,8 +11,8 @@ const FeaturedProductsSection = () => {
       <div className="container mx-auto px-4">
         <div className="flex flex-col sm:flex-row sm:justify-between items-center mb-10">
           <div className="text-center sm:text-left mb-6 sm:mb-0">
-            <h2 className="text-2xl sm:text-3xl font-bold text-green-800 mb-4" style={{ color: '#888a77' }}>Our Products</h2>
-            <p className="text-sm sm:text-base text-green-600" style={{ color: '#888a77' }}>Handpicked selections from our premium collection</p>
+            <h2 className="text-5xl font-bold text-brand-green mb-4 pl-4">Our Products</h2>
+            <p className="text-lg text-brand-green pl-4">Handpicked selections from our premium collection</p>
           </div>
           <div className="flex items-center space-x-4">
             <Button variant="outline" size="sm" className="flex items-center space-x-2 bg-transparent">
@@ -45,8 +45,7 @@ const FeaturedProductsSection = () => {
         <div className="text-center mt-6">
           <Link href="/products">
             <Button
-              className="text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4"
-              style={{ backgroundColor: '#888a77', color: 'white' }}
+              className="text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 bg-brand-green hover:bg-brand-green/90 text-white"
             >
               View All Products
               <ArrowRight className="ml-2 h-5 w-5" />

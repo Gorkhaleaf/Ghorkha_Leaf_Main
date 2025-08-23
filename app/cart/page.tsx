@@ -4,11 +4,12 @@ import { useState } from "react"
 import { Header } from "@/components/Header"
 import Footer from "@/components/Footer"
 import Image from "next/image"
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button.tsx"
 import { Input } from "@/components/ui/input"
 import { Minus, Plus, X } from "lucide-react"
 import Link from "next/link"
 import { useCart } from "@/context/CartContext"
+import { toast } from "sonner"
 
 export default function CartPage() {
   const {
@@ -21,10 +22,87 @@ export default function CartPage() {
     couponError,
   } = useCart()
   const [couponCode, setCouponCode] = useState("")
+  const [loading, setLoading] = useState(false);
 
   const handleApplyCoupon = () => {
     applyCoupon(couponCode)
   }
+
+  const handlePayment = async () => {
+    if (totalPrice === 0) {
+      toast.error("Your cart is empty. Please add items to proceed.");
+      return;
+    }
+    setLoading(true);
+    try {
+      const response = await fetch('/api/razorpay', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          amount: totalPrice,
+          currency: 'INR',
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to create Razorpay order.");
+      }
+
+      const order = await response.json();
+
+      const options = {
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        amount: order.amount,
+        currency: order.currency,
+        name: 'Gorkha Leaf',
+        description: 'Tea Purchase',
+        order_id: order.id,
+        handler: async function (response: any) {
+          const res = await fetch('/api/razorpay', {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+            }),
+          });
+          const result = await res.json();
+          if (result.success) {
+            toast.success('Payment successful! Thank you for your order.');
+          } else {
+            toast.error('Payment verification failed. Please contact support.');
+          }
+        },
+        prefill: {
+          name: 'Gorkha Leaf Customer',
+          email: 'customer@example.com',
+          contact: '9999999999',
+        },
+        notes: {
+          address: 'Gorkha Leaf Corporate Office',
+        },
+        theme: {
+          color: '#047857',
+        },
+      };
+
+      const rzp = new (window as any).Razorpay(options);
+      rzp.on('payment.failed', function (response: any){
+        toast.error("Payment failed. Please try again or use a different payment method.");
+      });
+      rzp.open();
+    } catch (error) {
+      console.error('Payment failed:', error);
+      toast.error('An unexpected error occurred. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0)
 
@@ -125,8 +203,13 @@ export default function CartPage() {
                   {(totalPrice * 0.025).toFixed(2)} 2.5% SGST)
                 </p>
               </div>
-              <Button size="lg" className="w-full mt-6 bg-green-800 hover:bg-green-900">
-                PROCEED TO CHECKOUT
+              <Button
+                size="lg"
+                className="w-full mt-6 bg-green-800 hover:bg-green-900"
+                onClick={handlePayment}
+                disabled={loading || cartItems.length === 0}
+              >
+                {loading ? 'Processing...' : 'PROCEED TO CHECKOUT'}
               </Button>
               <div className="mt-6">
                 <h3 className="font-semibold mb-2">Coupon</h3>
@@ -149,11 +232,11 @@ export default function CartPage() {
               </p>
             </div>
             <div className="flex justify-center items-center space-x-4 mt-6">
-              <Image src="/placeholder.svg" alt="Visa" width={40} height={25} />
-              <Image src="/placeholder.svg" alt="Mastercard" width={40} height={25} />
-              <Image src="/placeholder.svg" alt="Rupay" width={40} height={25} />
-              <Image src="/placeholder.svg" alt="GPay" width={40} height={25} />
-              <Image src="/placeholder.svg" alt="Paytm" width={40} height={25} />
+              <Image src="https://cdn.iconscout.com/icon/free/png-256/free-visa-3-226460.png" alt="Visa" width={40} height={25} className="object-contain" />
+              <Image src="https://cdn.iconscout.com/icon/free/png-256/free-mastercard-3521564-2944982.png" alt="Mastercard" width={40} height={25} className="object-contain" />
+              <Image src="https://cdn.iconscout.com/icon/free/png-256/free-rupay-3521497-2944919.png" alt="Rupay" width={40} height={25} className="object-contain" />
+              <Image src="https://cdn.iconscout.com/icon/free/png-256/free-google-pay-2038779-1721670.png" alt="GPay" width={40} height={25} className="object-contain" />
+              <Image src="https://cdn.iconscout.com/icon/free/png-256/free-paytm-226444.png" alt="Paytm" width={40} height={25} className="object-contain" />
             </div>
           </div>
         </div>

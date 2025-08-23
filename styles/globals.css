@@ -1,8 +1,25 @@
+/* Prevent horizontal scroll and mask overflow for all screens */
+html, body {
+  overflow-x: hidden;
+  width: 100vw;
+}
+
+/* Hide scrollbars but allow scrolling (Chrome, Edge, Safari) */
+body::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+body {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 body {
+  color: #14532d;
   font-family: Arial, Helvetica, sans-serif;
 }
 
@@ -91,4 +108,49 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Marquee animation */
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-100%); }
+}
+
+.announcement-slider {
+  animation: marquee 45s linear infinite;
+  display: inline-block;
+  white-space: nowrap;
+}
+
+/* Pause animation on hover - optional */
+.announcement-bar:hover .announcement-slider {
+  animation-play-state: paused;
+}
+
+/* Lenis Smooth Scrolling */
+html.lenis, html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+/* Add to your globals.css */
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.spline-transparent-bg canvas {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+.spline-transparent-bg {
+  background: transparent !important;
+  background-color: transparent !important;
 }

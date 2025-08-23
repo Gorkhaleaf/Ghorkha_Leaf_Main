@@ -13,32 +13,54 @@ import {
 import Image from "next/image"
 import Link from "next/link"
 import { useCart } from "@/context/CartContext"
+import { AnnouncementBar } from "@/components/AnnouncementBar"
+import AuthModal from "./AuthModal/AuthModal"
+import { createClient } from '@/lib/supabase/client'
+import type { Session } from '@supabase/supabase-js'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 export function Header() {
   const { cartCount } = useCart()
-  const [isScrolled, setIsScrolled] = useState(false)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [session, setSession] = useState<Session | null>(null)
+  const supabase = createClient()
 
   useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 50) {
-        setIsScrolled(true)
-      } else {
-        setIsScrolled(false)
-      }
+    const getSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      setSession(session)
     }
+    getSession()
+    
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setSession(session)
+      }
+    )
 
-    window.addEventListener("scroll", handleScroll)
     return () => {
-      window.removeEventListener("scroll", handleScroll)
+      authListener.subscription.unsubscribe()
     }
   }, [])
 
+  const handleModalToggle = () => {
+    setIsModalOpen(!isModalOpen)
+  }
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+    setSession(null)
+  }
+
   return (
-    <header
-      className={`fixed top-0 left-0 w-full z-50 transition-colors duration-300 ${
-        isScrolled ? "bg-[#fbf6f0] text-black" : "bg-transparent text-black"
-      }`}
-    >
+    <div className="fixed top-0 left-0 w-full z-50">
+      <AnnouncementBar />
+      <header className="bg-white text-black shadow-sm">
       <div className="container mx-auto">
         {/* Main Header */}
         <div className={`flex items-center justify-between h-20 px-4`}>
@@ -58,52 +80,77 @@ export function Header() {
             </div>
             {/* Navigation Links */}
             <nav className="hidden md:flex items-center space-x-8">
-              <Link href="/" className="hover:bg-black hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+              <Link href="/" className="hover:bg-black hover:text-white px-3 py-2 rounded-md nav-link-moderate">
                 Home
               </Link>
-              <Link href="/products" className="hover:bg-black hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+              <Link href="/products" className="hover:bg-black hover:text-white px-3 py-2 rounded-md nav-link-moderate">
                 Products
               </Link>
-              <Link href="/our-story" className="hover:bg-black hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+              <Link href="/our-story" className="hover:bg-black hover:text-white px-3 py-2 rounded-md nav-link-moderate">
                 Our Story
               </Link>
-              <Link href="/contact-us" className="hover:bg-black hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+              <Link href="/blog" className="hover:bg-black hover:text-white px-3 py-2 rounded-md nav-link-moderate">
+                Blog
+              </Link>
+              <Link href="/contact-us" className="hover:bg-black hover:text-white px-3 py-2 rounded-md nav-link-moderate">
                 Contact Us
               </Link>
             </nav>
           </div>
           {/* Header Actions */}
           <div className="flex items-center space-x-4">
+            {session ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="flex items-center space-x-2 hover:bg-black hover:text-white transition-all duration-300"
+                  >
+                    <User className="h-5 w-5" />
+                    <span className="nav-action-moderate">My Account</span>
+                    <ChevronDown className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem asChild>
+                    <Link href="/account">Profile</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/account/orders">My Orders</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleLogout}>
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="flex items-center space-x-2 hover:bg-black hover:text-white transition-all duration-300"
+                onClick={handleModalToggle}
+              >
+                <User className="h-5 w-5" />
+                <span className="nav-action-moderate">Login</span>
+              </Button>
+            )}
             <Button
               variant="ghost"
               size="sm"
-              className={`flex items-center space-x-2 hover:bg-black hover:text-white transition-all duration-300 ${
-                !isScrolled ? "bg-white/20 backdrop-blur-sm" : ""
-              }`}
-            >
-              <User className="h-5 w-5" />
-              <span>Login</span>
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className={`flex items-center space-x-2 hover:bg-black hover:text-white transition-all duration-300 ${
-                !isScrolled ? "bg-white/20 backdrop-blur-sm" : ""
-              }`}
+              className="flex items-center space-x-2 hover:bg-black hover:text-white transition-all duration-300"
             >
               <Heart className="h-5 w-5" />
-              <span>Wishlist</span>
+              <span className="nav-action-moderate">Wishlist</span>
             </Button>
             <Link href="/cart">
               <Button
                 variant="ghost"
                 size="sm"
-                className={`flex items-center space-x-2 relative hover:bg-black hover:text-white transition-all duration-300 ${
-                  !isScrolled ? "bg-white/20 backdrop-blur-sm" : ""
-                }`}
+                className="flex items-center space-x-2 relative hover:bg-black hover:text-white transition-all duration-300"
               >
                 <ShoppingCart className="h-5 w-5" />
-                <span>Cart</span>
+                <span className="nav-action-moderate">Cart</span>
                 {cartCount > 0 && (
                   <Badge className="absolute -top-2 -right-2 bg-amber-600 text-white text-xs">
                     {cartCount}
@@ -114,6 +161,8 @@ export function Header() {
           </div>
         </div>
       </div>
-    </header>
+      </header>
+      {isModalOpen && <AuthModal onClose={handleModalToggle} />}
+    </div>
   )
 }

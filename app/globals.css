@@ -64,18 +64,14 @@
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
     font-family: 'Philosopher', sans-serif;
     color: #7D806A;
   }
 
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
+  h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-playfair);
   }
 
@@ -98,14 +94,13 @@
     @apply text-lg leading-8;
   }
 
-.line-clamp-2 {
+  .line-clamp-2 {
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
 }
-
 
 @layer utilities {
   .text-balance {
@@ -129,4 +124,147 @@
   ::-webkit-scrollbar-thumb:hover {
     background: #777a6b;
   }
+
+  /* Announcement Bar Scrolling Animation - Improved */
+  .announcement-bar {
+    position: relative;
+  }
+
+  .announcement-slider {
+    display: inline-block;
+    animation: scroll-smooth 80s linear infinite;
+    will-change: transform;
+  }
+
+  /* Buyer Announcement Bar Scrolling Animation - Improved */
+  .buyer-announcement-bar {
+    overflow: hidden;
+    position: relative;
+  }
+
+  .buyer-announcement-slider {
+    display: inline-block;
+    animation: scroll-smooth 800s linear infinite;
+    will-change: transform;
+  }
+
+  /* Hover pause effect */
+  .announcement-bar:hover .announcement-slider,
+  .buyer-announcement-bar:hover .buyer-announcement-slider {
+    animation-play-state: paused;
+  }
+
+  /* Smooth scrolling animation */
+  @keyframes scroll-smooth {
+    0% {
+      transform: translateX(0%);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+
+  /* Fade effects at edges */
+  .announcement-bar::before,
+  .announcement-bar::after,
+  .buyer-announcement-bar::before,
+  .buyer-announcement-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 50px;
+    z-index: 10;
+    pointer-events: none;
+  }
+
+  .announcement-bar::before,
+  .buyer-announcement-bar::before {
+    left: 0;
+    background: linear-gradient(to right, currentColor, transparent);
+  }
+
+  .announcement-bar::after,
+  .buyer-announcement-bar::after {
+    right: 0;
+    background: linear-gradient(to left, currentColor, transparent);
+  }
+
+  .announcement-bar::before,
+  .announcement-bar::after {
+    background: linear-gradient(to right, rgb(22, 163, 74), transparent);
+  }
+
+  .announcement-bar::after {
+    background: linear-gradient(to left, rgb(22, 163, 74), transparent);
+  }
+
+  .buyer-announcement-bar::before,
+  .buyer-announcement-bar::after {
+    background: linear-gradient(to right, #14532d, transparent);
+  }
+
+  .buyer-announcement-bar::after {
+    background: linear-gradient(to left, #14532d, transparent);
+  }
+}
+
+/* Nav link improvements - Moderate preset (18px, 0.8px letter-spacing) */
+.nav-link-moderate {
+  font-size: 18px;
+  letter-spacing: 0.8px;
+  font-weight: 400;
+  font-family: var(--font-playfair, "Playfair Display", serif);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  transition: letter-spacing 150ms ease, color 150ms ease, background-color 150ms ease;
+}
+
+/* Header action labels (Login / Wishlist / Cart) */
+.nav-action-moderate {
+  font-size: 18px;
+  letter-spacing: 0.8px;
+  font-weight: 400;
+  font-family: var(--font-playfair, "Playfair Display", serif);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Responsive tweaks */
+@media (max-width: 768px) {
+  .nav-link-moderate,
+  .nav-action-moderate {
+    font-size: 16px;
+    letter-spacing: 0.6px;
+  }
+}
+
+/* Reviews section: solid announcement green with a light white blur screen */
+.reviews-section-bg {
+  position: relative;
+  background-color: #16a34a;
+  background-image: none;
+  color: #ffffff;
+  overflow: hidden;
+}
+
+/* very mild white blur overlay (keeps shader visible but removes any black tint) */
+.reviews-section-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Ensure content inside the section stays above the background */
+.reviews-section-bg > .container,
+.reviews-section-bg .container {
+  position: relative;
+  z-index: 10;
 }

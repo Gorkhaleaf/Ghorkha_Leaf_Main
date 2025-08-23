@@ -1,0 +1,453 @@
+/* Added GIF badge and caption styles */
+/* GorkhaLeafCares.css */
+
+:root {
+  --glc-bg: #ffffff;
+  --glc-text: #2b2b2b;
+  --glc-muted: #646464;
+  --glc-brand: #7a5c2e;   /* earthy tea tone */
+  --glc-accent: #166434;  /* leaf green */
+  --glc-border: #e9e9e9;
+  --glc-radius: 28px;
+  --glc-maxw: 1200px;
+}
+
+.glc-section {
+  background: var(--glc-bg);
+  color: var(--glc-text);
+  padding: 56px 20px;
+}
+
+.glc-inner {
+  max-width: var(--glc-maxw);
+  margin: 0 auto;
+  display: grid;
+  gap: 28px;
+  align-items: center;
+}
+
+/* Layout: stack on mobile, two columns on >= 900px */
+@media (min-width: 900px) {
+  .glc-inner {
+    grid-template-columns: 1.05fr 1fr;
+    gap: 48px;
+  }
+}
+
+/* Left image with large curved mask similar to reference */
+.glc-figure {
+  margin: 0;
+  position: relative;
+  aspect-ratio: 16 / 11;
+  overflow: hidden;
+  /* Create a semi-oval top using border radius trick */
+  border-top-left-radius: 100% 70%;
+  border-top-right-radius: 100% 70%;
+  border-bottom-left-radius: var(--glc-radius);
+  border-bottom-right-radius: var(--glc-radius);
+  background: #f4f4f0;
+}
+
+.glc-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.02);
+  display: block;
+  filter: saturate(1.02);
+}
+
+/* Right content */
+.glc-content {
+  padding: 4px 4px 4px 4px;
+}
+
+.glc-kicker {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 12px;
+  color: var(--glc-muted);
+  margin: 0 0 8px;
+}
+
+.glc-heading {
+  font-size: clamp(26px, 3.2vw, 44px);
+  line-height: 1.15;
+  margin: 0 0 18px;
+  font-weight: 700;
+  color: var(--glc-accent);
+}
+
+.glc-brand {
+  color: var(--glc-accent);
+}
+
+.glc-subtle {
+  color: var(--glc-accent);
+}
+
+.glc-altlines p {
+  margin: 0 0 10px;
+  color: var(--glc-text);
+  font-size: 16px;
+}
+
+.glc-vision {
+  margin: 18px 0 14px;
+  border-left: 3px solid var(--glc-accent);
+  padding-left: 14px;
+}
+
+.glc-vision-intro {
+  margin: 0 0 6px;
+  color: var(--glc-muted);
+  font-size: 14px;
+}
+
+.glc-vision-line {
+  margin: 0;
+  font-weight: 500;
+}
+
+.glc-highlight {
+  color: var(--glc-accent);
+  font-weight: 700;
+}
+
+.glc-what-title {
+  margin: 22px 0 10px;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--glc-accent);
+}
+
+/* Impact list */
+.glc-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 14px;
+}
+
+.glc-item {
+  display: grid;
+  grid-template-columns: 36px 1fr;
+  gap: 12px;
+  padding: 14px 14px;
+  border: 1px solid var(--glc-border);
+  border-radius: 12px;
+  background: #fff;
+}
+
+.glc-icon {
+  font-size: 22px;
+  line-height: 1;
+  margin-top: 2px;
+}
+
+.glc-item-title {
+  font-weight: 700;
+  margin-bottom: 4px;
+  color: #383228;
+}
+
+.glc-item-text {
+  margin: 0;
+  color: var(--glc-muted);
+  font-size: 15px;
+}
+
+/* Badges row */
+.glc-badges {
+  margin-top: 18px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.glc-badge {
+  font-size: 12px;
+  padding: 6px 10px;
+  border: 1px dashed var(--glc-border);
+  border-radius: 999px;
+  color: var(--glc-muted);
+  background: #fff;
+}
+
+/* Subtle entrance animation */
+@media (prefers-reduced-motion: no-preference) {
+  .glc-figure, .glc-content {
+    opacity: 0;
+    transform: translateY(10px);
+    animation: glcFadeUp 600ms ease 60ms forwards;
+  }
+  .glc-content {
+    animation-delay: 120ms;
+  }
+}
+
+@keyframes glcFadeUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+/* Caption and GIF badge styles */
+.glc-figure-caption {
+  margin-top: 12px;
+  color: var(--glc-muted);
+  font-size: 14px;
+  line-height: 1.45;
+  max-width: 36rem;
+  padding: 12px 0 0;
+}
+
+/* Make the caption visually distinct on small screens */
+@media (max-width: 899px) {
+  .glc-figure-caption {
+    font-size: 13px;
+    max-width: 100%;
+    padding-left: 6px;
+    padding-right: 6px;
+  }
+}
+
+/* GIF badge styling */
+.glc-badge-gif {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid var(--glc-border);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--glc-muted);
+  min-width: 120px;
+}
+
+/* GIF image sizing and accessible fallbacks */
+.glc-badge-gif img {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 8px;
+  display: block;
+}
+
+/* Badge text */
+.glc-badge-gif span {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--glc-accent);
+}
+
+/* Layout tweak: allow badges to wrap nicely */
+.glc-badges {
+  margin-top: 18px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* Reduce GIF size on very small screens */
+@media (max-width: 420px) {
+  .glc-badge-gif img {
+    width: 48px;
+    height: 48px;
+  }
+  .glc-badge-gif {
+    min-width: 100px;
+    padding: 6px 8px;
+  }
+}
+/* Lift left image and badge icon styles */
+.glc-figure--lift {
+  transform: translateY(0);
+  transition: transform 220ms ease;
+}
+
+@media (min-width: 900px) {
+  .glc-inner {
+    align-items: start;
+  }
+
+  .glc-figure--lift {
+    transform: translateY(-24px); /* lift image to align with title */
+  }
+}
+
+/* Icon badge styling (inline SVG logos) */
+.glc-badge-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--glc-border);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--glc-muted);
+  min-width: 120px;
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+.glc-badge-icon svg {
+  width: 48px;
+  height: 48px;
+  display: block;
+}
+
+.glc-badge-icon span {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--glc-accent);
+}
+
+.glc-badge-icon:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+}
+
+/* Slight spacing tweak so caption doesn't collide when lifted */
+.glc-figure-caption {
+  margin-top: 10px;
+}
+/* Ensure left column stacks image + caption reliably */
+.glc-left {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Explicit caption variant placed under the image */
+.glc-figure-caption--below {
+  order: 2;
+  margin-top: 8px;
+  color: var(--glc-muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Ensure figure remains its mask but does not clip the caption */
+.glc-figure {
+  overflow: hidden; /* keep mask for image only */
+}
+
+/* On narrow screens keep spacing comfortable */
+@media (max-width: 899px) {
+  .glc-left {
+    gap: 10px;
+  }
+  .glc-figure-caption--below {
+    font-size: 13px;
+    padding: 0 6px;
+  }
+}
+/* Compact layout tweaks: keep title position, place long copy under image, and pull the right content up */
+.glc-section.compact, .glc-section {
+  padding: 36px 16px; /* slightly tighter vertical padding */
+}
+
+.glc-inner {
+  gap: 18px; /* tighter gap between columns */
+}
+
+/* Ensure right column content aligns to top and is compact */
+.glc-content {
+  padding: 0;
+  margin-top: 0;
+}
+
+/* Make heading slightly tighter */
+.glc-heading {
+  margin: 0 0 10px;
+}
+
+/* Reduce spacing for the intro paragraphs that appear under the title */
+.glc-altlines p {
+  margin: 0 0 8px;
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--glc-text);
+}
+
+/* Compact the vision block */
+.glc-vision {
+  margin: 12px 0 10px;
+  padding-left: 12px;
+  border-left-width: 3px;
+}
+
+/* Smaller section title for "What We're Building Toward" */
+.glc-what-title {
+  margin: 12px 0 8px;
+  font-size: 16px;
+}
+
+/* Tighter list items */
+.glc-list {
+  gap: 10px;
+}
+
+.glc-item {
+  padding: 10px 12px;
+}
+
+/* Make badges more compact */
+.glc-badges {
+  margin-top: 12px;
+  gap: 10px;
+}
+
+.glc-badge-icon {
+  min-width: 100px;
+  padding: 8px 10px;
+}
+
+.glc-badge-icon svg {
+  width: 40px;
+  height: 40px;
+}
+
+/* Caption placed below the image should be compact and visually set apart */
+.glc-figure-caption--below {
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--glc-muted);
+  max-width: 28rem;
+  margin-top: 8px;
+  opacity: 0.95;
+}
+
+/* On larger screens keep columns tight but aligned */
+@media (min-width: 900px) {
+  .glc-inner {
+    gap: 28px;
+  }
+
+  .glc-section {
+    padding: 44px 20px;
+  }
+
+  .glc-figure-caption--below {
+    max-width: 30rem;
+  }
+}
+
+/* Mobile-specific compacting */
+@media (max-width: 639px) {
+  .glc-section {
+    padding: 28px 12px;
+  }
+  .glc-heading {
+    font-size: clamp(20px, 5vw, 26px);
+  }
+  .glc-figure-caption--below {
+    font-size: 13px;
+    padding: 0 6px;
+    max-width: 100%;
+  }
+}
