@@ -90,22 +90,6 @@ export async function POST(req: NextRequest) {
     const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
     const admin = createAdminClient(url, serviceKey);
 
-    // Derive customer email from profiles when possible
-    let customerEmail: string | null = null;
-    let customerEmailCanonical: string | null = null;
-    try {
-      const { data: profileRow, error: profileErr } = await admin
-        .from('profiles')
-        .select('email')
-        .eq('id', userId)
-        .maybeSingle();
-      if (profileErr) console.warn('[debug/save-order] profile email lookup error', profileErr);
-      customerEmail = profileRow?.email ?? body?.customer_email ?? null;
-      customerEmailCanonical = customerEmail ? String(customerEmail).trim().toLowerCase() : null;
-    } catch (e) {
-      console.warn('[debug/save-order] profile lookup exception', e);
-    }
-
     const insertBody = {
       user_id: userId,
       amount: body?.amount,
@@ -113,22 +97,14 @@ export async function POST(req: NextRequest) {
       items: body?.items ?? [],
       razorpay_order_id: body?.razorpay_order_id,
       razorpay_payment_id: body?.razorpay_payment_id,
-      status: body?.status ?? 'success',
-      customer_email: customerEmail,
-      customer_email_canonical: customerEmailCanonical
+      status: body?.status ?? 'success'
     };
 
     try {
       const { data, error } = await admin.from('orders').insert([insertBody]).select();
       const rowsCount = Array.isArray(data as any) ? (data as any).length : (data ? 1 : 0);
       console.log('[debug/save-order] insert result:', { rows: rowsCount, error: error || null });
-      if (error) {
-        const code = (error as any)?.code ?? null;
-        if (String(error).toLowerCase().includes('foreign key') || code === '23503') {
-          console.error('[debug/save-order] FK violation on insert', { userId, customerEmail, razorpay_order_id: insertBody.razorpay_order_id, dbError: error });
-        }
-        throw error;
-      }
+      if (error) throw error;
       return NextResponse.json({ success: true, inserted: rowsCount, order: data }, { status: 200 });
     } catch (e) {
       console.error('[debug/save-order] insert failed:', e);

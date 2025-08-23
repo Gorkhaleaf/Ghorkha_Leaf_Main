@@ -202,21 +202,6 @@ export async function POST(req: NextRequest) {
 
   try {
     // Ensure items saved as JSONB/JSON by passing the object directly
-// Derive customer email from profiles when possible (populate canonicalized value)
-let customerEmail: string | null = null;
-let customerEmailCanonical: string | null = null;
-try {
-  const { data: profileRow, error: profileErr } = await admin
-    .from('profiles')
-    .select('email')
-    .eq('id', session.user.id)
-    .maybeSingle();
-  if (profileErr) console.warn('[API /orders POST] profile email lookup error', profileErr);
-  customerEmail = profileRow?.email ?? body?.customer_email ?? null;
-  customerEmailCanonical = customerEmail ? String(customerEmail).trim().toLowerCase() : null;
-} catch (e) {
-  console.warn('[API /orders POST] profile lookup exception', e);
-}
     const insertPayload = {
       user_uid: body.user_id,
       amount: body.amount,
@@ -225,9 +210,7 @@ try {
       razorpay_order_id: body.razorpay_order_id,
       razorpay_payment_id: body.razorpay_payment_id,
       razorpay_signature: body.razorpay_signature,
-      status: body?.status ?? 'success',
-      customer_email: customerEmail,
-      customer_email_canonical: customerEmailCanonical
+      status: body?.status ?? 'success'
     };
 
     console.log('[API /orders POST] inserting order (admin) user_id:', insertPayload.user_uid, 'amount:', insertPayload.amount, 'itemsCount:', Array.isArray(insertPayload.items) ? insertPayload.items.length : undefined);
