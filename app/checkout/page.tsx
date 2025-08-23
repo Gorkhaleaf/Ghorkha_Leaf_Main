@@ -33,7 +33,7 @@ const CheckoutPage = () => {
       const currentCart = [...cartItems];
       const currentTotal = totalPrice;
       
-      // Create Razorpay order on server
+      // Create Razorpay order on server — include items and user_id so server can pre-create pending order
       const response = await fetch('/api/razorpay', {
         method: 'POST',
         headers: {
@@ -42,44 +42,13 @@ const CheckoutPage = () => {
         body: JSON.stringify({
           amount: currentTotal * 100, // Convert to paise
           currency: 'INR',
+          items: currentCart,
+          user_id: session.user.id
         }),
       });
 
       const order = await response.json();
       console.log('Razorpay order created:', order);
-
-      // Pre-create a pending order in our DB mapped to the Razorpay order id.
-      // This guarantees a DB row exists even if the client handler fails.
-      try {
-        const preCreateBody = {
-          user_id: session.user.id,
-          amount: currentTotal,
-          currency: 'INR',
-          items: currentCart,
-          razorpay_order_id: order.id,
-          status: 'pending'
-        };
-
-        console.log('[Checkout][pre-create] creating pending order before opening Razorpay', { razorpay_order_id: order.id });
-
-        const preResp = await fetch('/api/orders', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${(session as any).access_token}`
-          },
-          credentials: 'include',
-          body: JSON.stringify(preCreateBody)
-        });
-
-        const preText = await preResp.text();
-        let preJson = null;
-        try { preJson = preText ? JSON.parse(preText) : null; } catch (e) { console.warn('[Checkout][pre-create] failed to parse pre-create response', e, preText); }
-
-        console.log('[Checkout][pre-create] response', preResp.status, preJson);
-      } catch (e) {
-        console.error('[Checkout][pre-create] failed to create pending order', e);
-      }
 
       const handlerCalled = { called: false };
 
