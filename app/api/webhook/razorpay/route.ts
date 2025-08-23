@@ -63,7 +63,37 @@ export async function POST(req: NextRequest) {
 
       if (error) {
         console.error('[webhook/razorpay] update error', error);
-        return NextResponse.json({ error: 'DB update failed' }, { status: 500 });
+        // If update failed due to constraint (e.g., NOT NULL on razorpay_payment_id), return error so migration can be applied.
+        return NextResponse.json({ error: 'DB update failed', details: error }, { status: 500 });
+      }
+
+      // If no rows updated, attempt to create a provisional order so webhook can reconcile future events
+      if (rowsCount === 0) {
+        try {
+          const insertPayload: any = {
+            user_id: null,
+            amount: amount ?? null,
+            currency: (entity.currency || payload?.payload?.order?.entity?.currency) || null,
+            items: [],
+            razorpay_order_id,
+            razorpay_payment_id: razorpay_payment_id,
+            status: updates.status || 'pending'
+          };
+
+          const { data: inserted, error: insertErr } = await admin.from('orders').insert([insertPayload]).select();
+          const insertedCount = Array.isArray(inserted as any) ? (inserted as any).length : (inserted ? 1 : 0);
+          console.log('[webhook/razorpay] provisional order inserted by webhook:', { rows: insertedCount, error: insertErr || null });
+
+          if (insertErr) {
+            console.error('[webhook/razorpay] provisional insert failed', insertErr);
+            return NextResponse.json({ error: 'Provisional insert failed', details: insertErr }, { status: 500 });
+          }
+
+          return NextResponse.json({ success: true, created: insertedCount, orders: inserted }, { status: 201 });
+        } catch (e) {
+          console.error('[webhook/razorpay] provisional insert exception', e);
+          return NextResponse.json({ error: 'Provisional insert exception' }, { status: 500 });
+        }
       }
 
       return NextResponse.json({ success: true, updated: rowsCount, orders: data }, { status: 200 });

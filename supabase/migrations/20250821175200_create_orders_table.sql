@@ -11,6 +11,6 @@ CREATE TABLE orders (
 );
 
 CREATE OR REPLACE VIEW user_orders AS
-SELECT id, amount, currency, items, status, created_at
+SELECT user_id, amount, currency, items, status, created_at
 FROM orders
 WHERE user_id = auth.uid();
