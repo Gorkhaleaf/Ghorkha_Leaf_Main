@@ -10,14 +10,17 @@ ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS phone_normalized text;
 ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS customer_email_canonical text;
 ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS customer_phone_normalized text;
 
--- Step 3: Create indexes for email_canonical
-CREATE UNIQUE INDEX CONCURRENTLY IF NOT EXISTS profiles_email_canonical_unique_idx
-  ON public.profiles (email_canonical)
-  WHERE email_canonical IS NOT NULL;
+-- Step 3: Create indexes for email_canonical (run these separately if needed)
+-- Note: CONCURRENTLY indexes cannot run in transaction blocks
+-- Run these commands separately in SQL Editor if the migration fails:
 
-CREATE INDEX CONCURRENTLY IF NOT EXISTS orders_customer_email_canonical_idx
-  ON public.orders (customer_email_canonical)
-  WHERE customer_email_canonical IS NOT NULL;
+-- CREATE UNIQUE INDEX IF NOT EXISTS profiles_email_canonical_unique_idx
+--   ON public.profiles (email_canonical)
+--   WHERE email_canonical IS NOT NULL;
+
+-- CREATE INDEX IF NOT EXISTS orders_customer_email_canonical_idx
+--   ON public.orders (customer_email_canonical)
+--   WHERE customer_email_canonical IS NOT NULL;
 
 -- Step 4: Populate canonical email columns
 UPDATE public.profiles
