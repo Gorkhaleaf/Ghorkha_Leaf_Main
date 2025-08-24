@@ -158,15 +158,142 @@
 }
 
 @media (max-width: 768px) {
+  .auth-modal-overlay {
+    padding: 10px;
+    align-items: flex-start;
+  }
+
   .auth-modal-container {
     flex-direction: column;
-    width: 90%;
+    width: 100%;
+    max-width: 400px;
     height: auto;
+    max-height: 90vh;
+    margin-top: 20px;
+    border-radius: 16px;
   }
+
   .auth-modal-left-panel {
     display: none;
   }
+
   .auth-modal-right-panel {
     width: 100%;
+    padding: 24px;
+    overflow-y: auto;
+    max-height: calc(90vh - 40px);
+  }
+
+  .close-button {
+    top: 12px;
+    right: 12px;
+    font-size: 20px;
+    padding: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .auth-modal-right-panel h2 {
+    font-size: 24px;
+    margin-bottom: 8px;
+    text-align: center;
+  }
+
+  .auth-modal-right-panel p {
+    font-size: 14px;
+    margin-bottom: 24px;
+    text-align: center;
+    line-height: 1.4;
+  }
+
+  .input-group {
+    margin-bottom: 16px;
+  }
+
+  .input-group input {
+    padding: 14px 14px 14px 44px;
+    font-size: 16px; /* Prevents zoom on iOS */
+    border-radius: 10px;
+    min-height: 48px; /* Better touch target */
+  }
+
+  .input-group .icon {
+    left: 14px;
+    width: 18px;
+    height: 18px;
+  }
+
+  .options {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+    margin-bottom: 24px;
+  }
+
+  .options label {
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .options input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+  }
+
+  .action-button {
+    padding: 16px;
+    font-size: 16px;
+    min-height: 48px;
+    border-radius: 10px;
+    margin-top: 8px;
+  }
+
+  .message {
+    font-size: 14px;
+    margin-top: 16px;
+    text-align: center;
+    line-height: 1.4;
+  }
+
+  .toggle-auth {
+    margin-top: 24px;
+    font-size: 14px;
+    text-align: center;
+  }
+
+  .toggle-auth p {
+    line-height: 1.4;
+  }
+}
+
+/* Extra small screens */
+@media (max-width: 480px) {
+  .auth-modal-container {
+    width: calc(100% - 20px);
+    margin: 10px;
+    border-radius: 12px;
+  }
+
+  .auth-modal-right-panel {
+    padding: 20px;
+  }
+
+  .auth-modal-right-panel h2 {
+    font-size: 22px;
+  }
+
+  .input-group input {
+    font-size: 16px;
+  }
+
+  .action-button {
+    font-size: 16px;
   }
 }

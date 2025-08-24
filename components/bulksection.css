@@ -1,0 +1,184 @@
+/* bulksection.css */
+.bulk-section-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 80px 20px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: #fdfcf8;
+}
+
+.bulk-content {
+  background: white;
+  padding: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.header-section {
+  text-align: center;
+  padding-bottom: 40px;
+}
+
+.main-title {
+  font-size: 2.8rem;
+  color: #b8860b;
+  margin: 0;
+  font-weight: 400;
+  letter-spacing: 1px;
+  font-family: 'Times New Roman', serif;
+}
+
+.content-body {
+  max-width: 800px;
+  margin: 0 auto;
+  line-height: 1.8;
+  color: #333;
+  font-size: 1rem;
+}
+
+.intro-paragraph {
+  margin-bottom: 24px;
+  text-align: justify;
+}
+
+.mission-statement {
+  margin-bottom: 32px;
+  text-align: justify;
+}
+
+.highlight-text {
+  font-weight: 600;
+  color: #2d5016;
+}
+
+.brand-highlight {
+  font-weight: 700;
+  color: #b8860b;
+}
+
+.initiatives-list {
+  margin: 32px 0;
+  padding-left: 0;
+}
+
+.initiative-item {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 16px;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.initiative-icon {
+  margin-right: 12px;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.timeline-highlight {
+  background-color: #f8f6f0;
+  padding: 20px;
+  border-left: 3px solid #b8860b;
+  margin: 32px 0;
+  font-style: italic;
+  color: #2d5016;
+}
+
+.contact-details {
+  margin: 40px 0 24px 0;
+  padding-left: 20px;
+}
+
+.contact-item {
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+}
+
+.contact-item strong {
+  font-weight: 600;
+  color: #2d5016;
+}
+
+.footer-contact {
+  margin-top: 32px;
+  font-size: 0.95rem;
+  text-align: justify;
+}
+
+.contact-link {
+  color: #b8860b;
+  text-decoration: underline;
+  font-weight: 500;
+}
+
+.contact-link:hover {
+  color: #2d5016;
+}
+
+.achievements-banner {
+  background: #2d5016;
+  color: white;
+  padding: 18px 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 60px;
+}
+
+.achievement-item {
+  font-size: 0.85rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.separator {
+  color: #b8860b;
+  font-weight: bold;
+  margin: 0 8px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .bulk-section-container {
+    padding: 60px 15px;
+  }
+
+  .main-title {
+    font-size: 2.2rem;
+  }
+
+  .content-body {
+    padding: 0 10px;
+  }
+
+  .contact-details {
+    padding-left: 10px;
+  }
+
+  .achievements-banner {
+    flex-direction: column;
+    text-align: center;
+    gap: 12px;
+  }
+
+  .separator {
+    display: none;
+  }
+
+  .initiative-item {
+    margin-bottom: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .main-title {
+    font-size: 1.8rem;
+  }
+
+  .intro-paragraph, .mission-statement, .footer-contact {
+    text-align: left;
+  }
+}

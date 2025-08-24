@@ -8,7 +8,9 @@ import Footer from "@/components/Footer"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Switch } from "@/components/ui/switch"
-import { ChevronDown, ChevronUp } from "lucide-react"
+import { ChevronDown, ChevronUp, Filter, X } from "lucide-react"
+import { useIsMobile } from "@/hooks/use-mobile"
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 
 interface FilterState {
   collections: string[]
@@ -79,26 +81,28 @@ function FilterSection({ title, options, selectedValues, onChange, isExpanded, o
 }
 
 export default function ProductsPage() {
-  const [filters, setFilters] = useState<FilterState>({
-    collections: [],
-    origin: [],
-    flavor: [],
-    qualities: [],
-    caffeine: [],
-    allergens: [],
-    organic: false
-  })
+   const isMobile = useIsMobile()
+   const [filters, setFilters] = useState<FilterState>({
+     collections: [],
+     origin: [],
+     flavor: [],
+     qualities: [],
+     caffeine: [],
+     allergens: [],
+     organic: false
+   })
 
-  const [expandedSections, setExpandedSections] = useState({
-    collections: true,
-    origin: false,
-    flavor: false,
-    qualities: false,
-    caffeine: false,
-    allergens: false
-  })
+   const [expandedSections, setExpandedSections] = useState({
+     collections: true,
+     origin: false,
+     flavor: false,
+     qualities: false,
+     caffeine: false,
+     allergens: false
+   })
 
-  const [sortBy, setSortBy] = useState("default")
+   const [sortBy, setSortBy] = useState("default")
+   const [isFilterOpen, setIsFilterOpen] = useState(false)
 
   const toggleSection = (section: keyof typeof expandedSections) => {
     setExpandedSections(prev => ({
@@ -186,24 +190,118 @@ export default function ProductsPage() {
     return filtered
   }, [filters, sortBy])
 
+  // Mobile Filter Drawer Component
+  const MobileFilterDrawer = () => (
+    <Sheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>
+      <SheetContent side="left" className="w-80 sm:w-96">
+        <SheetHeader>
+          <SheetTitle className="text-left uppercase tracking-wide">Filters</SheetTitle>
+        </SheetHeader>
+        <div className="mt-6 space-y-6 overflow-y-auto">
+          {/* Collections Filter */}
+          <FilterSection
+            title="COLLECTIONS"
+            options={filterOptions.collections}
+            selectedValues={filters.collections}
+            onChange={(values) => setFilters(prev => ({ ...prev, collections: values }))}
+            isExpanded={expandedSections.collections}
+            onToggle={() => toggleSection('collections')}
+          />
+
+          {/* Origin Filter */}
+          <FilterSection
+            title="ORIGIN"
+            options={filterOptions.origin}
+            selectedValues={filters.origin}
+            onChange={(values) => setFilters(prev => ({ ...prev, origin: values }))}
+            isExpanded={expandedSections.origin}
+            onToggle={() => toggleSection('origin')}
+          />
+
+          {/* Flavor Filter */}
+          <FilterSection
+            title="FLAVOR"
+            options={filterOptions.flavor}
+            selectedValues={filters.flavor}
+            onChange={(values) => setFilters(prev => ({ ...prev, flavor: values }))}
+            isExpanded={expandedSections.flavor}
+            onToggle={() => toggleSection('flavor')}
+          />
+
+          {/* Qualities Filter */}
+          <FilterSection
+            title="QUALITIES"
+            options={filterOptions.qualities}
+            selectedValues={filters.qualities}
+            onChange={(values) => setFilters(prev => ({ ...prev, qualities: values }))}
+            isExpanded={expandedSections.qualities}
+            onToggle={() => toggleSection('qualities')}
+          />
+
+          {/* Caffeine Filter */}
+          <FilterSection
+            title="CAFFEINE"
+            options={filterOptions.caffeine}
+            selectedValues={filters.caffeine}
+            onChange={(values) => setFilters(prev => ({ ...prev, caffeine: values }))}
+            isExpanded={expandedSections.caffeine}
+            onToggle={() => toggleSection('caffeine')}
+          />
+
+          {/* Allergens Filter */}
+          <FilterSection
+            title="ALLERGENS"
+            options={filterOptions.allergens}
+            selectedValues={filters.allergens}
+            onChange={(values) => setFilters(prev => ({ ...prev, allergens: values }))}
+            isExpanded={expandedSections.allergens}
+            onToggle={() => toggleSection('allergens')}
+          />
+
+          {/* Organic Toggle */}
+          <div className="border-b border-gray-200 pb-4">
+            <div className="flex items-center justify-between py-3">
+              <span className="font-medium text-base text-gray-900 uppercase tracking-wide">
+                ORGANIC
+              </span>
+              <Switch
+                checked={filters.organic}
+                onCheckedChange={(checked) => setFilters(prev => ({ ...prev, organic: checked }))}
+              />
+            </div>
+          </div>
+
+          <div className="pt-4">
+            <Button
+              onClick={() => setIsFilterOpen(false)}
+              className="w-full"
+            >
+              Apply Filters
+            </Button>
+          </div>
+        </div>
+      </SheetContent>
+    </Sheet>
+  )
+
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
       <Header />
-      
+
       {/* Spacer for fixed header */}
       <div className="h-32" />
 
       {/* Hero Section with Background Image */}
       <div
-        className="relative h-80 bg-cover bg-center bg-no-repeat"
+        className="relative h-48 sm:h-64 md:h-80 bg-cover bg-center bg-no-repeat"
         style={{
           backgroundImage: "url('/collection_section.jpeg')"
         }}
       >
         <div className="absolute inset-0 bg-black bg-opacity-40" />
         <div className="absolute inset-0 flex items-center justify-center">
-          <h1 className="text-white text-6xl font-bold uppercase tracking-wider">
+          <h1 className="text-white text-3xl sm:text-4xl md:text-6xl font-bold uppercase tracking-wider px-4 text-center">
             Products
           </h1>
         </div>
@@ -218,100 +316,193 @@ export default function ProductsPage() {
 
       {/* Main Content */}
       <div className="container mx-auto px-4 pb-12">
-        <div className="flex gap-8">
-          {/* Left Sidebar - Filters */}
-          <div className="w-64 flex-shrink-0">
-            <div className="space-y-6">
-              {/* Collections Filter */}
-              <FilterSection
-                title="COLLECTIONS"
-                options={filterOptions.collections}
-                selectedValues={filters.collections}
-                onChange={(values) => setFilters(prev => ({ ...prev, collections: values }))}
-                isExpanded={expandedSections.collections}
-                onToggle={() => toggleSection('collections')}
-              />
+        <div className="flex gap-4 md:gap-8">
+          {/* Desktop Sidebar - Filters */}
+          {!isMobile && (
+            <div className="w-64 flex-shrink-0">
+              <div className="space-y-6">
+                {/* Collections Filter */}
+                <FilterSection
+                  title="COLLECTIONS"
+                  options={filterOptions.collections}
+                  selectedValues={filters.collections}
+                  onChange={(values) => setFilters(prev => ({ ...prev, collections: values }))}
+                  isExpanded={expandedSections.collections}
+                  onToggle={() => toggleSection('collections')}
+                />
 
-              {/* Origin Filter */}
-              <FilterSection
-                title="ORIGIN"
-                options={filterOptions.origin}
-                selectedValues={filters.origin}
-                onChange={(values) => setFilters(prev => ({ ...prev, origin: values }))}
-                isExpanded={expandedSections.origin}
-                onToggle={() => toggleSection('origin')}
-              />
+                {/* Origin Filter */}
+                <FilterSection
+                  title="ORIGIN"
+                  options={filterOptions.origin}
+                  selectedValues={filters.origin}
+                  onChange={(values) => setFilters(prev => ({ ...prev, origin: values }))}
+                  isExpanded={expandedSections.origin}
+                  onToggle={() => toggleSection('origin')}
+                />
 
-              {/* Flavor Filter */}
-              <FilterSection
-                title="FLAVOR"
-                options={filterOptions.flavor}
-                selectedValues={filters.flavor}
-                onChange={(values) => setFilters(prev => ({ ...prev, flavor: values }))}
-                isExpanded={expandedSections.flavor}
-                onToggle={() => toggleSection('flavor')}
-              />
+                {/* Flavor Filter */}
+                <FilterSection
+                  title="FLAVOR"
+                  options={filterOptions.flavor}
+                  selectedValues={filters.flavor}
+                  onChange={(values) => setFilters(prev => ({ ...prev, flavor: values }))}
+                  isExpanded={expandedSections.flavor}
+                  onToggle={() => toggleSection('flavor')}
+                />
 
-              {/* Qualities Filter */}
-              <FilterSection
-                title="QUALITIES"
-                options={filterOptions.qualities}
-                selectedValues={filters.qualities}
-                onChange={(values) => setFilters(prev => ({ ...prev, qualities: values }))}
-                isExpanded={expandedSections.qualities}
-                onToggle={() => toggleSection('qualities')}
-              />
+                {/* Qualities Filter */}
+                <FilterSection
+                  title="QUALITIES"
+                  options={filterOptions.qualities}
+                  selectedValues={filters.qualities}
+                  onChange={(values) => setFilters(prev => ({ ...prev, qualities: values }))}
+                  isExpanded={expandedSections.qualities}
+                  onToggle={() => toggleSection('qualities')}
+                />
 
-              {/* Caffeine Filter */}
-              <FilterSection
-                title="CAFFEINE"
-                options={filterOptions.caffeine}
-                selectedValues={filters.caffeine}
-                onChange={(values) => setFilters(prev => ({ ...prev, caffeine: values }))}
-                isExpanded={expandedSections.caffeine}
-                onToggle={() => toggleSection('caffeine')}
-              />
+                {/* Caffeine Filter */}
+                <FilterSection
+                  title="CAFFEINE"
+                  options={filterOptions.caffeine}
+                  selectedValues={filters.caffeine}
+                  onChange={(values) => setFilters(prev => ({ ...prev, caffeine: values }))}
+                  isExpanded={expandedSections.caffeine}
+                  onToggle={() => toggleSection('caffeine')}
+                />
 
-              {/* Allergens Filter */}
-              <FilterSection
-                title="ALLERGENS"
-                options={filterOptions.allergens}
-                selectedValues={filters.allergens}
-                onChange={(values) => setFilters(prev => ({ ...prev, allergens: values }))}
-                isExpanded={expandedSections.allergens}
-                onToggle={() => toggleSection('allergens')}
-              />
+                {/* Allergens Filter */}
+                <FilterSection
+                  title="ALLERGENS"
+                  options={filterOptions.allergens}
+                  selectedValues={filters.allergens}
+                  onChange={(values) => setFilters(prev => ({ ...prev, allergens: values }))}
+                  isExpanded={expandedSections.allergens}
+                  onToggle={() => toggleSection('allergens')}
+                />
 
-              {/* Organic Toggle */}
-              <div className="border-b border-gray-200 pb-4">
-                <div className="flex items-center justify-between py-3">
-                  <span className="font-medium text-base text-gray-900 uppercase tracking-wide">
-                    ORGANIC
-                  </span>
-                  <Switch
-                    checked={filters.organic}
-                    onCheckedChange={(checked) => setFilters(prev => ({ ...prev, organic: checked }))}
-                  />
+                {/* Organic Toggle */}
+                <div className="border-b border-gray-200 pb-4">
+                  <div className="flex items-center justify-between py-3">
+                    <span className="font-medium text-base text-gray-900 uppercase tracking-wide">
+                      ORGANIC
+                    </span>
+                    <Switch
+                      checked={filters.organic}
+                      onCheckedChange={(checked) => setFilters(prev => ({ ...prev, organic: checked }))}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          )}
 
           {/* Right Content - Products */}
           <div className="flex-1">
-            {/* Sort Section */}
-            <div className="flex justify-between items-center mb-8">
-              <div className="text-sm text-gray-600">
-                Showing {filteredAndSortedProducts.length} of {products.length} products
-              </div>
+            {/* Mobile Filter Button and Sort Section */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
               <div className="flex items-center gap-4">
-                <span className="font-medium text-base text-gray-900 uppercase tracking-wide">
+                {isMobile && (
+                  <Sheet>
+                    <SheetTrigger asChild>
+                      <Button variant="outline" size="sm" className="flex items-center gap-2">
+                        <Filter className="h-4 w-4" />
+                        Filters
+                      </Button>
+                    </SheetTrigger>
+                    <SheetContent side="left" className="w-80">
+                      <SheetHeader>
+                        <SheetTitle className="text-left uppercase tracking-wide">Filters</SheetTitle>
+                      </SheetHeader>
+                      <div className="mt-6 space-y-6 overflow-y-auto">
+                        {/* Collections Filter */}
+                        <FilterSection
+                          title="COLLECTIONS"
+                          options={filterOptions.collections}
+                          selectedValues={filters.collections}
+                          onChange={(values) => setFilters(prev => ({ ...prev, collections: values }))}
+                          isExpanded={expandedSections.collections}
+                          onToggle={() => toggleSection('collections')}
+                        />
+
+                        {/* Origin Filter */}
+                        <FilterSection
+                          title="ORIGIN"
+                          options={filterOptions.origin}
+                          selectedValues={filters.origin}
+                          onChange={(values) => setFilters(prev => ({ ...prev, origin: values }))}
+                          isExpanded={expandedSections.origin}
+                          onToggle={() => toggleSection('origin')}
+                        />
+
+                        {/* Flavor Filter */}
+                        <FilterSection
+                          title="FLAVOR"
+                          options={filterOptions.flavor}
+                          selectedValues={filters.flavor}
+                          onChange={(values) => setFilters(prev => ({ ...prev, flavor: values }))}
+                          isExpanded={expandedSections.flavor}
+                          onToggle={() => toggleSection('flavor')}
+                        />
+
+                        {/* Qualities Filter */}
+                        <FilterSection
+                          title="QUALITIES"
+                          options={filterOptions.qualities}
+                          selectedValues={filters.qualities}
+                          onChange={(values) => setFilters(prev => ({ ...prev, qualities: values }))}
+                          isExpanded={expandedSections.qualities}
+                          onToggle={() => toggleSection('qualities')}
+                        />
+
+                        {/* Caffeine Filter */}
+                        <FilterSection
+                          title="CAFFEINE"
+                          options={filterOptions.caffeine}
+                          selectedValues={filters.caffeine}
+                          onChange={(values) => setFilters(prev => ({ ...prev, caffeine: values }))}
+                          isExpanded={expandedSections.caffeine}
+                          onToggle={() => toggleSection('caffeine')}
+                        />
+
+                        {/* Allergens Filter */}
+                        <FilterSection
+                          title="ALLERGENS"
+                          options={filterOptions.allergens}
+                          selectedValues={filters.allergens}
+                          onChange={(values) => setFilters(prev => ({ ...prev, allergens: values }))}
+                          isExpanded={expandedSections.allergens}
+                          onToggle={() => toggleSection('allergens')}
+                        />
+
+                        {/* Organic Toggle */}
+                        <div className="border-b border-gray-200 pb-4">
+                          <div className="flex items-center justify-between py-3">
+                            <span className="font-medium text-base text-gray-900 uppercase tracking-wide">
+                              ORGANIC
+                            </span>
+                            <Switch
+                              checked={filters.organic}
+                              onCheckedChange={(checked) => setFilters(prev => ({ ...prev, organic: checked }))}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </SheetContent>
+                  </Sheet>
+                )}
+                <div className="text-sm text-gray-600">
+                  Showing {filteredAndSortedProducts.length} of {products.length} products
+                </div>
+              </div>
+              <div className="flex items-center gap-2 sm:gap-4 w-full sm:w-auto">
+                <span className="font-medium text-sm sm:text-base text-gray-900 uppercase tracking-wide whitespace-nowrap">
                   SORT BY
                 </span>
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
-                  className="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green"
+                  className="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green flex-1 sm:flex-none"
                 >
                   <option value="default">Default</option>
                   <option value="price-low">Price: Low to High</option>
@@ -323,7 +514,7 @@ export default function ProductsPage() {
 
             {/* Products Grid */}
             {filteredAndSortedProducts.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
                 {filteredAndSortedProducts.map(product => (
                   <ProductCard key={product.id} product={product} />
                 ))}

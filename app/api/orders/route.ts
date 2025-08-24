@@ -292,37 +292,79 @@ export async function POST(req: NextRequest) {
       isValidPhone: customerPhone && customerPhone !== '+919999999999'
     });
 
-    // Ensure items saved as JSONB/JSON by passing the object directly
-    const insertPayload = {
-       amount: body.amount,
-       currency: body.currency,
-       items: body.items ?? [],
-       razorpay_order_id: body.razorpay_order_id,
-       razorpay_payment_id: body.razorpay_payment_id,
-       razorpay_signature: body.razorpay_signature,
-       status: body?.status ?? 'success',
-       // Populate customer fields from user profile or JWT
-       customer_email: customerEmail,
-       customer_phone: customerPhone
-     };
-
-    console.log('[API /orders POST] inserting order (admin) customer_email:', insertPayload.customer_email, 'customer_phone:', insertPayload.customer_phone, 'amount:', insertPayload.amount, 'itemsCount:', Array.isArray(insertPayload.items) ? insertPayload.items.length : undefined);
-    console.log('[API /orders POST] Full insert payload:', {
-      customer_email: insertPayload.customer_email,
-      customer_phone: insertPayload.customer_phone,
-      amount: insertPayload.amount,
-      status: insertPayload.status,
-      hasValidEmail: insertPayload.customer_email && insertPayload.customer_email !== 'customer@example.com',
-      hasValidPhone: insertPayload.customer_phone && insertPayload.customer_phone !== '+919999999999'
-    });
-
-    const { data, error } = await admin
+    // Check if order already exists by razorpay_order_id to prevent duplicates
+    const existingOrder = await admin
       .from('orders')
-      .insert([insertPayload])
-      .select(); // request inserted row(s) back
+      .select('*')
+      .eq('razorpay_order_id', body.razorpay_order_id)
+      .single();
 
-    const rowsCount = Array.isArray(data as any) ? (data as any).length : (data ? 1 : 0);
-    console.log('[API /orders POST] supabase insert result (admin):', { rows: rowsCount, error: error || null, inserted: data });
+    let data, error, rowsCount;
+
+    if (existingOrder.data) {
+      // Update existing order instead of creating duplicate
+      console.log('[API /orders POST] Found existing order, updating instead of creating duplicate');
+
+      const updatePayload = {
+        razorpay_payment_id: body.razorpay_payment_id,
+        razorpay_signature: body.razorpay_signature,
+        status: body?.status ?? 'success',
+        // Update customer fields if not already set
+        customer_email: existingOrder.data.customer_email || customerEmail,
+        customer_phone: existingOrder.data.customer_phone || customerPhone,
+        customer_email_canonical: existingOrder.data.customer_email_canonical || (customerEmail ? customerEmail : null),
+        customer_phone_normalized: existingOrder.data.customer_phone_normalized || (customerPhone ? String(customerPhone).replace(/\D/g, '') : null),
+        // Update user association if not already set
+        user_uid: existingOrder.data.user_uid || session.user.id,
+        user_id: existingOrder.data.user_id || session.user.id
+      };
+
+      const updateResult = await admin
+        .from('orders')
+        .update(updatePayload)
+        .eq('razorpay_order_id', body.razorpay_order_id)
+        .select();
+
+      data = updateResult.data;
+      error = updateResult.error;
+      rowsCount = Array.isArray(data as any) ? (data as any).length : (data ? 1 : 0);
+
+      console.log('[API /orders POST] supabase update result (admin):', { rows: rowsCount, error: error || null, updated: data });
+    } else {
+      // Create new order only if it doesn't exist
+      console.log('[API /orders POST] No existing order found, creating new order');
+
+      const insertPayload = {
+        amount: body.amount,
+        currency: body.currency,
+        items: body.items ?? [],
+        razorpay_order_id: body.razorpay_order_id,
+        razorpay_payment_id: body.razorpay_payment_id,
+        razorpay_signature: body.razorpay_signature,
+        status: body?.status ?? 'success',
+        // Populate customer fields from user profile or JWT
+        customer_email: customerEmail,
+        customer_phone: customerPhone,
+        customer_email_canonical: customerEmail,
+        customer_phone_normalized: customerPhone ? String(customerPhone).replace(/\D/g, '') : null,
+        // Set user association
+        user_uid: session.user.id,
+        user_id: session.user.id
+      };
+
+      console.log('[API /orders POST] inserting order (admin) customer_email:', insertPayload.customer_email, 'customer_phone:', insertPayload.customer_phone, 'amount:', insertPayload.amount, 'itemsCount:', Array.isArray(insertPayload.items) ? insertPayload.items.length : undefined);
+
+      const insertResult = await admin
+        .from('orders')
+        .insert([insertPayload])
+        .select();
+
+      data = insertResult.data;
+      error = insertResult.error;
+      rowsCount = Array.isArray(data as any) ? (data as any).length : (data ? 1 : 0);
+
+      console.log('[API /orders POST] supabase insert result (admin):', { rows: rowsCount, error: error || null, inserted: data });
+    }
 
     if (error) throw error;
 

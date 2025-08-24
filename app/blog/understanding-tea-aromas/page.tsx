@@ -2,6 +2,7 @@ import { Metadata } from 'next'
 import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowLeft } from 'lucide-react'
+import { Header } from '@/components/Header'
 
 export const metadata: Metadata = {
   title: 'Understanding Tea Aromas: From Garden to Cup - Gorkha Leaf',
@@ -11,7 +12,8 @@ export const metadata: Metadata = {
 export default function TeaAromasGuide() {
   return (
     <div className="min-h-screen bg-brand-beige">
-      <div className="container mx-auto px-4 py-16">
+      <Header />
+      <div className="container mx-auto px-4 py-16 pt-32">
         <div className="max-w-4xl mx-auto">
           <Link href="/blog" className="inline-flex items-center text-brand-green hover:text-brand-green/80 mb-6">
             <ArrowLeft className="mr-2 h-4 w-4" />

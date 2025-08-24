@@ -1,30 +1,34 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Inter, Playfair_Display, Gloock, Fira_Sans_Condensed, Philosopher } from "next/font/google"
+import { Inter, Playfair_Display } from "next/font/google"
 import "./globals.css"
 import { CartProvider } from "@/context/CartContext"
 import { LazyPromoModalProvider, initializeModalPerformance } from "@/components/promo-modal/LazyPromoModal"
 import { LenisProvider } from "@/components/LenisProvider"
 import { Toaster } from "@/components/ui/toaster"
 import Script from "next/script"
+import { Analytics } from "@vercel/analytics/react"
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 // Initialize performance optimizations
 if (typeof window !== 'undefined') {
   initializeModalPerformance()
 }
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
-const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair" })
-const gloock = Gloock({ subsets: ["latin"], weight: "400", variable: "--font-gloock" })
-const firaSansCondensed = Fira_Sans_Condensed({
+// Optimized font loading - only load essential fonts initially
+const inter = Inter({
   subsets: ["latin"],
-  weight: "700",
-  variable: "--font-fira-sans-condensed",
+  variable: "--font-inter",
+  display: 'swap', // Prevent layout shift
+  preload: true
 })
-const philosopher = Philosopher({
+
+// Load decorative fonts with fallback
+const playfair = Playfair_Display({
   subsets: ["latin"],
-  weight: "400",
-  variable: "--font-philosopher",
+  variable: "--font-playfair",
+  display: 'swap',
+  preload: false
 })
 
 export const metadata: Metadata = {
@@ -86,7 +90,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${playfair.variable} ${gloock.variable} ${firaSansCondensed.variable} ${philosopher.variable}`}
+      className={`${inter.variable} ${playfair.variable}`}
     >
       <body className={inter.className}>
         <LenisProvider>
@@ -105,6 +109,8 @@ export default function RootLayout({
           </CartProvider>
         </LenisProvider>
         <Script src="https://checkout.razorpay.com/v1/checkout.js" />
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );

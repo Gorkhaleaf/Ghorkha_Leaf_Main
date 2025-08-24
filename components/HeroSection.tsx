@@ -3,22 +3,46 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ArrowRight } from "lucide-react"
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useIsMobile } from "@/hooks/use-mobile"
 
-// SplineScene component
-const SplineScene = ({ scene, onLoad, onError }: { 
-  scene: string; 
+// Optimized SplineScene component with performance improvements
+const SplineScene = ({ scene, onLoad, onError }: {
+  scene: string;
   onLoad?: (splineApp: any) => void;
   onError?: (error: any) => void;
 }) => {
   const [Spline, setSpline] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // Intersection Observer for lazy loading
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!isVisible) return;
+
     const loadSpline = async () => {
       try {
+        // Dynamic import with error handling
         const splineModule = await import('@splinetool/react-spline');
         setSpline(() => splineModule.default);
         setLoading(false);
@@ -31,7 +55,22 @@ const SplineScene = ({ scene, onLoad, onError }: {
     };
 
     loadSpline();
-  }, [onError]);
+  }, [isVisible, onError]);
+
+  if (!isVisible) {
+    return (
+      <div ref={containerRef} className="w-full h-full flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="w-12 h-12 md:w-16 md:h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto">
+            <svg className="w-6 h-6 md:w-8 md:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <p className="text-white text-sm md:text-base font-medium">3D Model Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
@@ -60,7 +99,7 @@ const SplineScene = ({ scene, onLoad, onError }: {
   }
 
   return (
-    <Spline 
+    <Spline
       scene={scene}
       onLoad={onLoad}
       onError={onError}

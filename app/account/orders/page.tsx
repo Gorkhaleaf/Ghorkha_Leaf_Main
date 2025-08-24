@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { createClient } from '@/lib/supabase/client';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import Link from "next/link";
+import { Header } from "@/components/Header";
+import Footer from "@/components/Footer";
 
 interface Order {
   id: string;
@@ -91,48 +93,52 @@ export default function OrdersPage() {
   }
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-6">My Orders</h1>
-      
-      {orders.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-gray-500 mb-4">You haven't placed any orders yet.</p>
-          <Link href="/products" className="text-blue-600 hover:underline">
-            Browse products
-          </Link>
-        </div>
-      ) : (
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Order ID</TableHead>
-              <TableHead>Date</TableHead>
-              <TableHead>Items</TableHead>
-              <TableHead>Amount</TableHead>
-              <TableHead>Status</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {orders.map((order) => (
-              <TableRow key={order.id}>
-                <TableCell className="font-medium">{order.id.substring(0, 8)}...</TableCell>
-                <TableCell>{new Date(order.created_at).toLocaleDateString()}</TableCell>
-                <TableCell>{order.items.length} items</TableCell>
-                <TableCell>{order.amount} {order.currency}</TableCell>
-                <TableCell>
-                  <span className={`px-2 py-1 rounded-full text-xs ${
-                    order.status === 'success' ? 'bg-green-100 text-green-800' : 
-                    order.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 
-                    'bg-red-100 text-red-800'
-                  }`}>
-                    {order.status}
-                  </span>
-                </TableCell>
+    <div className="bg-white">
+      <Header />
+      <main className="container mx-auto px-4 py-12 pt-32">
+        <h1 className="text-2xl font-bold mb-6">My Orders</h1>
+
+        {orders.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-gray-500 mb-4">You haven't placed any orders yet.</p>
+            <Link href="/products" className="text-blue-600 hover:underline">
+              Browse products
+            </Link>
+          </div>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Order ID</TableHead>
+                <TableHead>Date</TableHead>
+                <TableHead>Items</TableHead>
+                <TableHead>Amount</TableHead>
+                <TableHead>Status</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      )}
+            </TableHeader>
+            <TableBody>
+              {orders.map((order) => (
+                <TableRow key={order.id}>
+                  <TableCell className="font-medium">{order.id.substring(0, 8)}...</TableCell>
+                  <TableCell>{new Date(order.created_at).toLocaleDateString()}</TableCell>
+                  <TableCell>{order.items.length} items</TableCell>
+                  <TableCell>{order.amount} {order.currency}</TableCell>
+                  <TableCell>
+                    <span className={`px-2 py-1 rounded-full text-xs ${
+                      order.status === 'success' ? 'bg-green-100 text-green-800' :
+                      order.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                      'bg-red-100 text-red-800'
+                    }`}>
+                      {order.status}
+                    </span>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
+      </main>
+      <Footer />
     </div>
   );
 }

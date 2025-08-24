@@ -2,9 +2,8 @@
 import { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { OurStoryHeader } from '@/components/OurStoryHeader'
+import { Header } from '@/components/Header'
 import { ScrollProgress } from '@/components/ScrollProgress'
-import { FloatingNav } from '@/components/FloatingNav'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { 
@@ -29,6 +28,7 @@ import {
   Eye
 } from 'lucide-react'
 import Gallery from '@/components/Gallery'
+import Footer from '@/components/Footer'
 import './our-story.css'
 
 // Animated Counter Component
@@ -139,7 +139,6 @@ function VideoPlayer({ src, poster }: { src: string, poster?: string }) {
 }
 
 export default function OurStory() {
-  const [email, setEmail] = useState('')
   const [showScrollTop, setShowScrollTop] = useState(false)
 
   const brandValues = [
@@ -198,8 +197,7 @@ export default function OurStory() {
   return (
     <div className="bg-white text-gray-800 font-sans overflow-x-hidden">
       <ScrollProgress />
-      <FloatingNav />
-      <OurStoryHeader />
+      <Header />
       
       {/* Breadcrumb Navigation */}
       <nav className="pt-32 pb-4 px-4 bg-gray-50">
@@ -529,60 +527,8 @@ export default function OurStory() {
 
       <Gallery />
 
-      {/* Newsletter Signup */}
-      <section id="newsletter" className="py-20 bg-gradient-to-r from-brand-green to-brand-green/80 text-white">
-        <div className="container mx-auto px-4">
-          <div className="max-w-2xl mx-auto text-center">
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              Stay Connected
-            </h2>
-            <p className="text-xl mb-8">
-              Subscribe to our newsletter for the latest updates and exclusive offers
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-              <Input
-                type="email"
-                placeholder="Enter your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="flex-1 bg-white/10 border-white/20 text-white placeholder:text-white/70"
-              />
-              <Button className="bg-white text-brand-green hover:bg-gray-100">
-                Subscribe
-                <Mail className="ml-2 w-4 h-4" />
-              </Button>
-            </div>
-          </div>
-        </div>
-      </section>
 
-      {/* Social Media Integration */}
-      <section className="py-12 bg-gray-900 text-white">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row items-center justify-between">
-            <div className="mb-6 md:mb-0">
-              <h3 className="text-2xl font-bold mb-2">Follow Our Journey</h3>
-              <p className="text-gray-400">Connect with us on social media</p>
-            </div>
-            
-            <div className="flex space-x-6">
-              <a href="#" className="hover:text-brand-green transition-colors">
-                <Facebook className="w-6 h-6" />
-              </a>
-              <a href="#" className="hover:text-brand-green transition-colors">
-                <Twitter className="w-6 h-6" />
-              </a>
-              <a href="#" className="hover:text-brand-green transition-colors">
-                <Instagram className="w-6 h-6" />
-              </a>
-              <a href="#" className="hover:text-brand-green transition-colors">
-                <Youtube className="w-6 h-6" />
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
+      <Footer />
 
       {/* Scroll to Top Button */}
       {showScrollTop && (

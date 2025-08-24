@@ -99,13 +99,14 @@ export async function POST(req: NextRequest) {
         updates.customer_phone_normalized = String(possibleContact).replace(/\D/g, '');
       }
 
-      const { data, error } = await admin
+      // First try to update existing order
+      let { data, error } = await admin
         .from('orders')
         .update(updates)
         .eq('razorpay_order_id', razorpay_order_id)
         .select();
 
-      const rowsCount = Array.isArray(data as any) ? (data as any).length : (data ? 1 : 0);
+      let rowsCount = Array.isArray(data as any) ? (data as any).length : (data ? 1 : 0);
       console.log('[webhook/razorpay] updated orders:', { rows: rowsCount, error: error || null });
 
       if (error) {
@@ -114,12 +115,37 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'DB update failed', details: error }, { status: 500 });
       }
 
-      // If no rows updated, log the issue but don't create duplicate orders
+      // If no rows updated, the order might not exist yet - create it
       if (rowsCount === 0) {
-        console.warn('[webhook/razorpay] No order found to update with razorpay_order_id:', razorpay_order_id);
-        console.log('[webhook/razorpay] This might be because the order was already processed by the frontend handler');
-        // Don't create a new order here - let the frontend handler manage it
-        return NextResponse.json({ success: true, message: 'Order already processed by frontend' }, { status: 200 });
+        console.log('[webhook/razorpay] No existing order found, creating new order from webhook');
+
+        // Create new order with available data
+        const createPayload = {
+          razorpay_order_id: razorpay_order_id,
+          razorpay_payment_id: razorpay_payment_id,
+          status: status === 'captured' || status === 'paid' || status === 'authorized' ? 'success' : status,
+          amount: amount,
+          currency: 'INR', // Default currency
+          items: [], // Will be populated by frontend if needed
+          customer_email: entity.email || null,
+          customer_phone: entity.contact || null,
+          customer_email_canonical: entity.email || null,
+          customer_phone_normalized: entity.contact ? String(entity.contact).replace(/\D/g, '') : null
+        };
+
+        const { data: newData, error: createError } = await admin
+          .from('orders')
+          .insert([createPayload])
+          .select();
+
+        if (createError) {
+          console.error('[webhook/razorpay] create error', createError);
+          return NextResponse.json({ error: 'DB create failed', details: createError }, { status: 500 });
+        }
+
+        data = newData;
+        rowsCount = Array.isArray(data as any) ? (data as any).length : (data ? 1 : 0);
+        console.log('[webhook/razorpay] created new order:', { rows: rowsCount, created: data });
       }
 
       return NextResponse.json({ success: true, updated: rowsCount, orders: data }, { status: 200 });

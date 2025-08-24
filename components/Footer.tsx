@@ -72,7 +72,6 @@ const Footer = () => {
                   Our Story
                 </Link>
               </li>
-
               <li>
                 <Link href="/blog" className="hover:text-white transition-colors">
                   Blog
@@ -87,6 +86,11 @@ const Footer = () => {
               <li>
                 <Link href="/contact-us" className="hover:text-white transition-colors">
                   Contact Us
+                </Link>
+              </li>
+              <li>
+                <Link href="/bulk-section" className="hover:text-white transition-colors">
+                  Bulk Order / Gifting
                 </Link>
               </li>
               <li>
