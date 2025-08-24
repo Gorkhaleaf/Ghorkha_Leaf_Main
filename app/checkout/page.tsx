@@ -7,25 +7,45 @@ import { useCart } from '@/context/CartContext';
 import type { Session } from '@supabase/supabase-js';
 
 const CheckoutPage = () => {
+  console.log('[Checkout] Component rendered');
+
   const [loading, setLoading] = useState(false);
   const [session, setSession] = useState<Session | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const supabase = createClient();
   const { cartItems, totalPrice } = useCart();
 
+  console.log('[Checkout] Cart items:', cartItems.length);
+  console.log('[Checkout] Total price:', totalPrice);
+
   useEffect(() => {
+    console.log('[Checkout] useEffect running');
     const getSession = async () => {
+      console.log('[Checkout] Getting session...');
       const { data: { session } } = await supabase.auth.getSession();
+      console.log('[Checkout] Session received:', !!session);
+      if (session) {
+        console.log('[Checkout] Session user:', session.user);
+        console.log('[Checkout] Session user email:', session.user.email);
+      }
       setSession(session);
     };
     getSession();
   }, []);
 
   const handlePayment = useCallback(async () => {
+    console.log('[Checkout] handlePayment called');
+    console.log('[Checkout] Session exists:', !!session);
+
     if (!session) {
+      console.log('[Checkout] No session, showing auth modal');
       setShowAuthModal(true);
       return;
     }
+
+    console.log('[Checkout] Session user:', session.user);
+    console.log('[Checkout] Session user ID:', session.user.id);
+    console.log('[Checkout] Session user email:', session.user.email);
 
     setLoading(true);
     try {
@@ -248,7 +268,10 @@ const CheckoutPage = () => {
           <span>₹{totalPrice.toFixed(2)}</span>
         </div>
         <button
-          onClick={handlePayment}
+          onClick={() => {
+            console.log('[Checkout] Pay button clicked');
+            handlePayment();
+          }}
           disabled={loading}
           className="w-full bg-blue-500 text-white py-2 rounded-lg mt-4 hover:bg-blue-600 disabled:bg-gray-400"
         >
