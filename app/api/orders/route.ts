@@ -212,6 +212,27 @@ export async function POST(req: NextRequest) {
       console.warn('[API /orders POST] Could not fetch user profile:', profileError);
     }
 
+    // Try to get user data from auth if profile is missing
+    let customerEmail = profile?.email || null;
+    let customerPhone = profile?.phone || null;
+
+    // Fallback: Get email from JWT token if profile doesn't have it
+    if (!customerEmail) {
+      try {
+        const authHeader = req.headers.get('authorization') || '';
+        const token = authHeader.replace('Bearer ', '').trim();
+        if (token) {
+          const payload = decodeJwtPayload(token);
+          if (payload?.email) {
+            customerEmail = payload.email;
+            console.log('[API /orders POST] Using email from JWT token:', customerEmail);
+          }
+        }
+      } catch (e) {
+        console.warn('[API /orders POST] Could not extract email from JWT:', e);
+      }
+    }
+
     // Ensure items saved as JSONB/JSON by passing the object directly
     const insertPayload = {
        amount: body.amount,
@@ -221,9 +242,9 @@ export async function POST(req: NextRequest) {
        razorpay_payment_id: body.razorpay_payment_id,
        razorpay_signature: body.razorpay_signature,
        status: body?.status ?? 'success',
-       // Populate customer fields from user profile
-       customer_email: profile?.email || null,
-       customer_phone: profile?.phone || null
+       // Populate customer fields from user profile or JWT
+       customer_email: customerEmail,
+       customer_phone: customerPhone
      };
 
     console.log('[API /orders POST] inserting order (admin) customer_email:', insertPayload.customer_email, 'amount:', insertPayload.amount, 'itemsCount:', Array.isArray(insertPayload.items) ? insertPayload.items.length : undefined);
@@ -292,16 +313,36 @@ export async function GET(req: NextRequest) {
       .eq('id', session.user.id)
       .single();
 
+    let userEmail = profile?.email || null;
+
     if (profileError) {
       console.warn('[API /orders GET] Could not fetch user profile:', profileError);
-      return NextResponse.json({ error: 'Could not fetch user profile' }, { status: 500 });
+      // Fallback: Try to get email from JWT token
+      try {
+        const authHeader = req.headers.get('authorization') || '';
+        const token = authHeader.replace('Bearer ', '').trim();
+        if (token) {
+          const payload = decodeJwtPayload(token);
+          if (payload?.email) {
+            userEmail = payload.email;
+            console.log('[API /orders GET] Using email from JWT token:', userEmail);
+          }
+        }
+      } catch (e) {
+        console.warn('[API /orders GET] Could not extract email from JWT:', e);
+      }
     }
 
-    console.log('[API /orders GET] querying orders for user email (admin):', profile?.email);
+    if (!userEmail) {
+      console.warn('[API /orders GET] No email found for user, returning empty array');
+      return NextResponse.json([], { status: 200 });
+    }
+
+    console.log('[API /orders GET] querying orders for user email (admin):', userEmail);
     const { data, error } = await admin
       .from('orders')
       .select('*')
-      .eq('customer_email', profile?.email)
+      .eq('customer_email', userEmail)
       .order('created_at', { ascending: false });
 
     const rowsCount = Array.isArray(data as any) ? (data as any).length : (data ? 1 : 0);
