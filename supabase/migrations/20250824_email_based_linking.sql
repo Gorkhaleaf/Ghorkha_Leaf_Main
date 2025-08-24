@@ -31,13 +31,14 @@ UPDATE public.orders
 SET customer_email_canonical = lower(trim(customer_email))
 WHERE customer_email IS NOT NULL AND (customer_email_canonical IS NULL OR customer_email_canonical = '');
 
--- Step 5: Add foreign key constraint from orders to profiles via email
-ALTER TABLE public.orders
-  ADD CONSTRAINT orders_customer_email_canonical_fkey
-  FOREIGN KEY (customer_email_canonical)
-  REFERENCES public.profiles(email_canonical)
-  ON UPDATE CASCADE
-  ON DELETE SET NULL;
+-- Step 5: Add foreign key constraint from orders to profiles via email (optional)
+-- Note: This constraint is optional and can be removed if it causes issues
+-- ALTER TABLE public.orders
+--   ADD CONSTRAINT orders_customer_email_canonical_fkey
+--   FOREIGN KEY (customer_email_canonical)
+--   REFERENCES public.profiles(email_canonical)
+--   ON UPDATE CASCADE
+--   ON DELETE SET NULL;
 
 -- Step 6: Add triggers to automatically populate canonical fields
 CREATE OR REPLACE FUNCTION public.handle_profile_email_canonical()
