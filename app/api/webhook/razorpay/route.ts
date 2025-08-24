@@ -113,19 +113,29 @@ export async function POST(req: NextRequest) {
            console.warn('[webhook/razorpay] phone auth lookup failed on update', e);
          }
        }
+      // First, check if order exists and get current customer data
+      const { data: existingOrder } = await admin
+        .from('orders')
+        .select('customer_email, customer_phone')
+        .eq('razorpay_order_id', razorpay_order_id)
+        .single();
+
       const updates: any = {
         status: status === 'captured' || status === 'paid' || status === 'authorized' ? 'success' : status,
         razorpay_payment_id
       };
       if (amount !== null) updates.amount = amount;
-if (derivedUserId) updates.user_uid = derivedUserId;
+      if (derivedUserId) updates.user_uid = derivedUserId;
 
-// Save customer contact info for phone-based lookups
-    if (possibleEmail) updates.customer_email = possibleEmail;
-    if (possibleContact) {
-      updates.customer_phone = possibleContact;
-      updates.customer_phone_normalized = String(possibleContact).replace(/\D/g, '');
-    }
+      // Save customer contact info for phone-based lookups - only if not already set
+      if (possibleEmail && (!existingOrder || !existingOrder.customer_email)) {
+        updates.customer_email = possibleEmail;
+      }
+      if (possibleContact && (!existingOrder || !existingOrder.customer_phone)) {
+        updates.customer_phone = possibleContact;
+        updates.customer_phone_normalized = String(possibleContact).replace(/\D/g, '');
+      }
+
       const { data, error } = await admin
         .from('orders')
         .update(updates)
@@ -224,7 +234,11 @@ if (derivedUserId) updates.user_uid = derivedUserId;
             items: [],
             razorpay_order_id,
             razorpay_payment_id: razorpay_payment_id,
-            status: updates.status || 'pending'
+            status: updates.status || 'pending',
+            // Only set customer data if we have real data, not sample data
+            customer_email: possibleEmail && possibleEmail !== 'customer@example.com' ? possibleEmail : null,
+            customer_phone: possibleContact && possibleContact !== '+919999999999' ? possibleContact : null,
+            customer_phone_normalized: possibleContact && possibleContact !== '+919999999999' ? String(possibleContact).replace(/\D/g, '') : null
           };
 
           const { data: inserted, error: insertErr } = await admin.from('orders').insert([insertPayload]).select();
