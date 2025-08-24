@@ -43,6 +43,25 @@ export async function POST(req: NextRequest) {
     const status = entity.status || payload?.event;
     const amount = typeof entity.amount === 'number' ? entity.amount / 100 : null;
 
+    // Log the incoming customer data from Razorpay
+    console.log('[webhook/razorpay] Razorpay customer data:', {
+      email: entity.email,
+      contact: entity.contact,
+      isSampleEmail: entity.email === 'customer@example.com',
+      isSamplePhone: entity.contact === '+919999999999'
+    });
+
+    // Reject sample data from Razorpay test mode
+    const isSampleData = entity.email === 'customer@example.com' ||
+                        entity.contact === '+919999999999';
+
+    if (isSampleData) {
+      console.log('[webhook/razorpay] Detected sample data from Razorpay test mode, skipping customer data update');
+      // Set these to null so they don't override real data
+      entity.email = null;
+      entity.contact = null;
+    }
+
     const admin = createAdminClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 
     try {
@@ -116,9 +135,16 @@ export async function POST(req: NextRequest) {
       // First, check if order exists and get current customer data
       const { data: existingOrder } = await admin
         .from('orders')
-        .select('customer_email, customer_phone')
+        .select('customer_email, customer_phone, user_uid')
         .eq('razorpay_order_id', razorpay_order_id)
         .single();
+
+      console.log('[webhook/razorpay] Existing order data:', {
+        orderId: razorpay_order_id,
+        existingEmail: existingOrder?.customer_email,
+        existingPhone: existingOrder?.customer_phone,
+        hasRealData: existingOrder?.customer_email && existingOrder?.customer_email !== 'customer@example.com'
+      });
 
       const updates: any = {
         status: status === 'captured' || status === 'paid' || status === 'authorized' ? 'success' : status,
@@ -156,6 +182,7 @@ export async function POST(req: NextRequest) {
         try {
           // Attempt to derive a user from payload (common fields: entity.email, entity.contact, payload.customer, payload.payment.entity)
           let derivedUserId: string | null = null;
+          // Use the cleaned entity data (sample data removed)
           const possibleEmail = entity.email || payload?.payload?.order?.entity?.email || payload?.payload?.customer?.email || null;
           const possibleContact = entity.contact || payload?.payload?.order?.entity?.contact || payload?.payload?.customer?.contact || null;
 

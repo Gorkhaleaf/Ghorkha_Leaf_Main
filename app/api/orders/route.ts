@@ -213,8 +213,21 @@ export async function POST(req: NextRequest) {
     }
 
     // Use customer data from request body if provided, otherwise fallback to profile/JWT
+    console.log('[API /orders POST] Customer data sources:', {
+      bodyEmail: body.customer_email,
+      bodyPhone: body.customer_phone,
+      profileEmail: profile?.email,
+      profilePhone: profile?.phone
+    });
+
     let customerEmail = body.customer_email || profile?.email || null;
     let customerPhone = body.customer_phone || profile?.phone || null;
+
+    console.log('[API /orders POST] Selected customer data:', {
+      customerEmail,
+      customerPhone,
+      source: body.customer_email ? 'request_body' : profile?.email ? 'profile' : 'none'
+    });
 
     // Fallback: Get email from JWT token if still no customer email
     if (!customerEmail) {
@@ -261,10 +274,22 @@ export async function POST(req: NextRequest) {
       // For now, we'll allow the order but log the issue
     }
 
-    console.log('[API /orders POST] Final customer data:', {
+    // Validate and reject sample data
+    if (customerEmail === 'customer@example.com') {
+      console.error('[API /orders POST] CRITICAL: Received sample email data:', customerEmail);
+      customerEmail = null;
+    }
+    if (customerPhone === '+919999999999') {
+      console.error('[API /orders POST] CRITICAL: Received sample phone data:', customerPhone);
+      customerPhone = null;
+    }
+
+    console.log('[API /orders POST] Final validated customer data:', {
       customerEmail,
       customerPhone,
-      source: body.customer_email ? 'request_body' : profile?.email ? 'profile' : 'jwt_fallback'
+      source: body.customer_email ? 'request_body' : profile?.email ? 'profile' : 'jwt_fallback',
+      isValidEmail: customerEmail && customerEmail !== 'customer@example.com',
+      isValidPhone: customerPhone && customerPhone !== '+919999999999'
     });
 
     // Ensure items saved as JSONB/JSON by passing the object directly
@@ -281,7 +306,15 @@ export async function POST(req: NextRequest) {
        customer_phone: customerPhone
      };
 
-    console.log('[API /orders POST] inserting order (admin) customer_email:', insertPayload.customer_email, 'amount:', insertPayload.amount, 'itemsCount:', Array.isArray(insertPayload.items) ? insertPayload.items.length : undefined);
+    console.log('[API /orders POST] inserting order (admin) customer_email:', insertPayload.customer_email, 'customer_phone:', insertPayload.customer_phone, 'amount:', insertPayload.amount, 'itemsCount:', Array.isArray(insertPayload.items) ? insertPayload.items.length : undefined);
+    console.log('[API /orders POST] Full insert payload:', {
+      customer_email: insertPayload.customer_email,
+      customer_phone: insertPayload.customer_phone,
+      amount: insertPayload.amount,
+      status: insertPayload.status,
+      hasValidEmail: insertPayload.customer_email && insertPayload.customer_email !== 'customer@example.com',
+      hasValidPhone: insertPayload.customer_phone && insertPayload.customer_phone !== '+919999999999'
+    });
 
     const { data, error } = await admin
       .from('orders')

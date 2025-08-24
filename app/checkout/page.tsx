@@ -30,15 +30,31 @@ const CheckoutPage = () => {
     setLoading(true);
     try {
       // Fetch user profile data to get real customer information
+      console.log('[Checkout] Fetching user profile for user ID:', session.user.id);
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('full_name, email, phone')
         .eq('id', session.user.id)
         .single();
 
+      console.log('[Checkout] Profile fetch result:', {
+        hasProfile: !!profile,
+        profileEmail: profile?.email,
+        profilePhone: profile?.phone,
+        error: profileError?.message
+      });
+
       if (profileError) {
-        console.warn('Could not fetch user profile:', profileError);
+        console.error('[Checkout] Could not fetch user profile:', profileError);
+        console.log('[Checkout] Will fallback to session user data');
       }
+
+      // Log session user data as fallback
+      console.log('[Checkout] Session user data:', {
+        sessionEmail: session.user.email,
+        sessionPhone: session.user.phone,
+        userMetadata: session.user.user_metadata
+      });
 
       // Capture current cart state
       const currentCart = [...cartItems];
@@ -79,6 +95,26 @@ const CheckoutPage = () => {
             console.log('Razorpay payment response:', response);
             console.log('[Checkout][handler] immediate handler entry', { maskedPaymentId: response?.razorpay_payment_id ? String(response.razorpay_payment_id).slice(0,8)+'...' : null });
 
+            // Prepare customer data with detailed logging
+            const customerEmail = profile?.email || session.user.email;
+            const customerPhone = profile?.phone || session.user.phone;
+
+            console.log('[Checkout] Prepared customer data:', {
+              customerEmail,
+              customerPhone,
+              source: profile?.email ? 'profile' : 'session',
+              isValidEmail: customerEmail && customerEmail !== 'customer@example.com',
+              isValidPhone: customerPhone && customerPhone !== '+919999999999'
+            });
+
+            // Validate customer data before sending
+            if (!customerEmail || customerEmail === 'customer@example.com') {
+              console.error('[Checkout] CRITICAL: Invalid or missing customer email:', customerEmail);
+            }
+            if (!customerPhone || customerPhone === '+919999999999') {
+              console.error('[Checkout] CRITICAL: Invalid or missing customer phone:', customerPhone);
+            }
+
             // Save order via API update (mark success). We send razorpay ids so webhook / server can reconcile.
             const saveBody = {
               user_id: session.user.id,
@@ -90,9 +126,14 @@ const CheckoutPage = () => {
               razorpay_signature: response.razorpay_signature,
               status: 'success',
               // Include customer information from profile
-              customer_email: profile?.email || session.user.email,
-              customer_phone: profile?.phone || session.user.phone
+              customer_email: customerEmail,
+              customer_phone: customerPhone
             };
+
+            console.log('[Checkout] Final saveBody customer data:', {
+              customer_email: saveBody.customer_email,
+              customer_phone: saveBody.customer_phone
+            });
 
             // Log what we're about to send (mask access token)
             const masked = (session as any).access_token ? `${String((session as any).access_token).slice(0,10)}...` : null;
@@ -149,8 +190,8 @@ const CheckoutPage = () => {
         },
         prefill: {
           name: profile?.full_name || session.user.user_metadata?.full_name || 'Customer',
-          email: profile?.email || session.user.email || 'customer@example.com',
-          contact: profile?.phone || session.user.phone || '+919999999999',
+          email: profile?.email || session.user.email || '',
+          contact: profile?.phone || session.user.phone || '',
         },
         theme: {
           color: '#3399cc',
