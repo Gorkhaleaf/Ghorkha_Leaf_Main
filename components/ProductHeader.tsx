@@ -1,6 +1,45 @@
+"use client";
+
 import Image from "next/image";
+import { useCart } from "@/context/CartContext";
+import { useState } from "react";
+import { Check } from "lucide-react";
 
 const ProductHeader = ({ product }: { product: any }) => {
+  const { addToCart } = useCart();
+  const [added, setAdded] = useState(false);
+  const [selectedQuantity, setSelectedQuantity] = useState(1);
+  const [selectedWeight, setSelectedWeight] = useState('100g');
+
+  const quantityOptions = [
+    { weight: '100g', multiplier: 1, quantity: 1 },
+    { weight: '250g', multiplier: 2.3, quantity: 1 },
+    { weight: '500g', multiplier: 4.2, quantity: 1 }
+  ];
+
+  const calculatePrice = () => {
+    const selectedOption = quantityOptions.find(option => option.weight === selectedWeight);
+    return selectedOption ? Math.round(product.price * selectedOption.multiplier) : product.price;
+  };
+
+  const handleQuantityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedOption = quantityOptions.find(option => option.weight === e.target.value);
+    if (selectedOption) {
+      setSelectedWeight(selectedOption.weight);
+      setSelectedQuantity(selectedOption.quantity);
+    }
+  };
+
+  const handleAddToCart = () => {
+    addToCart({
+      ...product,
+      quantity: selectedQuantity,
+      selectedWeight: selectedWeight,
+      calculatedPrice: calculatePrice()
+    });
+    setAdded(true);
+    setTimeout(() => setAdded(false), 2000);
+  };
   return (
     <div className="grid md:grid-cols-2 gap-8 mb-12">
       {/* Left: Product Image Gallery */}
@@ -36,24 +75,40 @@ const ProductHeader = ({ product }: { product: any }) => {
         <p className="text-gray-600 mb-4">{product.subtitle || product.subname}</p>
         
         <div className="pricing mb-6">
-          <span className="text-2xl font-bold text-green-600">₹{product.price}</span>
-          <span className="text-lg text-gray-500 line-through ml-3">₹{product.originalPrice}</span>
+          <span className="text-2xl font-bold text-green-600">₹{calculatePrice()}</span>
+          <span className="text-lg text-gray-500 line-through ml-3">₹{Math.round(product.originalPrice * (quantityOptions.find(opt => opt.weight === selectedWeight)?.multiplier || 1))}</span>
           <span className="bg-red-100 text-red-800 px-2 py-1 rounded ml-3 text-sm">
-            {Math.round((1 - product.price/product.originalPrice) * 100)}% OFF
+            {Math.round((1 - calculatePrice()/Math.round(product.originalPrice * (quantityOptions.find(opt => opt.weight === selectedWeight)?.multiplier || 1))) * 100)}% OFF
           </span>
         </div>
 
         <div className="quantity-selector mb-6">
           <label className="block mb-2">Quantity</label>
-          <select className="border rounded px-3 py-2">
-            <option>100g - ₹{product.price}</option>
-            <option>250g - ₹{Math.round(product.price * 2.3)}</option>
-            <option>500g - ₹{Math.round(product.price * 4.2)}</option>
+          <select
+            value={selectedWeight}
+            onChange={handleQuantityChange}
+            className="border rounded px-3 py-2 w-full"
+          >
+            {quantityOptions.map((option) => (
+              <option key={option.weight} value={option.weight}>
+                {option.weight} - ₹{Math.round(product.price * option.multiplier)}
+              </option>
+            ))}
           </select>
         </div>
 
-        <button className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors">
-          Add to Cart
+        <button
+          onClick={handleAddToCart}
+          className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors"
+        >
+          {added ? (
+            <div className="flex items-center justify-center">
+              <Check className="h-5 w-5 mr-2" />
+              Added to Cart
+            </div>
+          ) : (
+            "Add to Cart"
+          )}
         </button>
       </div>
     </div>

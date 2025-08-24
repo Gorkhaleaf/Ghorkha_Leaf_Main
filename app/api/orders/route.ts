@@ -201,6 +201,17 @@ export async function POST(req: NextRequest) {
   const admin = createAdminClient(url, serviceKey);
 
   try {
+    // Get user profile data to populate customer fields
+    const { data: profile, error: profileError } = await admin
+      .from('profiles')
+      .select('email, phone, full_name')
+      .eq('id', body.user_id)
+      .single();
+
+    if (profileError) {
+      console.warn('[API /orders POST] Could not fetch user profile:', profileError);
+    }
+
     // Ensure items saved as JSONB/JSON by passing the object directly
     const insertPayload = {
       user_uid: body.user_id,
@@ -210,7 +221,10 @@ export async function POST(req: NextRequest) {
       razorpay_order_id: body.razorpay_order_id,
       razorpay_payment_id: body.razorpay_payment_id,
       razorpay_signature: body.razorpay_signature,
-      status: body?.status ?? 'success'
+      status: body?.status ?? 'success',
+      // Populate customer fields from user profile
+      customer_email: profile?.email || null,
+      customer_phone: profile?.phone || null
     };
 
     console.log('[API /orders POST] inserting order (admin) user_id:', insertPayload.user_uid, 'amount:', insertPayload.amount, 'itemsCount:', Array.isArray(insertPayload.items) ? insertPayload.items.length : undefined);

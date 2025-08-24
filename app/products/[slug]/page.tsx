@@ -1,5 +1,6 @@
 import { products, Product } from "@/lib/products"
 import { Header } from "@/components/Header"
+import Footer from "@/components/Footer"
 import ProductHeader from "@/components/ProductHeader"
 import BrewingInstructions from "@/components/BrewingInstructions"
 import IngredientsSection from "@/components/IngredientsSection"
@@ -33,6 +34,7 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
         <RelatedProducts relatedProducts={product.relatedProducts || []} />
         <CustomerReviews reviews={product.reviews || []} />
       </main>
+      <Footer />
     </div>
   )
 }

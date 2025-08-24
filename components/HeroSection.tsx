@@ -4,6 +4,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ArrowRight } from "lucide-react"
 import { useEffect, useState } from 'react';
+import { useIsMobile } from "@/hooks/use-mobile"
 
 // SplineScene component
 const SplineScene = ({ scene, onLoad, onError }: { 
@@ -68,25 +69,52 @@ const SplineScene = ({ scene, onLoad, onError }: {
 };
 
 const HeroSection = () => {
-  const [mounted, setMounted] = useState(false);
-  const [windowHeight, setWindowHeight] = useState(0);
+   const [mounted, setMounted] = useState(false);
+   const [windowHeight, setWindowHeight] = useState(0);
+   const isMobile = useIsMobile();
 
-  useEffect(() => {
-    setMounted(true);
-    
-    setWindowHeight(window.innerHeight);
-    
-    const handleResize = () => {
-      setWindowHeight(window.innerHeight);
-    };
-    
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+   useEffect(() => {
+     setMounted(true);
+
+     // Use a more stable height calculation for mobile
+     const updateHeight = () => {
+       if (typeof window !== 'undefined') {
+         // Use 100vh for desktop, but cap at screen height for mobile to avoid issues
+         const vh = window.innerHeight * 0.01;
+         document.documentElement.style.setProperty('--vh', `${vh}px`);
+
+         if (isMobile) {
+           // For mobile, use a more stable approach
+           setWindowHeight(Math.min(window.innerHeight, window.screen.height));
+         } else {
+           setWindowHeight(window.innerHeight);
+         }
+       }
+     };
+
+     updateHeight();
+
+     const handleResize = () => {
+       updateHeight();
+     };
+
+     const handleOrientationChange = () => {
+       // Delay to allow for orientation change to complete
+       setTimeout(updateHeight, 100);
+     };
+
+     window.addEventListener('resize', handleResize);
+     window.addEventListener('orientationchange', handleOrientationChange);
+
+     return () => {
+       window.removeEventListener('resize', handleResize);
+       window.removeEventListener('orientationchange', handleOrientationChange);
+     };
+   }, [isMobile]);
 
   const handleSplineLoad = (splineApp: any) => {
     console.log('Spline loaded:', splineApp);
-    
+
     // Remove background
     if (splineApp?.scene) {
       splineApp.scene.background = null;
@@ -95,19 +123,26 @@ const HeroSection = () => {
       splineApp.renderer.setClearColor(0x000000, 0);
     }
 
-    // Try to slow down animations
+    // Optimize animations based on device
     if (splineApp?.scene) {
+      const animationSpeed = isMobile ? 0.05 : 0.1; // Slower on mobile for better performance
+
       splineApp.scene.traverse((child: any) => {
         if (child.mixer) {
-          child.mixer.timeScale = 0.1;
+          child.mixer.timeScale = animationSpeed;
         }
       });
 
       if (splineApp.mixers && splineApp.mixers.length > 0) {
         splineApp.mixers.forEach((mixer: any) => {
-          mixer.timeScale = 0.3;
+          mixer.timeScale = isMobile ? 0.1 : 0.3;
         });
       }
+    }
+
+    // Reduce quality on mobile for better performance
+    if (isMobile && splineApp?.renderer) {
+      splineApp.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     }
   };
 
@@ -116,11 +151,11 @@ const HeroSection = () => {
   };
 
   return (
-    <section 
+    <section
       className="relative w-full overflow-hidden m-0 p-0"
-      style={{ 
+      style={{
         height: windowHeight ? `${windowHeight}px` : '100vh',
-        minHeight: '100vh'
+        minHeight: isMobile ? '100svh' : '100vh' // Use small viewport height on mobile
       }}
     >
       {/* 3D Spline Model - Full background */}
@@ -133,31 +168,33 @@ const HeroSection = () => {
           />
         </div>
       )}
-      
-      {/* Content overlay - positioned in lower left with proper sizing */}
-      <div className="relative z-20 flex items-end justify-start h-full px-4 pb-8 lg:pb-12">
-        <div className="ml-4 lg:ml-8 xl:ml-12 mb-8 lg:mb-12">
-          <div className="max-w-2xl lg:max-w-3xl text-left">
-            {/* Main heading in 3 lines - properly sized */}
+
+      {/* Content overlay - desktop: bottom-left, mobile: centered */}
+      <div className={`relative z-20 flex items-end h-full px-4 pb-6 sm:pb-8 md:pb-12
+        ${isMobile ? 'justify-center' : 'justify-start'}`}>
+        <div className={`w-full max-w-4xl ${isMobile ? '' : 'ml-4 lg:ml-8 xl:ml-12'}`}>
+          <div className={`${isMobile ? 'max-w-sm mx-auto text-center' : 'max-w-2xl lg:max-w-3xl text-left'}`}>
+            {/* Main heading - responsive sizing */}
             <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold leading-tight tracking-[0.02em] font-philosopher text-white drop-shadow-2xl mb-4 lg:mb-6">
               <div className="block">Fresh from our</div>
               <div className="block">tea gardens to</div>
               <div className="block">your cup</div>
             </h1>
-            
-            {/* Offer text */}
+
+            {/* Offer text - responsive sizing */}
             <p className="text-xl sm:text-2xl md:text-3xl mb-6 lg:mb-8 text-white tracking-[0.12em] drop-shadow-xl">
               UPTO 32% OFF ON FIRST ORDER
             </p>
-            
-            {/* Shop Now button */}
+
+            {/* Shop Now button - desktop: normal, mobile: full width */}
             <Button
               asChild
               size="lg"
-              className="bg-brand-green hover:bg-brand-green/90 text-white text-base sm:text-lg px-6 sm:px-8 py-4 sm:py-6 shadow-2xl transition-all duration-300 hover:scale-105"
+              className={`bg-brand-green hover:bg-brand-green/90 text-white text-base sm:text-lg px-6 sm:px-8 py-4 sm:py-6 shadow-2xl transition-all duration-300 hover:scale-105
+                ${isMobile ? 'w-full max-w-xs mx-auto' : ''}`}
             >
-              <Link href="/products" className="inline-flex items-center">
-                Shop Now
+              <Link href="/products" className={`inline-flex items-center ${isMobile ? 'justify-center w-full' : ''}`}>
+                <span>Shop Now</span>
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
             </Button>

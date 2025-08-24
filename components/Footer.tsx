@@ -39,34 +39,22 @@ const Footer = () => {
             <h4 className="font-bold mb-4">Shop</h4>
             <ul className="space-y-2 text-sm text-green-200">
               <li>
-                <Link href="#" className="hover:text-white transition-colors">
+                <Link href="/products" className="hover:text-white transition-colors">
                   First Flush
                 </Link>
               </li>
               <li>
-                <Link href="#" className="hover:text-white transition-colors">
+                <Link href="/products" className="hover:text-white transition-colors">
                   Second Flush
                 </Link>
               </li>
               <li>
-                <Link href="#" className="hover:text-white transition-colors">
+                <Link href="/products" className="hover:text-white transition-colors">
                   Green Tea
                 </Link>
               </li>
               <li>
-                <Link href="#" className="hover:text-white transition-colors">
-                  White Tea
-                </Link>
-              </li>
-              <li>
-                <Link href="#" className="hover:text-white transition-colors">
-                  Gift Sets
-                </Link>
-              </li>
-              <li>
-                <Link href="#" className="hover:text-white transition-colors">
-                  Accessories
-                </Link>
+
               </li>
             </ul>
           </div>
@@ -75,7 +63,7 @@ const Footer = () => {
             <h4 className="font-bold mb-4">Information</h4>
             <ul className="space-y-2 text-sm text-green-200">
               <li>
-                <Link href="#" className="hover:text-white transition-colors">
+                <Link href="/our-story" className="hover:text-white transition-colors">
                   About Us
                 </Link>
               </li>
@@ -84,23 +72,9 @@ const Footer = () => {
                   Our Story
                 </Link>
               </li>
+
               <li>
-                <Link href="#" className="hover:text-white transition-colors">
-                  Tea Gardens
-                </Link>
-              </li>
-              <li>
-                <Link href="#" className="hover:text-white transition-colors">
-                  Quality
-                </Link>
-              </li>
-              <li>
-                <Link href="#" className="hover:text-white transition-colors">
-                  Sustainability
-                </Link>
-              </li>
-              <li>
-                <Link href="#" className="hover:text-white transition-colors">
+                <Link href="/blog" className="hover:text-white transition-colors">
                   Blog
                 </Link>
               </li>
@@ -125,16 +99,7 @@ const Footer = () => {
                   Returns & Refunds
                 </Link>
               </li>
-              <li>
-                <Link href="#" className="hover:text-white transition-colors">
-                  Track Order
-                </Link>
-              </li>
-              <li>
-                <Link href="#" className="hover:text-white transition-colors">
-                  FAQ
-                </Link>
-              </li>
+
               <li>
                 <Link href="/pricing-policy" className="hover:text-white transition-colors">
                   Pricing Policy

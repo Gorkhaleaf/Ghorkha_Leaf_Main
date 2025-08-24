@@ -26,13 +26,24 @@ const CheckoutPage = () => {
       setShowAuthModal(true);
       return;
     }
-    
+
     setLoading(true);
     try {
+      // Fetch user profile data to get real customer information
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('full_name, email, phone')
+        .eq('id', session.user.id)
+        .single();
+
+      if (profileError) {
+        console.warn('Could not fetch user profile:', profileError);
+      }
+
       // Capture current cart state
       const currentCart = [...cartItems];
       const currentTotal = totalPrice;
-      
+
       // Create Razorpay order on server — include items and user_id so server can pre-create pending order
       const response = await fetch('/api/razorpay', {
         method: 'POST',
@@ -134,9 +145,9 @@ const CheckoutPage = () => {
           }
         },
         prefill: {
-          name: 'Customer Name',
-          email: session.user.email || 'customer@example.com',
-          contact: '9999999999',
+          name: profile?.full_name || session.user.user_metadata?.full_name || 'Customer',
+          email: profile?.email || session.user.email || 'customer@example.com',
+          contact: profile?.phone || session.user.phone || '+919999999999',
         },
         theme: {
           color: '#3399cc',

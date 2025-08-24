@@ -47,74 +47,72 @@ export async function POST(req: NextRequest) {
 
     try {
 // Attempt to derive a user from payload so the update can set user_uid when possible
-      let derivedUserId: string | null = null;
-      const possibleEmail = entity.email || payload?.payload?.order?.entity?.email || payload?.payload?.customer?.email || null;
-      const possibleContact = entity.contact || payload?.payload?.order?.entity?.contact || payload?.payload?.customer?.contact || null;
+       let derivedUserId: string | null = null;
+       const possibleEmail = entity.email || payload?.payload?.order?.entity?.email || payload?.payload?.customer?.email || null;
+       const possibleContact = entity.contact || payload?.payload?.order?.entity?.contact || payload?.payload?.customer?.contact || null;
 
-      if (possibleEmail) {
-        try {
-          if (typeof (admin.auth as any).getUserByEmail === 'function') {
-            const res: any = await (admin.auth as any).getUserByEmail(possibleEmail);
-            const user = res?.data?.user ?? res?.user ?? res;
-            if (user?.id) derivedUserId = user.id;
-          } else if (typeof (admin.auth as any).admin?.getUserByEmail === 'function') {
-            const res: any = await (admin.auth as any).admin.getUserByEmail(possibleEmail);
-            const user = res?.data?.user ?? res?.user ?? res;
-            if (user?.id) derivedUserId = user.id;
-          }
-        } catch (e) {
-          console.warn('[webhook/razorpay] email lookup on update failed', e);
-        }
+       if (possibleEmail) {
+         try {
+           // First try to find user by email in profiles table (more reliable than auth lookup)
+           const { data: profile, error: profileErr } = await admin
+             .from('profiles')
+             .select('id')
+             .eq('email_canonical', possibleEmail.toLowerCase().trim())
+             .maybeSingle();
 
-        if (!derivedUserId) {
-          try {
-            const { data: profile, error: profileErr } = await admin
-              .from('profiles')
-              .select('id')
-              .eq('email', possibleEmail)
-              .maybeSingle();
-            if (profile && (profile as any).id) {
-              derivedUserId = (profile as any).id;
-              console.log('[webhook/razorpay] derived user from profiles.email on update', derivedUserId);
-            } else if (profileErr) {
-              console.warn('[webhook/razorpay] profiles lookup error (email) on update', profileErr);
-            }
-          } catch (pfErr) {
-            console.warn('[webhook/razorpay] profiles lookup exception (email) on update', pfErr);
-          }
-        }
-      }
+           if (profile && (profile as any).id) {
+             derivedUserId = (profile as any).id;
+             console.log('[webhook/razorpay] derived user from profiles.email_canonical on update', derivedUserId);
+           } else if (profileErr) {
+             console.warn('[webhook/razorpay] profiles lookup error (email) on update', profileErr);
+           }
 
-      if (!derivedUserId && possibleContact) {
-        try {
-          if (typeof (admin.auth as any).getUserByPhone === 'function') {
-            const res: any = await (admin.auth as any).getUserByPhone(possibleContact);
-            const user = res?.data?.user ?? res?.user ?? res;
-            if (user?.id) derivedUserId = user.id;
-          }
-        } catch (e) {
-          console.warn('[webhook/razorpay] phone auth lookup failed on update', e);
-        }
+           // Fallback to auth lookup if profile not found
+           if (!derivedUserId) {
+             if (typeof (admin.auth as any).getUserByEmail === 'function') {
+               const res: any = await (admin.auth as any).getUserByEmail(possibleEmail);
+               const user = res?.data?.user ?? res?.user ?? res;
+               if (user?.id) derivedUserId = user.id;
+             } else if (typeof (admin.auth as any).admin?.getUserByEmail === 'function') {
+               const res: any = await (admin.auth as any).admin.getUserByEmail(possibleEmail);
+               const user = res?.data?.user ?? res?.user ?? res;
+               if (user?.id) derivedUserId = user.id;
+             }
+           }
+         } catch (e) {
+           console.warn('[webhook/razorpay] email lookup on update failed', e);
+         }
+       }
 
-        if (!derivedUserId) {
-          try {
-            const normalized = String(possibleContact).replace(/\D/g, '');
-            const { data: profileByPhone, error: profilePhoneErr } = await admin
-              .from('profiles')
-              .select('id')
-              .like('phone', `%${normalized}%`)
-              .maybeSingle();
-            if (profileByPhone && (profileByPhone as any).id) {
-              derivedUserId = (profileByPhone as any).id;
-              console.log('[webhook/razorpay] derived user from profiles.phone on update', derivedUserId);
-            } else if (profilePhoneErr) {
-              console.warn('[webhook/razorpay] profiles phone lookup error (phone) on update', profilePhoneErr);
-            }
-          } catch (pfErr2) {
-            console.warn('[webhook/razorpay] profiles phone lookup exception (phone) on update', pfErr2);
-          }
-        }
-      }
+       if (!derivedUserId && possibleContact) {
+         try {
+           // Try to find user by phone in profiles table first
+           const normalized = String(possibleContact).replace(/\D/g, '');
+           const { data: profileByPhone, error: profilePhoneErr } = await admin
+             .from('profiles')
+             .select('id')
+             .eq('phone_normalized', normalized)
+             .maybeSingle();
+
+           if (profileByPhone && (profileByPhone as any).id) {
+             derivedUserId = (profileByPhone as any).id;
+             console.log('[webhook/razorpay] derived user from profiles.phone_normalized on update', derivedUserId);
+           } else if (profilePhoneErr) {
+             console.warn('[webhook/razorpay] profiles phone lookup error (phone) on update', profilePhoneErr);
+           }
+
+           // Fallback to auth lookup
+           if (!derivedUserId) {
+             if (typeof (admin.auth as any).getUserByPhone === 'function') {
+               const res: any = await (admin.auth as any).getUserByPhone(possibleContact);
+               const user = res?.data?.user ?? res?.user ?? res;
+               if (user?.id) derivedUserId = user.id;
+             }
+           }
+         } catch (e) {
+           console.warn('[webhook/razorpay] phone auth lookup failed on update', e);
+         }
+       }
       const updates: any = {
         status: status === 'captured' || status === 'paid' || status === 'authorized' ? 'success' : status,
         razorpay_payment_id
@@ -153,75 +151,69 @@ if (derivedUserId) updates.user_uid = derivedUserId;
 
           if (possibleEmail) {
             try {
-              // Try common supabase admin auth methods to lookup user by email.
-              if (typeof (admin.auth as any).getUserByEmail === 'function') {
-                const res: any = await (admin.auth as any).getUserByEmail(possibleEmail);
-                const user = res?.data?.user ?? res?.user ?? res;
-                if (user?.id) derivedUserId = user.id;
-              } else if (typeof (admin.auth as any).admin?.getUserByEmail === 'function') {
-                const res: any = await (admin.auth as any).admin.getUserByEmail(possibleEmail);
-                const user = res?.data?.user ?? res?.user ?? res;
-                if (user?.id) derivedUserId = user.id;
-              } else {
-                console.warn('[webhook/razorpay] admin.auth.getUserByEmail not available, skipping auth email lookup');
+              // First try profiles table with canonical email (more reliable)
+              const { data: profile, error: profileErr } = await admin
+                .from('profiles')
+                .select('id')
+                .eq('email_canonical', possibleEmail.toLowerCase().trim())
+                .maybeSingle();
+
+              if (profile && (profile as any).id) {
+                derivedUserId = (profile as any).id;
+                console.log('[webhook/razorpay] derived user from profiles.email_canonical', derivedUserId);
+              } else if (profileErr) {
+                console.warn('[webhook/razorpay] profiles lookup error', profileErr);
+              }
+
+              // Fallback to auth lookup
+              if (!derivedUserId) {
+                if (typeof (admin.auth as any).getUserByEmail === 'function') {
+                  const res: any = await (admin.auth as any).getUserByEmail(possibleEmail);
+                  const user = res?.data?.user ?? res?.user ?? res;
+                  if (user?.id) derivedUserId = user.id;
+                } else if (typeof (admin.auth as any).admin?.getUserByEmail === 'function') {
+                  const res: any = await (admin.auth as any).admin.getUserByEmail(possibleEmail);
+                  const user = res?.data?.user ?? res?.user ?? res;
+                  if (user?.id) derivedUserId = user.id;
+                } else {
+                  console.warn('[webhook/razorpay] admin.auth.getUserByEmail not available, skipping auth email lookup');
+                }
               }
             } catch (e) {
               console.warn('[webhook/razorpay] getUserByEmail failed', e);
             }
-
-            // Fallback: try public.profiles table (many apps store email in profiles)
-            if (!derivedUserId) {
-              try {
-                const { data: profile, error: profileErr } = await admin
-                  .from('profiles')
-                  .select('id')
-                  .eq('email', possibleEmail)
-                  .maybeSingle();
-                if (profile && (profile as any).id) {
-                  derivedUserId = (profile as any).id;
-                  console.log('[webhook/razorpay] derived user from profiles.email', derivedUserId);
-                } else if (profileErr) {
-                  console.warn('[webhook/razorpay] profiles lookup error', profileErr);
-                }
-              } catch (pfErr) {
-                console.warn('[webhook/razorpay] profiles lookup exception', pfErr);
-              }
-            }
           }
 
-          // Optionally try contact/phone lookup if email not found and method available
+          // Try contact/phone lookup if email not found
           if (!derivedUserId && possibleContact) {
             try {
-              if (typeof (admin.auth as any).getUserByPhone === 'function') {
-                const res: any = await (admin.auth as any).getUserByPhone(possibleContact);
-                const user = res?.data?.user ?? res?.user ?? res;
-                if (user?.id) derivedUserId = user.id;
-              } else {
-                // some Supabase stacks might not expose phone lookup; skip quietly
-                console.warn('[webhook/razorpay] admin.auth.getUserByPhone not available, skipping auth phone lookup');
+              // Try profiles table with normalized phone first
+              const normalized = String(possibleContact).replace(/\D/g, '');
+              const { data: profileByPhone, error: profilePhoneErr } = await admin
+                .from('profiles')
+                .select('id')
+                .eq('phone_normalized', normalized)
+                .maybeSingle();
+
+              if (profileByPhone && (profileByPhone as any).id) {
+                derivedUserId = (profileByPhone as any).id;
+                console.log('[webhook/razorpay] derived user from profiles.phone_normalized', derivedUserId);
+              } else if (profilePhoneErr) {
+                console.warn('[webhook/razorpay] profiles phone lookup error', profilePhoneErr);
+              }
+
+              // Fallback to auth lookup
+              if (!derivedUserId) {
+                if (typeof (admin.auth as any).getUserByPhone === 'function') {
+                  const res: any = await (admin.auth as any).getUserByPhone(possibleContact);
+                  const user = res?.data?.user ?? res?.user ?? res;
+                  if (user?.id) derivedUserId = user.id;
+                } else {
+                  console.warn('[webhook/razorpay] admin.auth.getUserByPhone not available, skipping auth phone lookup');
+                }
               }
             } catch (e) {
               console.warn('[webhook/razorpay] getUserByPhone failed', e);
-            }
-
-            // Fallback: lookup profiles by phone/contact (normalize numbers)
-            if (!derivedUserId) {
-              try {
-                const normalized = String(possibleContact).replace(/\D/g, '');
-                const { data: profileByPhone, error: profilePhoneErr } = await admin
-                  .from('profiles')
-                  .select('id')
-                  .like('phone', `%${normalized}%`)
-                  .maybeSingle();
-                if (profileByPhone && (profileByPhone as any).id) {
-                  derivedUserId = (profileByPhone as any).id;
-                  console.log('[webhook/razorpay] derived user from profiles.phone', derivedUserId);
-                } else if (profilePhoneErr) {
-                  console.warn('[webhook/razorpay] profiles phone lookup error', profilePhoneErr);
-                }
-              } catch (pfErr2) {
-                console.warn('[webhook/razorpay] profiles phone lookup exception', pfErr2);
-              }
             }
           }
 

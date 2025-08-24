@@ -4,6 +4,7 @@ import { useState, useMemo } from "react"
 import { products } from "@/lib/products"
 import { ProductCard } from "@/components/ProductCard"
 import { Header } from "@/components/Header"
+import Footer from "@/components/Footer"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Switch } from "@/components/ui/switch"
@@ -351,69 +352,7 @@ export default function ProductsPage() {
       </div>
 
       {/* Footer */}
-      <footer className="bg-gray-100 py-12">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            {/* Collections */}
-            <div>
-              <h3 className="font-medium text-base text-gray-900 uppercase tracking-wide mb-6">
-                Collections
-              </h3>
-              <div className="space-y-2">
-                {["Black teas", "Green teas", "White teas", "Herbal teas", "Matcha", "Chai", "Oolong", "Rooibos", "Teaware"].map((item) => (
-                  <div key={item} className="text-sm text-gray-700">{item}</div>
-                ))}
-              </div>
-            </div>
-
-            {/* Learn */}
-            <div>
-              <h3 className="font-medium text-base text-gray-900 uppercase tracking-wide mb-6">
-                Learn
-              </h3>
-              <div className="space-y-2">
-                <div className="text-sm text-gray-700">About us</div>
-                <div className="text-sm text-gray-700">About our teas</div>
-                <div className="text-sm text-gray-700">Tea academy</div>
-              </div>
-            </div>
-
-            {/* Customer Service */}
-            <div>
-              <h3 className="font-medium text-sm text-gray-900 uppercase tracking-wide mb-6">
-                Customer Service
-              </h3>
-              <div className="space-y-2">
-                <div className="text-sm text-gray-700">Ordering and payment</div>
-                <div className="text-sm text-gray-700">Delivery</div>
-                <div className="text-sm text-gray-700">Privacy and policy</div>
-                <div className="text-sm text-gray-700">Terms & Conditions</div>
-              </div>
-            </div>
-
-            {/* Contact us */}
-            <div>
-              <h3 className="font-medium text-base text-gray-900 uppercase tracking-wide mb-6">
-                Contact us
-              </h3>
-              <div className="space-y-4">
-                <div className="flex items-start gap-2">
-                  <div className="text-sm text-gray-700">
-                    3 Falahi, Falahi St, Pasdaran Ave, Shiraz, Fars Province<br />
-                    Iran
-                  </div>
-                </div>
-                <div className="text-sm text-gray-700">
-                  Email: amoopur@gmail.com
-                </div>
-                <div className="text-sm text-gray-700">
-                  Tel: +98 9173038406
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   )
 }

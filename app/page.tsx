@@ -12,7 +12,6 @@ import HomeAboutSection from "@/components/HomeAboutSection"
 import BlogSection from "@/components/BlogSection"
 import OurStoryCompact from "@/components/OurStoryCompact";
 import GorkhaLeafCares from "@/components/GorkhaLeafCares";
-import NewsletterSection from "@/components/NewsletterSection"
 import Footer from "@/components/Footer"
 
 export default function HomePage() {
@@ -30,7 +29,6 @@ export default function HomePage() {
 <OurStoryCompact imageSrc="/Extra_content/owner1.jpg" ownerName="Founder, Gorkha Leaf" />
 <GorkhaLeafCares imageSrc="/Extra_content/unnamed (10).jpg" imageAlt="A Gorkha woman plucking tender tea leaves in Darjeeling" />
       <BlogSection />
-      <NewsletterSection />
       <Footer />
     </div>
   )

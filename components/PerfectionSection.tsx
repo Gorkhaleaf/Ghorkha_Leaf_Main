@@ -102,9 +102,11 @@ const PerfectionSection = () => {
                     alt={feature.text}
                     width={40}
                     height={40}
+                    className="filter"
+                    style={{ filter: 'invert(0.2) sepia(1) saturate(2) hue-rotate(80deg) brightness(0.4)' }}
                   />
                   <p
-                    className="text-3xl font-medium text-[#7D806A]"
+                    className="text-3xl font-medium text-[#166434]"
                     style={{ fontFamily: 'Philosopher, sans-serif' }}
                   >
                     {feature.text}
@@ -148,7 +150,7 @@ const PerfectionSection = () => {
                   className="flex items-center gap-3"
                 >
                   <p
-                    className="text-3xl font-medium text-[#7D806A]"
+                    className="text-3xl font-medium text-[#166434]"
                     style={{ fontFamily: 'Philosopher, sans-serif' }}
                   >
                     {feature.text}
@@ -158,6 +160,8 @@ const PerfectionSection = () => {
                     alt={feature.text}
                     width={40}
                     height={40}
+                    className="filter"
+                    style={{ filter: 'invert(0.2) sepia(1) saturate(2) hue-rotate(80deg) brightness(0.4)' }}
                   />
                 </div>
               ))}

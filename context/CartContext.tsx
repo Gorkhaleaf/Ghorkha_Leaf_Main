@@ -8,6 +8,8 @@ interface Product {
   price: number;
   image: string;
   quantity: number;
+  selectedWeight?: string;
+  calculatedPrice?: number;
 }
 
 interface CartContextType {
@@ -39,13 +41,27 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   const addToCart = (product: Product) => {
     setCartItems((prevItems) => {
-      const existingItem = prevItems.find((item) => item.id === product.id);
+      // Check for existing item with same id and selectedWeight
+      const existingItem = prevItems.find((item) =>
+        item.id === product.id &&
+        item.selectedWeight === product.selectedWeight
+      );
+
       if (existingItem) {
         return prevItems.map((item) =>
-          item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+          item.id === product.id && item.selectedWeight === product.selectedWeight
+            ? { ...item, quantity: item.quantity + (product.quantity || 1) }
+            : item
         );
       }
-      return [...prevItems, { ...product, quantity: 1 }];
+
+      // Use calculatedPrice if available, otherwise use regular price
+      const priceToUse = product.calculatedPrice || product.price;
+      return [...prevItems, {
+        ...product,
+        price: priceToUse,
+        quantity: product.quantity || 1
+      }];
     });
   };
 
@@ -82,7 +98,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   const cartCount = cartItems.reduce((count, item) => count + item.quantity, 0);
 
-  const subtotal = cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
+  const subtotal = cartItems.reduce((total, item) => total + (item.calculatedPrice || item.price) * item.quantity, 0);
 
   const getDiscountRate = (couponCode: string): number => {
     const discountRates = {

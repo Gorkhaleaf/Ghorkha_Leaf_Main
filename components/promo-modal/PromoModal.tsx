@@ -242,8 +242,10 @@ export function PromoModal({
           "relative z-[9991] w-full max-w-[920px] mx-4 bg-white rounded-2xl overflow-hidden shadow-2xl",
           "transform transition-all duration-300 ease-out",
           "grid grid-cols-1 md:grid-cols-2 max-h-[88vh]",
-          isVisible 
-            ? "opacity-100 scale-100 translate-y-0" 
+          // Mobile-specific sizing
+          "sm:max-w-[480px] max-h-[85vh] sm:max-h-[80vh]",
+          isVisible
+            ? "opacity-100 scale-100 translate-y-0"
             : "opacity-0 scale-95 translate-y-2"
         )}
         role="dialog"
@@ -255,26 +257,26 @@ export function PromoModal({
         <button
           ref={closeButtonRef}
           onClick={() => handleClose('close_button')}
-          className="absolute top-3 right-3 z-[9992] w-10 h-10 rounded-full bg-white/90 border border-black/10 shadow-lg flex items-center justify-center hover:bg-white transition-colors focus:outline-none focus:ring-2 focus:ring-brand-green focus:ring-offset-2"
+          className="absolute top-2 right-2 sm:top-3 sm:right-3 z-[9992] w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/90 border border-black/10 shadow-lg flex items-center justify-center hover:bg-white transition-colors focus:outline-none focus:ring-2 focus:ring-brand-green focus:ring-offset-2"
           aria-label="Close modal"
         >
-          <X className="w-5 h-5 text-gray-600" />
+          <X className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
         </button>
 
         {/* Image Pane */}
-        <div className="relative min-h-[260px] bg-brand-beige order-1 md:order-2">
+        <div className="relative min-h-[180px] sm:min-h-[200px] md:min-h-[260px] bg-brand-beige order-1 md:order-2">
           <Image
             src={heroImageSrc}
             alt="Independence Day Sale - Tea cup with tricolor background"
             fill
             className="object-cover"
-            sizes="(max-width: 768px) 100vw, 50vw"
+            sizes="(max-width: 640px) 100vw, (max-width: 768px) 100vw, 50vw"
             priority
           />
         </div>
 
         {/* Content Pane */}
-        <div className="p-6 md:p-8 bg-brand-beige order-2 md:order-1 overflow-y-auto">
+        <div className="p-4 sm:p-5 md:p-8 bg-brand-beige order-2 md:order-1 overflow-y-auto">
           {/* Logo */}
           <div className="mb-4">
             <Image
@@ -287,19 +289,19 @@ export function PromoModal({
           </div>
 
           {/* Content */}
-          <div className="space-y-3">
-            <h1 
+          <div className="space-y-2 sm:space-y-3">
+            <h1
               id="promo-modal-title"
-              className="text-sm font-semibold text-gray-800 uppercase tracking-wider"
+              className="text-xs sm:text-sm font-semibold text-gray-800 uppercase tracking-wider"
             >
               Independence Day SALE
             </h1>
-            
+
             <div className="space-y-1">
               <p className="text-xs font-medium text-gray-700 uppercase tracking-wide">
                 FLAT
               </p>
-              <p className="text-4xl md:text-5xl font-bold text-amber-600 leading-none tracking-tight">
+              <p className="text-3xl sm:text-4xl md:text-5xl font-bold text-amber-600 leading-none tracking-tight">
                 30% OFF
               </p>
               <p className="text-xs font-bold text-brand-green uppercase tracking-wide">
@@ -307,17 +309,17 @@ export function PromoModal({
               </p>
             </div>
 
-            <p 
+            <p
               id="promo-modal-description"
-              className="text-base text-gray-600 mt-4"
+              className="text-sm sm:text-base text-gray-600 mt-3 sm:mt-4"
             >
               Share your email for exciting offers!
             </p>
 
             {/* Form */}
-            <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+            <form onSubmit={handleSubmit} className="mt-4 sm:mt-6 space-y-3 sm:space-y-4">
               <div className="space-y-2">
-                <div className="flex gap-3">
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                   <Input
                     ref={emailInputRef}
                     type="email"
@@ -325,9 +327,9 @@ export function PromoModal({
                     value={email}
                     onChange={handleEmailChange}
                     className={cn(
-                      "flex-1 h-12 px-4 border rounded-xl transition-colors",
-                      emailError 
-                        ? "border-red-500 focus:ring-red-500" 
+                      "flex-1 h-10 sm:h-12 px-3 sm:px-4 border rounded-lg sm:rounded-xl transition-colors text-sm sm:text-base",
+                      emailError
+                        ? "border-red-500 focus:ring-red-500"
                         : "border-gray-300 focus:ring-brand-green focus:border-brand-green"
                     )}
                     disabled={isSubmitting}
@@ -338,7 +340,7 @@ export function PromoModal({
                     ref={continueButtonRef}
                     type="submit"
                     disabled={isSubmitting || !email.trim()}
-                    className="h-12 px-6 bg-brand-green hover:bg-brand-green/90 text-white rounded-xl font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="h-10 sm:h-12 px-4 sm:px-6 bg-brand-green hover:bg-brand-green/90 text-white rounded-lg sm:rounded-xl font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
                   >
                     {isSubmitting ? 'Please wait...' : 'Continue'}
                   </Button>
