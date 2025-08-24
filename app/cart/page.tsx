@@ -112,12 +112,14 @@ export default function CartPage() {
 
       const order = await response.json();
       console.log('Razorpay order created:', order);
+      console.log('[Cart] Order amount from API:', order.amount, 'paise');
+      console.log('[Cart] Expected display amount:', (order.amount / 100).toFixed(2), 'rupees');
 
       const handlerCalled = { called: false };
 
       const options = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-        amount: order.amount,
+        amount: order.amount, // This should be in paise (299600)
         currency: order.currency,
         name: 'Gorkha Leaf',
         description: 'Tea Purchase',
@@ -231,6 +233,12 @@ export default function CartPage() {
         },
       };
 
+      console.log('[Cart][debug] Razorpay order details:', {
+        orderId: order.id,
+        orderAmount: order.amount,
+        orderCurrency: order.currency,
+        expectedDisplayAmount: (order.amount / 100).toFixed(2)
+      });
       console.log('[Cart][debug] Razorpay options prepared (order.id):', order.id);
       console.log('[Cart][debug] Attaching handler and opening Razorpay modal...');
 
