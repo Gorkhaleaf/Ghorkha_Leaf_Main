@@ -110,7 +110,9 @@ const SplineScene = ({ scene, onLoad, onError }: {
 const HeroSection = () => {
    const [mounted, setMounted] = useState(false);
    const [windowHeight, setWindowHeight] = useState(0);
+   const [shouldUnloadSpline, setShouldUnloadSpline] = useState(false);
    const isMobile = useIsMobile();
+   const heroRef = useRef<HTMLElement>(null);
 
    useEffect(() => {
      setMounted(true);
@@ -150,6 +152,43 @@ const HeroSection = () => {
        window.removeEventListener('orientationchange', handleOrientationChange);
      };
    }, [isMobile]);
+
+   // Scroll detection and Spline unloading logic
+   useEffect(() => {
+     if (!mounted || !heroRef.current) return;
+
+     let timeoutId: NodeJS.Timeout;
+
+     const handleScroll = () => {
+       if (!heroRef.current) return;
+
+       const heroRect = heroRef.current.getBoundingClientRect();
+       const isBelowHero = heroRect.bottom < 0;
+
+       if (isBelowHero && !shouldUnloadSpline) {
+         // User has scrolled below hero section, start 1-second timeout
+         timeoutId = setTimeout(() => {
+           setShouldUnloadSpline(true);
+           console.log('Spline model unloaded for performance optimization');
+         }, 1000);
+       } else if (!isBelowHero && shouldUnloadSpline) {
+         // User scrolled back up, cancel timeout and reload Spline
+         if (timeoutId) {
+           clearTimeout(timeoutId);
+         }
+         setShouldUnloadSpline(false);
+       }
+     };
+
+     window.addEventListener('scroll', handleScroll, { passive: true });
+
+     return () => {
+       window.removeEventListener('scroll', handleScroll);
+       if (timeoutId) {
+         clearTimeout(timeoutId);
+       }
+     };
+   }, [mounted, shouldUnloadSpline]);
 
   const handleSplineLoad = (splineApp: any) => {
     console.log('Spline loaded:', splineApp);
@@ -191,6 +230,7 @@ const HeroSection = () => {
 
   return (
     <section
+      ref={heroRef}
       className="relative w-full overflow-hidden m-0 p-0"
       style={{
         height: windowHeight ? `${windowHeight}px` : '100vh',
@@ -198,7 +238,7 @@ const HeroSection = () => {
       }}
     >
       {/* 3D Spline Model - Full background */}
-      {mounted && (
+      {mounted && !shouldUnloadSpline && (
         <div className="absolute inset-0 w-full h-full z-10 pointer-events-none spline-transparent-bg">
           <SplineScene
             scene="https://prod.spline.design/bI31fOpEAAWihn4s/scene.splinecode"
@@ -206,6 +246,11 @@ const HeroSection = () => {
             onError={handleSplineError}
           />
         </div>
+      )}
+
+      {/* Performance optimized background when Spline is unloaded */}
+      {shouldUnloadSpline && (
+        <div className="absolute inset-0 w-full h-full z-10 bg-gradient-to-br from-green-900 via-green-800 to-green-900"></div>
       )}
 
       {/* Content overlay - desktop: bottom-left, mobile: centered */}
