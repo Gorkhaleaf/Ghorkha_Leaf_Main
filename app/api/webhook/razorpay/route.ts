@@ -65,73 +65,10 @@ export async function POST(req: NextRequest) {
     const admin = createAdminClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 
     try {
-// Attempt to derive a user from payload so the update can set user_uid when possible
+       // Try to derive user from existing order data first
        let derivedUserId: string | null = null;
        const possibleEmail = entity.email || payload?.payload?.order?.entity?.email || payload?.payload?.customer?.email || null;
        const possibleContact = entity.contact || payload?.payload?.order?.entity?.contact || payload?.payload?.customer?.contact || null;
-
-       if (possibleEmail) {
-         try {
-           // First try to find user by email in profiles table (more reliable than auth lookup)
-           const { data: profile, error: profileErr } = await admin
-             .from('profiles')
-             .select('id')
-             .eq('email_canonical', possibleEmail.toLowerCase().trim())
-             .maybeSingle();
-
-           if (profile && (profile as any).id) {
-             derivedUserId = (profile as any).id;
-             console.log('[webhook/razorpay] derived user from profiles.email_canonical on update', derivedUserId);
-           } else if (profileErr) {
-             console.warn('[webhook/razorpay] profiles lookup error (email) on update', profileErr);
-           }
-
-           // Fallback to auth lookup if profile not found
-           if (!derivedUserId) {
-             if (typeof (admin.auth as any).getUserByEmail === 'function') {
-               const res: any = await (admin.auth as any).getUserByEmail(possibleEmail);
-               const user = res?.data?.user ?? res?.user ?? res;
-               if (user?.id) derivedUserId = user.id;
-             } else if (typeof (admin.auth as any).admin?.getUserByEmail === 'function') {
-               const res: any = await (admin.auth as any).admin.getUserByEmail(possibleEmail);
-               const user = res?.data?.user ?? res?.user ?? res;
-               if (user?.id) derivedUserId = user.id;
-             }
-           }
-         } catch (e) {
-           console.warn('[webhook/razorpay] email lookup on update failed', e);
-         }
-       }
-
-       if (!derivedUserId && possibleContact) {
-         try {
-           // Try to find user by phone in profiles table first
-           const normalized = String(possibleContact).replace(/\D/g, '');
-           const { data: profileByPhone, error: profilePhoneErr } = await admin
-             .from('profiles')
-             .select('id')
-             .eq('phone_normalized', normalized)
-             .maybeSingle();
-
-           if (profileByPhone && (profileByPhone as any).id) {
-             derivedUserId = (profileByPhone as any).id;
-             console.log('[webhook/razorpay] derived user from profiles.phone_normalized on update', derivedUserId);
-           } else if (profilePhoneErr) {
-             console.warn('[webhook/razorpay] profiles phone lookup error (phone) on update', profilePhoneErr);
-           }
-
-           // Fallback to auth lookup
-           if (!derivedUserId) {
-             if (typeof (admin.auth as any).getUserByPhone === 'function') {
-               const res: any = await (admin.auth as any).getUserByPhone(possibleContact);
-               const user = res?.data?.user ?? res?.user ?? res;
-               if (user?.id) derivedUserId = user.id;
-             }
-           }
-         } catch (e) {
-           console.warn('[webhook/razorpay] phone auth lookup failed on update', e);
-         }
-       }
       // First, check if order exists and get current customer data
       const { data: existingOrder } = await admin
         .from('orders')
@@ -177,111 +114,12 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'DB update failed', details: error }, { status: 500 });
       }
 
-      // If no rows updated, attempt to create a provisional order and try to associate with a user by email/contact
+      // If no rows updated, log the issue but don't create duplicate orders
       if (rowsCount === 0) {
-        try {
-          // Attempt to derive a user from payload (common fields: entity.email, entity.contact, payload.customer, payload.payment.entity)
-          let derivedUserId: string | null = null;
-          // Use the cleaned entity data (sample data removed)
-          const possibleEmail = entity.email || payload?.payload?.order?.entity?.email || payload?.payload?.customer?.email || null;
-          const possibleContact = entity.contact || payload?.payload?.order?.entity?.contact || payload?.payload?.customer?.contact || null;
-
-          if (possibleEmail) {
-            try {
-              // First try profiles table with canonical email (more reliable)
-              const { data: profile, error: profileErr } = await admin
-                .from('profiles')
-                .select('id')
-                .eq('email_canonical', possibleEmail.toLowerCase().trim())
-                .maybeSingle();
-
-              if (profile && (profile as any).id) {
-                derivedUserId = (profile as any).id;
-                console.log('[webhook/razorpay] derived user from profiles.email_canonical', derivedUserId);
-              } else if (profileErr) {
-                console.warn('[webhook/razorpay] profiles lookup error', profileErr);
-              }
-
-              // Fallback to auth lookup
-              if (!derivedUserId) {
-                if (typeof (admin.auth as any).getUserByEmail === 'function') {
-                  const res: any = await (admin.auth as any).getUserByEmail(possibleEmail);
-                  const user = res?.data?.user ?? res?.user ?? res;
-                  if (user?.id) derivedUserId = user.id;
-                } else if (typeof (admin.auth as any).admin?.getUserByEmail === 'function') {
-                  const res: any = await (admin.auth as any).admin.getUserByEmail(possibleEmail);
-                  const user = res?.data?.user ?? res?.user ?? res;
-                  if (user?.id) derivedUserId = user.id;
-                } else {
-                  console.warn('[webhook/razorpay] admin.auth.getUserByEmail not available, skipping auth email lookup');
-                }
-              }
-            } catch (e) {
-              console.warn('[webhook/razorpay] getUserByEmail failed', e);
-            }
-          }
-
-          // Try contact/phone lookup if email not found
-          if (!derivedUserId && possibleContact) {
-            try {
-              // Try profiles table with normalized phone first
-              const normalized = String(possibleContact).replace(/\D/g, '');
-              const { data: profileByPhone, error: profilePhoneErr } = await admin
-                .from('profiles')
-                .select('id')
-                .eq('phone_normalized', normalized)
-                .maybeSingle();
-
-              if (profileByPhone && (profileByPhone as any).id) {
-                derivedUserId = (profileByPhone as any).id;
-                console.log('[webhook/razorpay] derived user from profiles.phone_normalized', derivedUserId);
-              } else if (profilePhoneErr) {
-                console.warn('[webhook/razorpay] profiles phone lookup error', profilePhoneErr);
-              }
-
-              // Fallback to auth lookup
-              if (!derivedUserId) {
-                if (typeof (admin.auth as any).getUserByPhone === 'function') {
-                  const res: any = await (admin.auth as any).getUserByPhone(possibleContact);
-                  const user = res?.data?.user ?? res?.user ?? res;
-                  if (user?.id) derivedUserId = user.id;
-                } else {
-                  console.warn('[webhook/razorpay] admin.auth.getUserByPhone not available, skipping auth phone lookup');
-                }
-              }
-            } catch (e) {
-              console.warn('[webhook/razorpay] getUserByPhone failed', e);
-            }
-          }
-
-          const insertPayload: any = {
-            user_uid: derivedUserId,
-            amount: amount ?? null,
-            currency: (entity.currency || payload?.payload?.order?.entity?.currency) || null,
-            items: [],
-            razorpay_order_id,
-            razorpay_payment_id: razorpay_payment_id,
-            status: updates.status || 'pending',
-            // Only set customer data if we have real data, not sample data
-            customer_email: possibleEmail && possibleEmail !== 'customer@example.com' ? possibleEmail : null,
-            customer_phone: possibleContact && possibleContact !== '+919999999999' ? possibleContact : null,
-            customer_phone_normalized: possibleContact && possibleContact !== '+919999999999' ? String(possibleContact).replace(/\D/g, '') : null
-          };
-
-          const { data: inserted, error: insertErr } = await admin.from('orders').insert([insertPayload]).select();
-          const insertedCount = Array.isArray(inserted as any) ? (inserted as any).length : (inserted ? 1 : 0);
-          console.log('[webhook/razorpay] provisional order inserted by webhook:', { rows: insertedCount, error: insertErr || null, derivedUserId });
-
-          if (insertErr) {
-            console.error('[webhook/razorpay] provisional insert failed', insertErr);
-            return NextResponse.json({ error: 'Provisional insert failed', details: insertErr }, { status: 500 });
-          }
-
-          return NextResponse.json({ success: true, created: insertedCount, orders: inserted }, { status: 201 });
-        } catch (e) {
-          console.error('[webhook/razorpay] provisional insert exception', e);
-          return NextResponse.json({ error: 'Provisional insert exception' }, { status: 500 });
-        }
+        console.warn('[webhook/razorpay] No order found to update with razorpay_order_id:', razorpay_order_id);
+        console.log('[webhook/razorpay] This might be because the order was already processed by the frontend handler');
+        // Don't create a new order here - let the frontend handler manage it
+        return NextResponse.json({ success: true, message: 'Order already processed by frontend' }, { status: 200 });
       }
 
       return NextResponse.json({ success: true, updated: rowsCount, orders: data }, { status: 200 });
