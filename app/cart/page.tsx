@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Header } from "@/components/Header"
 import Footer from "@/components/Footer"
 import Image from "next/image"
@@ -10,47 +10,110 @@ import { Minus, Plus, X } from "lucide-react"
 import Link from "next/link"
 import { useCart } from "@/context/CartContext"
 import { toast } from "sonner"
+import { createClient } from '@/lib/supabase/client'
+import type { Session } from '@supabase/supabase-js'
+import AuthModal from '@/components/AuthModal/AuthModal'
 
 export default function CartPage() {
-  const {
-    cartItems,
-    removeFromCart,
-    updateQuantity,
-    applyCoupon,
-    totalPrice,
-    discount,
-    couponError,
-  } = useCart()
-  const [couponCode, setCouponCode] = useState("")
-  const [loading, setLoading] = useState(false);
+   const {
+     cartItems,
+     removeFromCart,
+     updateQuantity,
+     applyCoupon,
+     totalPrice,
+     discount,
+     couponError,
+   } = useCart()
+   const [couponCode, setCouponCode] = useState("")
+   const [loading, setLoading] = useState(false);
+   const [session, setSession] = useState<Session | null>(null);
+   const [showAuthModal, setShowAuthModal] = useState(false);
+   const supabase = createClient();
 
   const handleApplyCoupon = () => {
     applyCoupon(couponCode)
   }
 
-  const handlePayment = async () => {
+  // Initialize session
+  useEffect(() => {
+    const getSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setSession(session);
+    };
+    getSession();
+  }, []);
+
+  const handlePayment = useCallback(async () => {
+    console.log('[Cart] handlePayment called');
+    console.log('[Cart] Session exists:', !!session);
+
+    if (!session) {
+      console.log('[Cart] No session, showing auth modal');
+      setShowAuthModal(true);
+      return;
+    }
+
     if (totalPrice === 0) {
       toast.error("Your cart is empty. Please add items to proceed.");
       return;
     }
+
+    console.log('[Cart] Session user:', session.user);
+    console.log('[Cart] Session user ID:', session.user.id);
+    console.log('[Cart] Session user email:', session.user.email);
+
     setLoading(true);
     try {
+      // Fetch user profile data to get real customer information
+      console.log('[Cart] Fetching user profile for user ID:', session.user.id);
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('full_name, email, phone')
+        .eq('id', session.user.id)
+        .single();
+
+      console.log('[Cart] Profile fetch result:', {
+        hasProfile: !!profile,
+        profileEmail: profile?.email,
+        profilePhone: profile?.phone,
+        error: profileError?.message
+      });
+
+      if (profileError) {
+        console.error('[Cart] Could not fetch user profile:', profileError);
+        console.log('[Cart] Will fallback to session user data');
+      }
+
+      // Log session user data as fallback
+      console.log('[Cart] Session user data:', {
+        sessionEmail: session.user.email,
+        sessionPhone: session.user.phone,
+        userMetadata: session.user.user_metadata
+      });
+
+      // Capture current cart state
+      const currentCart = [...cartItems];
+      const currentTotal = totalPrice;
+
+      // Create Razorpay order on server — include items and user_id so server can pre-create pending order
       const response = await fetch('/api/razorpay', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${(session as any).access_token}`,
         },
         body: JSON.stringify({
-          amount: totalPrice,
+          amount: currentTotal * 100, // Convert to paise
           currency: 'INR',
+          items: currentCart,
+          user_id: session.user.id
         }),
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to create Razorpay order.");
-      }
-
       const order = await response.json();
+      console.log('Razorpay order created:', order);
+
+      const handlerCalled = { called: false };
 
       const options = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
@@ -60,28 +123,105 @@ export default function CartPage() {
         description: 'Tea Purchase',
         order_id: order.id,
         handler: async function (response: any) {
-          const res = await fetch('/api/razorpay', {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
+          handlerCalled.called = true;
+          try {
+            // Razorpay provides payment response when payment completes successfully.
+            // Log it (browser console) and also POST a debug confirmation to server.
+            console.log('Razorpay payment response:', response);
+            console.log('[Cart][handler] immediate handler entry', { maskedPaymentId: response?.razorpay_payment_id ? String(response.razorpay_payment_id).slice(0,8)+'...' : null });
+
+            // Prepare customer data with detailed logging
+            const customerEmail = profile?.email || session.user.email;
+            const customerPhone = profile?.phone || session.user.phone;
+
+            console.log('[Cart] Prepared customer data:', {
+              customerEmail,
+              customerPhone,
+              source: profile?.email ? 'profile' : 'session',
+              isValidEmail: customerEmail && customerEmail !== 'customer@example.com',
+              isValidPhone: customerPhone && customerPhone !== '+919999999999'
+            });
+
+            // Validate customer data before sending
+            if (!customerEmail || customerEmail === 'customer@example.com') {
+              console.error('[Cart] CRITICAL: Invalid or missing customer email:', customerEmail);
+            }
+            if (!customerPhone || customerPhone === '+919999999999') {
+              console.error('[Cart] CRITICAL: Invalid or missing customer phone:', customerPhone);
+            }
+
+            // Save order via API update (mark success). We send razorpay ids so webhook / server can reconcile.
+            const saveBody = {
+              user_id: session.user.id,
+              amount: currentTotal,
+              currency: 'INR',
+              items: currentCart,
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature,
-            }),
-          });
-          const result = await res.json();
-          if (result.success) {
-            toast.success('Payment successful! Thank you for your order.');
-          } else {
+              status: 'success',
+              // Include customer information from profile
+              customer_email: customerEmail,
+              customer_phone: customerPhone
+            };
+
+            console.log('[Cart] Final saveBody customer data:', {
+              customer_email: saveBody.customer_email,
+              customer_phone: saveBody.customer_phone
+            });
+
+            const saveResponse = await fetch('/api/orders', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${(session as any).access_token}`
+              },
+              credentials: 'include',
+              body: JSON.stringify(saveBody)
+            });
+
+            console.log('[Cart] /api/orders response.status', saveResponse.status);
+            const respText = await saveResponse.text();
+            let respJson = null;
+            try {
+              respJson = respText ? JSON.parse(respText) : null;
+            } catch (e) {
+              console.error('[Cart] failed to parse /api/orders response', e, 'body:', respText);
+            }
+
+            if (saveResponse.ok) {
+              console.log('Order saved successfully via API', respJson);
+              toast.success('Payment successful! Thank you for your order.');
+            } else {
+              console.error('Order save failed via API:', saveResponse.status, respJson);
+              toast.error('Payment verification failed. Please contact support.');
+            }
+
+            // Send the same payload to debug endpoint for detailed server logging
+            try {
+              const debugResp = await fetch('/api/debug/save-order', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${(session as any).access_token}`
+                },
+                body: JSON.stringify(saveBody)
+              });
+              const debugJson = await debugResp.json();
+              console.log('[Cart][debug] /api/debug/save-order', debugResp.status, debugJson);
+            } catch (e) {
+              console.error('[Cart][debug] failed to POST /api/debug/save-order', e);
+            }
+
+          } catch (error) {
+            console.error('Order save error:', error);
             toast.error('Payment verification failed. Please contact support.');
           }
         },
         prefill: {
-          name: 'Gorkha Leaf Customer',
-          email: 'customer@example.com',
-          contact: '9999999999',
+          name: profile?.full_name || session.user.user_metadata?.full_name || 'Customer',
+          email: profile?.email || session.user.email || '',
+          contact: profile?.phone || session.user.phone || '',
         },
         notes: {
           address: 'Gorkha Leaf Corporate Office',
@@ -91,18 +231,36 @@ export default function CartPage() {
         },
       };
 
+      console.log('[Cart][debug] Razorpay options prepared (order.id):', order.id);
+      console.log('[Cart][debug] Attaching handler and opening Razorpay modal...');
+
       const rzp = new (window as any).Razorpay(options);
-      rzp.on('payment.failed', function (response: any){
+
+      // Attach explicit success/failure listeners for additional confirmation logging
+      rzp.on('payment.failed', function (resp: any) {
+        console.error('Razorpay payment failed event:', resp);
         toast.error("Payment failed. Please try again or use a different payment method.");
       });
+      rzp.on('payment.success', function (resp: any) {
+        // Not all Razorpay SDKs emit this; handler above is the canonical success callback.
+        console.log('Razorpay payment.success event:', resp);
+      });
+
+      // Watchdog: if handler not invoked within 12s, log a warning to help debugging
+      setTimeout(() => {
+        if (!handlerCalled.called) {
+          console.warn('[Cart][debug] handler not called within 12s — possible SDK behavior; check if popup was blocked or handler replaced.');
+        }
+      }, 12000);
+
       rzp.open();
     } catch (error) {
-      console.error('Payment failed:', error);
+      console.error('Payment initialization failed:', error);
       toast.error('An unexpected error occurred. Please try again.');
     } finally {
       setLoading(false);
     }
-  };
+  }, [session, cartItems, totalPrice]);
 
   const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0)
 
@@ -242,6 +400,12 @@ export default function CartPage() {
         </div>
       </main>
       <Footer />
+      {showAuthModal && (
+        <AuthModal onClose={() => setShowAuthModal(false)} onAuthSuccess={() => {
+          setShowAuthModal(false);
+          handlePayment();
+        }} />
+      )}
     </div>
   )
 }
