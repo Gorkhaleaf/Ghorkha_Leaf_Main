@@ -56,14 +56,9 @@ UPDATE public.orders
 SET customer_phone_normalized = regexp_replace(customer_phone, '\D', '', 'g')
 WHERE customer_phone IS NOT NULL AND (customer_phone_normalized IS NULL OR customer_phone_normalized = '');
 
--- Step 7: Link existing orders to profiles based on email
-UPDATE public.orders o
-SET user_uid = p.id
-FROM public.profiles p
-WHERE lower(trim(o.customer_email)) = p.email_canonical
-  AND o.user_uid IS NULL
-  AND o.customer_email IS NOT NULL
-  AND p.email_canonical IS NOT NULL;
+-- Step 7: Link existing orders to profiles based on email (no user_uid needed)
+-- Orders are now linked via email_canonical, no direct user_uid linking required
+-- The foreign key constraint will handle the relationship
 
 -- Step 8: Add trigger to automatically populate canonical fields
 CREATE OR REPLACE FUNCTION public.handle_profile_email_canonical()

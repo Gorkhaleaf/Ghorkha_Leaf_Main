@@ -214,20 +214,19 @@ export async function POST(req: NextRequest) {
 
     // Ensure items saved as JSONB/JSON by passing the object directly
     const insertPayload = {
-      user_uid: body.user_id,
-      amount: body.amount,
-      currency: body.currency,
-      items: body.items ?? [],
-      razorpay_order_id: body.razorpay_order_id,
-      razorpay_payment_id: body.razorpay_payment_id,
-      razorpay_signature: body.razorpay_signature,
-      status: body?.status ?? 'success',
-      // Populate customer fields from user profile
-      customer_email: profile?.email || null,
-      customer_phone: profile?.phone || null
-    };
+       amount: body.amount,
+       currency: body.currency,
+       items: body.items ?? [],
+       razorpay_order_id: body.razorpay_order_id,
+       razorpay_payment_id: body.razorpay_payment_id,
+       razorpay_signature: body.razorpay_signature,
+       status: body?.status ?? 'success',
+       // Populate customer fields from user profile
+       customer_email: profile?.email || null,
+       customer_phone: profile?.phone || null
+     };
 
-    console.log('[API /orders POST] inserting order (admin) user_id:', insertPayload.user_uid, 'amount:', insertPayload.amount, 'itemsCount:', Array.isArray(insertPayload.items) ? insertPayload.items.length : undefined);
+    console.log('[API /orders POST] inserting order (admin) customer_email:', insertPayload.customer_email, 'amount:', insertPayload.amount, 'itemsCount:', Array.isArray(insertPayload.items) ? insertPayload.items.length : undefined);
 
     const { data, error } = await admin
       .from('orders')
@@ -286,11 +285,23 @@ export async function GET(req: NextRequest) {
   const admin = createAdminClient(url, serviceKey);
 
   try {
-    console.log('[API /orders GET] querying orders for user_id (admin):', session.user.id);
+    // Get user profile to find their email for linking orders
+    const { data: profile, error: profileError } = await admin
+      .from('profiles')
+      .select('email')
+      .eq('id', session.user.id)
+      .single();
+
+    if (profileError) {
+      console.warn('[API /orders GET] Could not fetch user profile:', profileError);
+      return NextResponse.json({ error: 'Could not fetch user profile' }, { status: 500 });
+    }
+
+    console.log('[API /orders GET] querying orders for user email (admin):', profile?.email);
     const { data, error } = await admin
       .from('orders')
       .select('*')
-      .eq('user_uid', session.user.id)
+      .eq('customer_email', profile?.email)
       .order('created_at', { ascending: false });
 
     const rowsCount = Array.isArray(data as any) ? (data as any).length : (data ? 1 : 0);
