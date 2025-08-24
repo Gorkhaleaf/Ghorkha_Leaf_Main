@@ -221,12 +221,33 @@ export async function POST(req: NextRequest) {
       try {
         const authHeader = req.headers.get('authorization') || '';
         const token = authHeader.replace('Bearer ', '').trim();
+        console.log('[API /orders POST] Checking JWT token for email, token present:', !!token);
+
         if (token) {
           const payload = decodeJwtPayload(token);
+          console.log('[API /orders POST] JWT payload keys:', payload ? Object.keys(payload) : 'null');
+          console.log('[API /orders POST] JWT payload email:', payload?.email);
+
           if (payload?.email) {
             customerEmail = payload.email;
             console.log('[API /orders POST] Using email from JWT token:', customerEmail);
+          } else if (payload?.sub) {
+            // Try to get user from Supabase auth
+            console.log('[API /orders POST] No email in JWT, trying to get user by ID:', payload.sub);
+            try {
+              const { data: authUser, error: authError } = await admin.auth.admin.getUserById(payload.sub);
+              if (authUser?.user?.email) {
+                customerEmail = authUser.user.email;
+                console.log('[API /orders POST] Using email from Supabase auth:', customerEmail);
+              } else if (authError) {
+                console.warn('[API /orders POST] Auth user lookup error:', authError);
+              }
+            } catch (authErr) {
+              console.warn('[API /orders POST] Auth user lookup failed:', authErr);
+            }
           }
+        } else {
+          console.log('[API /orders POST] No authorization token found');
         }
       } catch (e) {
         console.warn('[API /orders POST] Could not extract email from JWT:', e);
@@ -321,12 +342,33 @@ export async function GET(req: NextRequest) {
       try {
         const authHeader = req.headers.get('authorization') || '';
         const token = authHeader.replace('Bearer ', '').trim();
+        console.log('[API /orders GET] Checking JWT token for email, token present:', !!token);
+
         if (token) {
           const payload = decodeJwtPayload(token);
+          console.log('[API /orders GET] JWT payload keys:', payload ? Object.keys(payload) : 'null');
+          console.log('[API /orders GET] JWT payload email:', payload?.email);
+
           if (payload?.email) {
             userEmail = payload.email;
             console.log('[API /orders GET] Using email from JWT token:', userEmail);
+          } else if (payload?.sub) {
+            // Try to get user from Supabase auth
+            console.log('[API /orders GET] No email in JWT, trying to get user by ID:', payload.sub);
+            try {
+              const { data: authUser, error: authError } = await admin.auth.admin.getUserById(payload.sub);
+              if (authUser?.user?.email) {
+                userEmail = authUser.user.email;
+                console.log('[API /orders GET] Using email from Supabase auth:', userEmail);
+              } else if (authError) {
+                console.warn('[API /orders GET] Auth user lookup error:', authError);
+              }
+            } catch (authErr) {
+              console.warn('[API /orders GET] Auth user lookup failed:', authErr);
+            }
           }
+        } else {
+          console.log('[API /orders GET] No authorization token found');
         }
       } catch (e) {
         console.warn('[API /orders GET] Could not extract email from JWT:', e);
