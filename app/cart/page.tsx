@@ -103,7 +103,7 @@ export default function CartPage() {
           'Authorization': `Bearer ${(session as any).access_token}`,
         },
         body: JSON.stringify({
-          amount: currentTotal * 100, // Convert to paise (match checkout page)
+          amount: Math.round(currentTotal), // Send as whole rupees, no paise conversion
           currency: 'INR',
           items: currentCart,
           user_id: session.user.id
@@ -112,8 +112,8 @@ export default function CartPage() {
 
       const order = await response.json();
       console.log('Razorpay order created:', order);
-      console.log('[Cart] Order amount from API:', order.amount, 'paise');
-      console.log('[Cart] Expected display amount:', (order.amount / 100).toFixed(2), 'rupees');
+      console.log('[Cart] Order amount from API:', order.amount, 'rupees');
+      console.log('[Cart] Expected display amount:', order.amount, 'rupees');
 
       const handlerCalled = { called: false };
 
@@ -155,7 +155,7 @@ export default function CartPage() {
             // Save order via API update (mark success). We send razorpay ids so webhook / server can reconcile.
             const saveBody = {
               user_id: session.user.id,
-              amount: currentTotal / 100, // Convert back from paise to rupees for database
+              amount: currentTotal, // Keep as rupees for database (no paise conversion)
               currency: 'INR',
               items: currentCart,
               razorpay_order_id: response.razorpay_order_id,
@@ -237,7 +237,8 @@ export default function CartPage() {
         orderId: order.id,
         orderAmount: order.amount,
         orderCurrency: order.currency,
-        expectedDisplayAmount: (order.amount / 100).toFixed(2)
+        sentAmount: Math.round(currentTotal),
+        expectedDisplayAmount: Math.round(currentTotal)
       });
       console.log('[Cart][debug] Razorpay options prepared (order.id):', order.id);
       console.log('[Cart][debug] Attaching handler and opening Razorpay modal...');
