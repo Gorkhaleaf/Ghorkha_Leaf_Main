@@ -212,11 +212,11 @@ export async function POST(req: NextRequest) {
       console.warn('[API /orders POST] Could not fetch user profile:', profileError);
     }
 
-    // Try to get user data from auth if profile is missing
-    let customerEmail = profile?.email || null;
-    let customerPhone = profile?.phone || null;
+    // Use customer data from request body if provided, otherwise fallback to profile/JWT
+    let customerEmail = body.customer_email || profile?.email || null;
+    let customerPhone = body.customer_phone || profile?.phone || null;
 
-    // Fallback: Get email from JWT token if profile doesn't have it
+    // Fallback: Get email from JWT token if still no customer email
     if (!customerEmail) {
       try {
         const authHeader = req.headers.get('authorization') || '';
@@ -260,6 +260,12 @@ export async function POST(req: NextRequest) {
       // In production, you might want to return an error here
       // For now, we'll allow the order but log the issue
     }
+
+    console.log('[API /orders POST] Final customer data:', {
+      customerEmail,
+      customerPhone,
+      source: body.customer_email ? 'request_body' : profile?.email ? 'profile' : 'jwt_fallback'
+    });
 
     // Ensure items saved as JSONB/JSON by passing the object directly
     const insertPayload = {
