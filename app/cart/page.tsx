@@ -70,7 +70,7 @@ export default function CartPage() {
         .from('profiles')
         .select('full_name, email, phone')
         .eq('id', session.user.id)
-        .single();
+        .maybeSingle(); // Use maybeSingle instead of single to avoid 406 error
 
       console.log('[Cart] Profile fetch result:', {
         hasProfile: !!profile,
@@ -103,7 +103,7 @@ export default function CartPage() {
           'Authorization': `Bearer ${(session as any).access_token}`,
         },
         body: JSON.stringify({
-          amount: currentTotal * 100, // Convert to paise
+          amount: currentTotal * 100, // Convert to paise (match checkout page)
           currency: 'INR',
           items: currentCart,
           user_id: session.user.id
@@ -153,7 +153,7 @@ export default function CartPage() {
             // Save order via API update (mark success). We send razorpay ids so webhook / server can reconcile.
             const saveBody = {
               user_id: session.user.id,
-              amount: currentTotal,
+              amount: currentTotal / 100, // Convert back from paise to rupees for database
               currency: 'INR',
               items: currentCart,
               razorpay_order_id: response.razorpay_order_id,
