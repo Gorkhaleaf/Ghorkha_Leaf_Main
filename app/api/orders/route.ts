@@ -254,6 +254,13 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // If we still don't have customer email, this is a critical issue
+    if (!customerEmail) {
+      console.error('[API /orders POST] CRITICAL: No customer email found for authenticated user:', session.user.id);
+      // In production, you might want to return an error here
+      // For now, we'll allow the order but log the issue
+    }
+
     // Ensure items saved as JSONB/JSON by passing the object directly
     const insertPayload = {
        amount: body.amount,
@@ -377,6 +384,7 @@ export async function GET(req: NextRequest) {
 
     if (!userEmail) {
       console.warn('[API /orders GET] No email found for user, returning empty array');
+      console.error('[API /orders GET] CRITICAL: No email found for authenticated user:', session.user.id);
       return NextResponse.json([], { status: 200 });
     }
 
