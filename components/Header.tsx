@@ -100,7 +100,7 @@ export function Header() {
                     size="sm"
                     className="flex items-center space-x-2 hover:bg-black hover:text-white transition-all duration-300"
                   >
-                    <Menu className="h-6 w-6" />
+                    <Menu className="h-12 w-12" />
                   </Button>
                 </SheetTrigger>
                 <SheetContent side="left" className="w-80">

@@ -61,7 +61,7 @@ export function FloatingNav() {
           className="bg-brand-green text-white p-3 rounded-full shadow-lg hover:bg-brand-green/90 transition-all duration-300 hover:scale-110"
           aria-label="Toggle navigation menu"
         >
-          {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          {isOpen ? <X className="w-9 h-9" /> : <Menu className="w-9 h-9" />}
         </button>
       </div>
 
