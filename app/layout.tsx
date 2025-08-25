@@ -66,11 +66,11 @@ export const metadata: Metadata = {
     apple: "/logo.png",
   },
   robots: {
-    index: true,
-    follow: true,
+    index: false,
+    follow: false,
     googleBot: {
-      index: true,
-      follow: true,
+      index: false,
+      follow: false,
       "max-video-preview": -1,
       "max-image-preview": "large",
       "max-snippet": -1,
@@ -79,7 +79,10 @@ export const metadata: Metadata = {
   verification: {
     google: "your-google-verification-code",
   },
-    generator: 'v0.dev'
+  other: {
+    "robots": "noindex, nofollow",
+  },
+  generator: 'v0.dev'
 }
 
 export default function RootLayout({
