@@ -135,6 +135,12 @@
     animation: scroll-smooth 80s linear infinite;
     will-change: transform;
   }
+  
+  .announcement-slider span {
+    word-spacing: 0rem;
+    letter-spacing: 0.1em;
+  }
+
 
   /* Buyer Announcement Bar Scrolling Animation - Improved */
   .buyer-announcement-bar {
@@ -146,6 +152,11 @@
     display: inline-block;
     animation: scroll-smooth 800s linear infinite;
     will-change: transform;
+  }
+
+  .buyer-announcement-slider span {
+    word-spacing: 1rem;
+    letter-spacing: 0.05em;
   }
 
   /* Hover pause effect */

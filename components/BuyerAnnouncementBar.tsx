@@ -14,12 +14,12 @@ export function BuyerAnnouncementBar() {
   const generateAnnouncementText = () => {
     return buyers.map((buyer) =>
       `🎉 ${buyer.name} bought ${buyer.product} ${buyer.timeAgo} from ${buyer.location}`
-    ).join('         •         ');
+    ).join('     •     ');
   };
 
   const announcementText = generateAnnouncementText();
   // Create seamless repetition for continuous scroll
-  const repeatedText = Array(6).fill(announcementText).join('         •         ');
+  const repeatedText = Array(6).fill(announcementText).join('                                                                 •                                                                 ');
 
   return (
     <div

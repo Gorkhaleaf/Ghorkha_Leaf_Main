@@ -93,16 +93,17 @@ export function Header() {
 
             {/* Mobile Hamburger Menu */}
             {isMobile && (
-              <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
-                <SheetTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="flex items-center space-x-2 hover:bg-black hover:text-white transition-all duration-300"
-                  >
-                    <Menu className="h-12 w-12" />
-                  </Button>
-                </SheetTrigger>
+              <>
+                <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+                  <SheetTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="flex items-center space-x-2 hover:bg-black hover:text-white transition-all duration-300"
+                    >
+                      <Menu className="h-12 w-12" />
+                    </Button>
+                  </SheetTrigger>
                 <SheetContent side="left" className="w-80">
                   <SheetHeader>
                     <SheetTitle className="text-left uppercase tracking-wide">Menu</SheetTitle>
@@ -198,24 +199,27 @@ export function Header() {
                         Wishlist
                       </Button>
 
-                      <Link href="/cart" onClick={() => setIsMobileMenuOpen(false)}>
-                        <Button
-                          variant="ghost"
-                          className="w-full justify-start px-3 py-2 text-lg hover:bg-black hover:text-white transition-all duration-300 relative"
-                        >
-                          <ShoppingCart className="h-5 w-5 mr-2" />
-                          Cart
-                          {cartCount > 0 && (
-                            <Badge className="absolute top-1 right-1 bg-amber-600 text-white text-xs">
-                              {cartCount}
-                            </Badge>
-                          )}
-                        </Button>
-                      </Link>
                     </div>
                   </div>
                 </SheetContent>
               </Sheet>
+
+              {/* Mobile Cart Icon */}
+              <Link href="/cart">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="flex items-center space-x-2 hover:bg-black hover:text-white transition-all duration-300 relative ml-2"
+                >
+                  <ShoppingCart className="h-8 w-8" />
+                  {cartCount > 0 && (
+                    <Badge className="absolute -top-2 -right-2 bg-amber-600 text-white text-xs">
+                      {cartCount}
+                    </Badge>
+                  )}
+                </Button>
+              </Link>
+              </>
             )}
           </div>
 

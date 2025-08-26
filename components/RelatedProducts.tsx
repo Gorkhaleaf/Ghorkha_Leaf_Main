@@ -19,12 +19,12 @@ const RelatedProducts = ({ relatedProducts }: { relatedProducts: Product[] }) =>
         {relatedProducts.map((product, index) => (
           <Link key={index} href={`/products/${product.id}`}>
             <div className="border rounded-lg p-4 hover:shadow-lg transition-shadow cursor-pointer">
-              <Image 
-                src={product.image} 
-                alt={product.name} 
+              <Image
+                src={product.image}
+                alt={product.name}
                 width={300}
                 height={200}
-                className="w-full h-48 object-cover rounded mb-4"
+                className="w-full h-64 object-cover rounded mb-4"
               />
               <h3 className="font-semibold mb-2">{product.name}</h3>
               <div className="flex items-center justify-between">

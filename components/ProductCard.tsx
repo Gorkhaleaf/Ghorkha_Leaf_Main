@@ -33,10 +33,10 @@ export function ProductCard({ product }: ProductCardProps) {
       className="border rounded-lg overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
       onClick={handleProductClick}
     >
-      <div className="relative h-48">
-        <Image 
-          src={product.image} 
-          alt={product.name} 
+      <div className="relative h-80">
+        <Image
+          src={product.image}
+          alt={product.name}
           fill
           className="object-cover"
         />
