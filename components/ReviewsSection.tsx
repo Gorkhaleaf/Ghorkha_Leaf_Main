@@ -154,31 +154,33 @@ const ReviewsSection = () => {
   }
 
   return (
-    <section className="reviews-section-bg relative py-20 overflow-hidden">
+    <section className="reviews-section-bg relative py-12 sm:py-16 md:py-20 overflow-hidden">
         <ReviewsBackground className="absolute inset-0 z-0 pointer-events-none" />
-      
 
-      <div className="container mx-auto px-4 relative z-10">
+
+      <div className="container mx-auto px-3 sm:px-4 relative z-10">
         {/* Header */}
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 tracking-wider">
+        <div className="text-center mb-8 md:mb-16">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white mb-3 md:mb-4 tracking-wider px-2">
             STORIES FROM OUR TEA FAMILY
           </h2>
-          <p className="text-xl text-white/90 mb-6 font-light tracking-wide">
+          <p className="text-lg sm:text-xl text-white/90 mb-4 md:mb-6 font-light tracking-wide px-4">
             Real experiences from our cherished customers worldwide
           </p>
-          <div className="flex items-center justify-center gap-4 text-2xl text-yellow-400 font-semibold">
-            <Star className="w-8 h-8 fill-current animate-pulse" />
-            <span>15,000+ Reviews (4.8/5 Stars)</span>
-            <Star className="w-8 h-8 fill-current animate-pulse" />
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 text-lg sm:text-xl md:text-2xl text-yellow-400 font-semibold">
+            <div className="flex items-center gap-2">
+              <Star className="w-6 h-6 sm:w-8 sm:h-8 fill-current animate-pulse" />
+              <span className="text-sm sm:text-base md:text-lg">15,000+ Reviews (4.8/5 Stars)</span>
+              <Star className="w-6 h-6 sm:w-8 sm:h-8 fill-current animate-pulse" />
+            </div>
           </div>
         </div>
 
         {/* Carousel Container */}
         <div className="relative max-w-7xl mx-auto">
           <div className="overflow-hidden">
-            <div 
-              className="flex transition-transform duration-500 ease-in-out gap-8"
+            <div
+              className="flex transition-transform duration-500 ease-in-out gap-4 sm:gap-6 md:gap-8"
               style={{
                 transform: `translateX(-${currentSlide * (100 / slidesToShow)}%)`
               }}
@@ -186,66 +188,66 @@ const ReviewsSection = () => {
               {reviewsData.map((review) => (
                 <div
                   key={review.id}
-                  className="flex-shrink-0 w-full sm:w-1/2 lg:w-1/3 px-2"
+                  className="flex-shrink-0 w-full sm:w-1/2 lg:w-1/3 px-1 sm:px-2"
                 >
-                  <div className="bg-white rounded-3xl p-8 shadow-2xl hover:shadow-3xl transition-all duration-300 hover:-translate-y-2 hover:scale-105 relative overflow-hidden group">
+                  <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 shadow-2xl hover:shadow-3xl transition-all duration-300 hover:-translate-y-2 hover:scale-105 relative overflow-hidden group">
                     {/* Top Gradient Bar */}
                     <div className="absolute top-0 left-0 right-0 h-1" style={{background: 'linear-gradient(90deg, #166434, #22c55e)'}}></div>
 
                     {/* Customer Profile */}
-                    <div className="flex items-center gap-4 mb-6 pb-6 border-b-2 border-gray-100">
-                      <div className="relative">
+                    <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6 pb-4 sm:pb-6 border-b-2 border-gray-100">
+                      <div className="relative flex-shrink-0">
                         <img
                           src={review.customerImage}
                           alt={review.customerName}
-                          className="w-16 h-16 rounded-full object-cover border-4 border-purple-200 shadow-lg"
+                          className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full object-cover border-3 sm:border-4 border-purple-200 shadow-lg"
                         />
                         {review.verified && (
-                          <div className="absolute -bottom-1 -right-1 rounded-full p-1" style={{backgroundColor: '#166434'}}>
-                            <Verified className="w-4 h-4 text-white" />
+                          <div className="absolute -bottom-1 -right-1 rounded-full p-0.5 sm:p-1" style={{backgroundColor: '#166434'}}>
+                            <Verified className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
                           </div>
                         )}
                       </div>
-                      <div className="flex-1">
-                        <h4 className="font-bold text-gray-800 text-lg">{review.customerName}</h4>
-                        <p className="text-gray-600 text-sm">{review.location}</p>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-bold text-gray-800 text-base sm:text-lg truncate">{review.customerName}</h4>
+                        <p className="text-gray-600 text-xs sm:text-sm truncate">{review.location}</p>
                       </div>
                       {review.verified && (
-                        <span className="text-white px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide shadow-lg" style={{background: 'linear-gradient(45deg, #166434, #22c55e)'}}>
+                        <span className="text-white px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs font-semibold uppercase tracking-wide shadow-lg hidden sm:inline-block" style={{background: 'linear-gradient(45deg, #166434, #22c55e)'}}>
                           Verified
                         </span>
                       )}
                     </div>
 
                     {/* Rating Stars */}
-                    <div className="flex justify-center gap-1 mb-4">
+                    <div className="flex justify-center gap-1 mb-3 sm:mb-4">
                       {[...Array(review.rating)].map((_, i) => (
-                        <Star key={i} className="w-6 h-6 text-yellow-400 fill-current" />
+                        <Star key={i} className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-400 fill-current" />
                       ))}
                     </div>
 
                     {/* Review Title */}
-                    <h3 className="text-center font-bold text-gray-800 text-sm uppercase tracking-wider mb-4 border-b border-gray-200 pb-2">
+                    <h3 className="text-center font-bold text-gray-800 text-xs sm:text-sm uppercase tracking-wider mb-3 sm:mb-4 border-b border-gray-200 pb-2 px-2">
                       {review.title}
                     </h3>
 
                     {/* Review Text */}
-                    <div className="relative mb-6">
-                      <div className="absolute -top-2 -left-2 text-6xl font-bold leading-none" style={{color: '#16643450'}}>"</div>
-                      <p className="text-gray-700 leading-relaxed italic pl-6 pr-2 text-base">
+                    <div className="relative mb-4 sm:mb-6">
+                      <div className="absolute -top-1 sm:-top-2 -left-1 sm:-left-2 text-4xl sm:text-5xl md:text-6xl font-bold leading-none" style={{color: '#16643450'}}>"</div>
+                      <p className="text-gray-700 leading-relaxed italic pl-4 sm:pl-6 pr-2 text-sm sm:text-base">
                         {review.review}
                       </p>
                     </div>
 
                     {/* Product Showcase */}
-                    <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-2xl">
+                    <div className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl sm:rounded-2xl">
                       <img
                         src={review.productImage}
                         alt={review.productPurchased}
-                        className="w-14 h-14 object-cover rounded-xl shadow-md"
+                        className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 object-cover rounded-lg sm:rounded-xl shadow-md flex-shrink-0"
                       />
-                      <div className="flex-1">
-                        <p className="font-semibold text-gray-800 text-sm">{review.productPurchased}</p>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-gray-800 text-xs sm:text-sm truncate">{review.productPurchased}</p>
                         <p className="text-gray-600 text-xs">Purchased: {formatDate(review.purchaseDate)}</p>
                       </div>
                     </div>
@@ -258,28 +260,28 @@ const ReviewsSection = () => {
           {/* Navigation Buttons */}
           <Button
             onClick={prevSlide}
-            className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/20 hover:bg-white/30 border-2 border-white/30 backdrop-blur-md transition-all duration-300 hover:scale-110"
+            className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/20 hover:bg-white/30 border-2 border-white/30 backdrop-blur-md transition-all duration-300 hover:scale-110 touch-manipulation"
             disabled={currentSlide === 0}
           >
-            <ChevronLeft className="w-6 h-6 text-white" />
+            <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
           </Button>
 
           <Button
             onClick={nextSlide}
-            className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/20 hover:bg-white/30 border-2 border-white/30 backdrop-blur-md transition-all duration-300 hover:scale-110"
+            className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/20 hover:bg-white/30 border-2 border-white/30 backdrop-blur-md transition-all duration-300 hover:scale-110 touch-manipulation"
             disabled={currentSlide === Math.ceil(totalSlides / slidesToShow) - 1}
           >
-            <ChevronRight className="w-6 h-6 text-white" />
+            <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
           </Button>
         </div>
 
         {/* Pagination Dots */}
-        <div className="flex justify-center gap-3 mt-12">
+        <div className="flex justify-center gap-2 sm:gap-3 mt-8 sm:mt-12">
           {[...Array(Math.ceil(totalSlides / slidesToShow))].map((_, index) => (
             <button
               key={index}
               onClick={() => goToSlide(index)}
-              className={`w-3 h-3 rounded-full transition-all duration-300 ${
+              className={`w-3 h-3 sm:w-3 sm:h-3 rounded-full transition-all duration-300 touch-manipulation ${
                 index === currentSlide
                   ? 'bg-white scale-125 shadow-lg'
                   : 'bg-white/40 hover:bg-white/60'

@@ -76,34 +76,34 @@ export function Header() {
       <div className="container mx-auto">
         {/* Main Header */}
         <div className={`flex items-center justify-between h-20 px-4`}>
-          <div className="flex items-center gap-4">
-            {/* Logo */}
-            <div className="flex-shrink-0">
-              <Link href="/">
-                <Image
-                  src="/logo.png"
-                  alt="Gorkha Leaf - Where Every Leaf Tells a Tale"
-                  width={200}
-                  height={60}
-                  className="h-12 w-auto"
-                  priority
-                />
-              </Link>
-            </div>
+          {/* Logo - Always on the left */}
+          <div className="flex-shrink-0">
+            <Link href="/">
+              <Image
+                src="/logo.png"
+                alt="Gorkha Leaf - Where Every Leaf Tells a Tale"
+                width={200}
+                height={60}
+                className="h-12 w-auto"
+                priority
+              />
+            </Link>
+          </div>
 
-            {/* Mobile Hamburger Menu */}
-            {isMobile && (
-              <>
-                <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
-                  <SheetTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="flex items-center space-x-2 hover:bg-black hover:text-white transition-all duration-300"
-                    >
-                      <Menu className="h-12 w-12" />
-                    </Button>
-                  </SheetTrigger>
+          {/* Mobile Hamburger Menu and Cart - Right side for mobile */}
+          {isMobile && (
+            <div className="flex items-center gap-2">
+              {/* Mobile Hamburger Menu */}
+              <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+                <SheetTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="flex items-center space-x-2 hover:bg-black hover:text-white transition-all duration-300"
+                  >
+                    <Menu className="h-12 w-12" />
+                  </Button>
+                </SheetTrigger>
                 <SheetContent side="left" className="w-80">
                   <SheetHeader>
                     <SheetTitle className="text-left uppercase tracking-wide">Menu</SheetTitle>
@@ -209,7 +209,7 @@ export function Header() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="flex items-center space-x-2 hover:bg-black hover:text-white transition-all duration-300 relative ml-2"
+                  className="flex items-center space-x-2 hover:bg-black hover:text-white transition-all duration-300 relative"
                 >
                   <ShoppingCart className="h-8 w-8" />
                   {cartCount > 0 && (
@@ -219,9 +219,8 @@ export function Header() {
                   )}
                 </Button>
               </Link>
-              </>
-            )}
-          </div>
+            </div>
+          )}
 
           {/* Desktop Navigation and Actions */}
           {!isMobile && (

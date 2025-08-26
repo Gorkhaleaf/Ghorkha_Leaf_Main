@@ -36,24 +36,78 @@ const PerfectionSection = () => {
   ]
 
   return (
-    <section className="relative py-20 bg-[#F9F9F9] overflow-visible">
+    <section className="relative py-12 md:py-20 bg-[#F9F9F9] overflow-visible">
       <div className="container mx-auto px-4 relative z-10">
-        <div className="text-center mb-16">
+        <div className="text-center mb-8 md:mb-16">
           <p
-            className="text-xl text-brand-green tracking-widest uppercase"
+            className="text-lg md:text-xl text-brand-green tracking-widest uppercase"
             style={{ fontFamily: 'Roboto, sans-serif' }}
           >
             Best seller
           </p>
           <h2
-            className="text-5xl font-bold text-brand-green mt-4"
+            className="text-2xl md:text-4xl lg:text-5xl font-bold text-brand-green mt-2 md:mt-4"
             style={{ fontFamily: 'Philosopher, sans-serif' }}
           >
             We Believe in Perfection in the art of Tea.
           </h2>
         </div>
 
-        <div className="flex justify-center items-center relative">
+        {/* Mobile Layout - Stack vertically */}
+        <div className="block md:hidden">
+          {/* Product Image - Top on mobile */}
+          <div className="flex justify-center items-center relative mb-8">
+            <div className="relative">
+              <Image
+                src="/Products/08 Dawn of The Hills.png"
+                alt="Gorkha Leaf Product"
+                width={300}
+                height={270}
+                className="relative z-10"
+                style={{ maxWidth: 'none', maxHeight: 'none' }}
+              />
+              {/* Leaf background overlay for mobile */}
+              <div className="absolute bottom-0 left-1/2 transform translate-x-4 opacity-100 z-20">
+                <div className="relative" style={{ width: '200px', height: '100px' }}>
+                  <Image
+                    src="/perfection_section_v2/leaves_background.png"
+                    alt="leaves background overlay"
+                    layout="fill"
+                    objectFit="cover"
+                    className="rounded-lg scale-x-[-1]"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Features in a grid layout for mobile */}
+          <div className="bg-[#EEF0DC] rounded-lg p-6">
+            <div className="grid grid-cols-1 gap-6">
+              {features.map((feature) => (
+                <div key={feature.text} className="flex items-center gap-3">
+                  <Image
+                    src={feature.icon}
+                    alt={feature.text}
+                    width={32}
+                    height={32}
+                    className="filter flex-shrink-0"
+                    style={{ filter: 'invert(0.2) sepia(1) saturate(2) hue-rotate(80deg) brightness(0.4)' }}
+                  />
+                  <p
+                    className="text-xl md:text-2xl font-medium text-[#166434]"
+                    style={{ fontFamily: 'Philosopher, sans-serif' }}
+                  >
+                    {feature.text}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Desktop Layout - Three column */}
+        <div className="hidden md:flex justify-center items-center relative">
           {/* Continuous green background box matching text dimensions */}
           <div className="absolute inset-0 z-0 flex items-center">
             <div className="w-full bg-[#EEF0DC] rounded-lg mx-4 flex items-center min-h-[492px]">
@@ -71,9 +125,9 @@ const PerfectionSection = () => {
                     ))}
                 </div>
               </div>
-              
+
               <div className="w-1/3"></div>
-              
+
               <div className="w-1/3 pl-6 p-8">
                 <div className="space-y-12 opacity-0">
                   {features
@@ -114,7 +168,7 @@ const PerfectionSection = () => {
                 </div>
               ))}
           </div>
-          
+
           {/* Central product image - primary focal point on top of green background */}
           <div className="w-1/3 flex justify-center items-center relative z-20 h-[492px] overflow-visible">
             <div className="relative -mt-12 overflow-visible">
@@ -140,7 +194,7 @@ const PerfectionSection = () => {
               </div>
             </div>
           </div>
-          
+
           <div className="w-1/3 space-y-12 relative z-10 flex flex-col items-end justify-center mr-[10%]">
             {features
               .filter((feature) => feature.align === 'right')

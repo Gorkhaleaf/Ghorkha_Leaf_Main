@@ -33,7 +33,7 @@ export default function OurStoryCompact({
           </div>
 
           <div className="os-cta">
-            <a className="os-readmore" href="http://localhost:3000/our-story">Read our entire story</a>
+            <a className="os-readmore" href="/our-story">Read our entire story</a>
           </div>
         </div>
 

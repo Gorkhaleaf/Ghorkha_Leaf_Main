@@ -1,346 +1,104 @@
-/* OurStoryCompact.css - compact "Our Story" section adapted for the homepage */
+/* OurStoryCompact.css - Clean, compact "Our Story" section */
 
-:root{
-  --os-bg:#faf6ef;
-  --os-ink:#2b2b2b;
-  --os-muted:#6b645a;
-  --os-brand:#9b7b3e; /* soft gold */
-  --os-card:#fff;
-  --os-ring:rgba(0,0,0,0.06);
+:root {
+  --os-bg: #faf6ef;
+  --os-ink: #2b2b2b;
+  --os-muted: #6b645a;
+  --os-brand: #9b7b3e;
+  --os-card: #fff;
+  --os-ring: rgba(0,0,0,0.06);
 }
 
-.os-compact{
-  background:var(--os-bg);
-  color:var(--os-ink);
+.os-compact {
+  background: var(--os-bg);
+  color: var(--os-ink);
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
-  padding:28px 16px;
+  padding: 28px 16px;
 }
 
-.os-shell{
-  max-width:1120px;
-  margin:0 auto;
-  padding:28px 0;
-  display:grid;
+.os-shell {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 28px 0;
+  display: grid;
   grid-template-columns: 1.2fr 1fr;
-  gap:28px;
-  align-items:center;
+  gap: 28px;
+  align-items: center;
 }
 
-@media (max-width: 900px){
-  .os-shell{
-    grid-template-columns:1fr;
-    gap:20px;
-    padding:18px 8px;
+@media (max-width: 900px) {
+  .os-shell {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 18px 8px;
   }
 }
 
-.os-kicker{
-  letter-spacing:.16em;
-  text-transform:uppercase;
-  font-weight:600;
-  color:var(--os-muted);
-  font-size:11px;
-  margin-bottom:8px;
+.os-kicker {
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--os-muted);
+  font-size: 11px;
+  margin-bottom: 8px;
 }
 
-.os-title{
-  font-size:28px;
-  line-height:1.1;
-  letter-spacing:.2px;
-  margin:0 0 12px 0;
+.os-title {
+  font-size: clamp(28px, 4vw, 48px);
+  line-height: 1.05;
+  letter-spacing: 0.02em;
+  margin: 0 0 12px 0;
   color: #166434;
+  font-weight: 800;
 }
 
-.os-lede{
-  font-size:15px;
-  line-height:1.6;
-  color:var(--os-ink);
-  margin:0 0 10px;
+.os-lede {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--os-ink);
+  margin: 0 0 10px;
 }
 
-.os-content{
-  margin-top:10px;
-  font-size:14px;
-  line-height:1.7;
-  color:var(--os-ink);
-  overflow:hidden;
-  transition:max-height .35s ease;
+.os-content {
+  margin-top: 10px;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--os-ink);
+  overflow: hidden;
+  transition: max-height .35s ease;
   max-height: 220px;
 }
 
-.os-content.is-collapsed{
+.os-content.is-collapsed {
   mask-image: linear-gradient(#000 70%, transparent);
 }
 
-.os-cta{
-  margin-top:12px;
+.os-cta {
+  margin-top: 12px;
 }
 
-.os-readmore{
-  display:inline-block;
-  text-decoration:none;
-  border:1px solid var(--os-brand);
+.os-readmore {
+  display: inline-block;
+  text-decoration: none;
+  border: 1px solid var(--os-brand);
   color: #166434;
-  padding:8px 14px;
-  border-radius:999px;
-  font-weight:600;
-  font-size:14px;
-  transition:all .18s ease;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all .18s ease;
 }
 
-.os-readmore:hover{
-  background: #166434; border-color: #166434;
-  color:#fff;
-  text-decoration:none;
+.os-readmore:hover {
+  background: #166434;
+  border-color: #166434;
+  color: #fff;
+  text-decoration: none;
 }
 
-/* Card on right */
-.os-card{
-  background:var(--os-card);
-  border-radius:16px;
-  box-shadow:0 8px 20px var(--os-ring);
-  padding:18px;
-  display:grid;
-  grid-template-columns: 72px 1fr;
-  gap:12px;
-  align-items:center;
-}
-
-@media (max-width:520px){
-  .os-card{ grid-template-columns:1fr; text-align:center; }
-}
-
-.os-avatar{
-  width:72px;
-  height:72px;
-  border-radius:50%;
-  object-fit:cover;
-  border:3px solid #fff;
-  box-shadow:0 4px 12px var(--os-ring);
-  justify-self:center;
-}
-
-.os-owner{
-  display:flex;
-  flex-direction:column;
-  gap:6px;
-}
-
-.os-name{
-  font-weight:700;
-  font-size:16px;
-  color:var(--os-ink);
-}
-
-.os-role{
-  color:var(--os-muted);
-  font-size:13px;
-}
-
-.os-sign{
-  margin-top:8px;
-  color:var(--os-muted);
-  font-style:italic;
-  font-size:12px;
-}
-
-/* small utility tweaks */
-.os-compact .os-shell > div:first-child{ min-width:0; }
-
-@media (min-width:900px){
-  .os-compact{ padding:36px 20px; }
-  .os-shell{ gap:32px; }
-}
-
-/* Reduce motion for prefers-reduced-motion */
-@media (prefers-reduced-motion: reduce){
-  .os-content { transition: none; }
-  .os-card, .os-avatar { transition: none; }
-}
-/* Overrides to enlarge title, enlarge owner avatar, and make right card occupy right column without increasing section height */
-.os-compact h2,
-#our-story-compact h2 {
-  /* match AboutUsSection sizing and weight */
-  font-weight: 800;
-  font-size: clamp(28px, 4vw, 48px);
-  letter-spacing: 0.02em;
-  color: #166434;
-  margin-bottom: 12px;
-  line-height: 1.05;
-}
-
-/* Keep the shell vertically centered so the section stays compact */
-.os-shell {
-  align-items: center; /* center prevents extra height growth */
-}
-
-/* Make the right card take the full right column height but stay visually compact */
-.os-card--full {
-  height: 100%;
-  padding: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 16px;
-}
-
-/* Inner layout for the card to center content */
-.os-card-inner {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-  text-align: center;
-}
-
-/* Larger avatar while keeping layout compact */
-.os-avatar {
-  width: 140px;
-  height: 140px;
-  border-radius: 12px;
-  object-fit: cover;
-  border: 3px solid #fff;
-  box-shadow: 0 6px 18px var(--os-ring);
-}
-
-/* Slightly larger on wide screens */
-@media (min-width: 900px) {
-  .os-avatar { width: 160px; height: 160px; border-radius: 14px; }
-  .os-card--full { padding: 16px; }
-}
-
-/* Reduce avatar on narrow screens so the section remains compact */
-@media (max-width: 640px) {
-  .os-avatar { width: 112px; height: 112px; }
-  .os-card--full { padding: 10px; }
-  .os-compact { padding: 20px 10px; }
-}
-/* Compact owner card: avatar left of the text box (not full section) */
+/* Compact owner card with overlay layout */
 .os-card--compact {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 8px 10px;
-  max-width: 480px; /* compact owner box */
-  background: transparent; /* remove filled box */
-  box-shadow: none; /* remove shadow */
-  border-radius: 6px; /* subtle rectangle corners */
-  border: 1px solid rgba(0,0,0,0.06); /* single thin rectangle outline */
-}
-
-/* Wrapper for inline avatar (left of text) */
-.os-avatar-wrap {
-  flex: 0 0 auto;
-  width: 180px;
-  height: 180px;
-  border-radius: 50%;
-  overflow: hidden;
-  border: 4px solid #fff;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.18);
-  background: #fff;
-}
-
-/* Ensure next/image output fills the wrapper and is circular */
-.os-avatar.os-avatar-inline,
-.os-avatar-wrap img,
-.os-avatar-inline img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-  border-radius: 50%;
-}
-
-/* Reduce card/text size so text block stays compact relative to avatar */
-.os-owner-text {
-  max-width: 240px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-/* Slight typographic adjustments for compact owner box */
-.os-card--compact .os-name {
-  font-size: 18px;
-  font-weight: 800;
-  color: var(--os-ink);
-}
-
-.os-card--compact .os-role {
-  font-size: 13px;
-  color: var(--os-muted);
-}
-
-.os-card--compact .os-sign {
-  font-size: 12px;
-  color: var(--os-muted);
-  font-style: italic;
-}
-
-/* Decorative line sits below the owner text inside the compact box */
-.os-card--compact .os-decor-line {
-  width: 100%;
-  height: 1px;
-  background: rgba(0,0,0,0.06);
-  margin-top: 8px;
-  border-radius: 1px;
-}
-
-/* Responsive reductions to keep the section compact on small screens */
-@media (max-width: 640px) {
-  .os-avatar-wrap {
-    width: 96px;
-    height: 96px;
-    border-width: 3px;
-  }
-
-  .os-owner-text { max-width: 160px; }
-
-/* Ensure the compact card forces the avatar to the desired size and prevents other rules from shrinking it */
-.os-card--compact {
-  align-items: flex-start; /* allow avatar to keep its full height */
-}
-
-/* Make the avatar wrapper and image a fixed 30% larger size (286px) and prevent flex shrinking */
-.os-card--compact .os-avatar-wrap {
-  flex: 0 0 286px;
-  width: 286px;
-  height: 286px;
-}
-
-/* Ensure the next/image output used as .os-avatar fills the wrapper and cannot be smaller */
-.os-card--compact .os-avatar,
-.os-card--compact .os-avatar-inline,
-.os-card--compact .os-avatar img,
-.os-card--compact .os-avatar-inline img {
-  width: 100% !important;
-  height: 100% !important;
-  object-fit: cover;
-  border-radius: 50% !important;
-  display: block;
-}
-
-/* Keep the owner overlay sized relative to the larger avatar */
-.os-card--compact .os-owner-overlay {
-  max-width: calc(100% - 300px);
-}
-
-/* Responsive fallback: reduce sizes on small screens */
-@media (max-width: 640px) {
-  .os-card--compact .os-avatar-wrap {
-    flex: 0 0 120px;
-    width: 120px;
-    height: 120px;
-  }
-
-  .os-card--compact .os-owner-overlay {
-    max-width: calc(100% - 136px);
-  }
-}
-/* Move owner text to bottom-right of the compact owner box and enlarge avatar */
-.os-card--compact {
-  position: relative; /* needed for overlay positioning */
+  position: relative;
   display: flex;
   align-items: flex-start;
   gap: 14px;
@@ -352,7 +110,7 @@
   border: 1px solid rgba(0,0,0,0.06);
 }
 
-/* Larger circular avatar on the left */
+/* Avatar wrapper */
 .os-avatar-wrap {
   flex: 0 0 auto;
   width: 220px;
@@ -364,9 +122,11 @@
   background: #fff;
 }
 
-/* Ensure image fills avatar and is circular */
-.os-avatar-inline img,
-.os-avatar-wrap img {
+/* Avatar image styling */
+.os-avatar,
+.os-avatar-inline,
+.os-avatar-wrap img,
+.os-avatar-inline img {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -374,7 +134,7 @@
   border-radius: 50%;
 }
 
-/* Owner text sits as an overlay at the bottom-right of the compact card */
+/* Owner text overlay positioned at bottom-right */
 .os-owner-overlay {
   position: absolute;
   right: 12px;
@@ -384,10 +144,10 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
-  pointer-events: none; /* non-interactive text overlay */
+  pointer-events: none;
 }
 
-/* Slightly smaller text sizes for overlay */
+/* Owner text styling */
 .os-owner-overlay .os-name {
   font-size: 18px;
   font-weight: 800;
@@ -400,7 +160,11 @@
   color: var(--os-muted);
 }
 
-/* Decorative line below text stays inside overlay */
+.os-owner-overlay .os-sign {
+  font-style: italic;
+}
+
+/* Decorative line */
 .os-owner-overlay .os-decor-line {
   width: 100%;
   height: 1px;
@@ -409,7 +173,16 @@
   border-radius: 1px;
 }
 
-/* Responsive: stack on small screens and make the overlay flow under the avatar */
+/* Responsive design */
+@media (max-width: 900px) {
+  .os-compact {
+    padding: 36px 20px;
+  }
+  .os-shell {
+    gap: 32px;
+  }
+}
+
 @media (max-width: 640px) {
   .os-card--compact {
     flex-direction: row;
@@ -425,7 +198,6 @@
     border-width: 3px;
   }
 
-  /* make overlay static beneath avatar on small screens */
   .os-owner-overlay {
     position: static;
     text-align: left;
@@ -433,15 +205,13 @@
     pointer-events: auto;
   }
 }
-  .os-card--compact {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 8px 10px;
-  max-width: 480px; /* compact owner box */
-  background: transparent; /* remove filled box */
-  box-shadow: none; /* remove shadow */
-  border-radius: 6px; /* subtle rectangle corners */
-  border: 1px solid rgba(0,0,0,0.06); /* single thin rectangle outline */
-}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .os-content {
+    transition: none;
+  }
+  .os-avatar-wrap {
+    transition: none;
+  }
 }

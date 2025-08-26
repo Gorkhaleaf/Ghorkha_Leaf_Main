@@ -106,7 +106,7 @@ function VideoPlayer({ src, poster }: { src: string, poster?: string }) {
   }
 
   return (
-    <div className="relative group">
+    <div className="relative group w-full h-full">
       <video
         ref={videoRef}
         className="w-full h-full object-cover"
@@ -114,6 +114,7 @@ function VideoPlayer({ src, poster }: { src: string, poster?: string }) {
         muted={isMuted}
         loop
         playsInline
+        style={{ minHeight: '100vh' }}
       >
         <source src={src} type="video/mp4" />
       </video>
@@ -213,8 +214,8 @@ export default function OurStory() {
       {/* Hero Video Section */}
       <section id="hero" className="relative h-screen flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0">
-          <VideoPlayer 
-            src="/Extra_content/Tea Estate.mp4" 
+          <VideoPlayer
+            src="/Extra_content/Tea Estate.mp4"
             poster="/Extra_content/unnamed (1).jpg"
           />
         </div>
@@ -231,13 +232,13 @@ export default function OurStory() {
           <p className="text-lg md:text-xl mb-12 max-w-2xl mx-auto animate-fade-in-up animation-delay-600">
             Love for tea is universal across borders and oceans. It transcends culture, connecting traditions throughout the world.
           </p>
-          <Button 
+          {/* <Button 
             size="lg" 
             className="bg-brand-green hover:bg-brand-green/90 text-white px-8 py-4 text-lg animate-fade-in-up animation-delay-900"
           >
             Discover Our Journey
             <ArrowRight className="ml-2 w-5 h-5" />
-          </Button>
+          </Button> */}
         </div>
 
         {/* Scroll Indicator */}

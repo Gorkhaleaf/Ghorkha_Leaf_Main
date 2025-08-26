@@ -276,19 +276,20 @@ export default function CartPage() {
   return (
     <div className="bg-white">
       <Header />
-      <main className="container mx-auto px-4 py-12 pt-32">
-        <div className="text-sm text-gray-500 mb-4">
+      <main className="container mx-auto px-4 py-8 lg:py-12 pt-24 lg:pt-32">
+        <div className="text-xs lg:text-sm text-gray-500 mb-4">
           <Link href="/" className="hover:text-green-600">
             SHOPPING CART
           </Link>
-          <span className="mx-2">{">"}</span>
+          <span className="mx-1 lg:mx-2">{">"}</span>
           CHECKOUT DETAILS
-          <span className="mx-2">{">"}</span>
+          <span className="mx-1 lg:mx-2">{">"}</span>
           ORDER COMPLETE
         </div>
-        <div className="grid lg:grid-cols-3 gap-12">
+        <div className="grid lg:grid-cols-3 gap-6 lg:gap-12">
           <div className="lg:col-span-2">
-            <div className="border-b pb-4">
+            {/* Desktop header - hidden on mobile */}
+            <div className="hidden md:block border-b pb-4">
               <div className="grid grid-cols-6 gap-4 text-sm font-semibold text-gray-600">
                 <div className="col-span-3">PRODUCT</div>
                 <div>PRICE</div>
@@ -300,68 +301,111 @@ export default function CartPage() {
               <p className="text-center py-8 text-gray-500">Your cart is empty.</p>
             ) : (
               cartItems.map((item) => (
-                <div key={item.id} className="grid grid-cols-6 gap-4 items-center border-b py-4">
-                  <div className="col-span-3 flex items-center gap-4">
-                    <button
-                      onClick={() => removeFromCart(item.id)}
-                      className="text-gray-400 hover:text-red-500"
-                    >
-                      <X size={16} />
-                    </button>
-                    <div className="relative w-20 h-20">
-                      <Image src={item.image} alt={item.name} fill className="object-contain" />
-                    </div>
-                    <p className="text-sm">{item.name}</p>
-                  </div>
-                  <div className="font-semibold">₹{item.price.toFixed(2)}</div>
-                  <div>
-                    <div className="flex items-center border rounded">
+                <div key={item.id} className="border-b py-4">
+                  {/* Mobile layout */}
+                  <div className="md:hidden space-y-3">
+                    <div className="flex items-start gap-3">
                       <button
-                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                        className="px-2 py-1"
+                        onClick={() => removeFromCart(item.id)}
+                        className="text-gray-400 hover:text-red-500 mt-1"
                       >
-                        <Minus size={16} />
+                        <X size={16} />
                       </button>
-                      <span className="px-4">{item.quantity}</span>
-                      <button
-                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                        className="px-2 py-1"
-                      >
-                        <Plus size={16} />
-                      </button>
+                      <div className="relative w-16 h-16 flex-shrink-0">
+                        <Image src={item.image} alt={item.name} fill className="object-contain" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-900">{item.name}</p>
+                        <p className="text-sm font-semibold text-green-600 mt-1">₹{item.price.toFixed(2)}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center border rounded">
+                        <button
+                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                          className="px-2 py-1"
+                        >
+                          <Minus size={16} />
+                        </button>
+                        <span className="px-3 py-1">{item.quantity}</span>
+                        <button
+                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                          className="px-2 py-1"
+                        >
+                          <Plus size={16} />
+                        </button>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm text-gray-600">Subtotal</p>
+                        <p className="font-semibold">₹{(item.price * item.quantity).toFixed(2)}</p>
+                      </div>
                     </div>
                   </div>
-                  <div className="font-semibold">₹{(item.price * item.quantity).toFixed(2)}</div>
+
+                  {/* Desktop layout */}
+                  <div className="hidden md:grid grid-cols-6 gap-4 items-center">
+                    <div className="col-span-3 flex items-center gap-4">
+                      <button
+                        onClick={() => removeFromCart(item.id)}
+                        className="text-gray-400 hover:text-red-500"
+                      >
+                        <X size={16} />
+                      </button>
+                      <div className="relative w-20 h-20">
+                        <Image src={item.image} alt={item.name} fill className="object-contain" />
+                      </div>
+                      <p className="text-sm">{item.name}</p>
+                    </div>
+                    <div className="font-semibold">₹{item.price.toFixed(2)}</div>
+                    <div>
+                      <div className="flex items-center border rounded">
+                        <button
+                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                          className="px-2 py-1"
+                        >
+                          <Minus size={16} />
+                        </button>
+                        <span className="px-4">{item.quantity}</span>
+                        <button
+                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                          className="px-2 py-1"
+                        >
+                          <Plus size={16} />
+                        </button>
+                      </div>
+                    </div>
+                    <div className="font-semibold">₹{(item.price * item.quantity).toFixed(2)}</div>
+                  </div>
                 </div>
               ))
             )}
-            <div className="flex justify-between items-center mt-6">
-              <Button variant="outline" asChild>
+            <div className="flex justify-start lg:justify-between items-center mt-4 lg:mt-6">
+              <Button variant="outline" asChild className="text-xs lg:text-sm px-3 lg:px-4 py-2">
                 <Link href="/">← CONTINUE SHOPPING</Link>
               </Button>
             </div>
-            <div className="mt-8 p-6 bg-green-600 text-white rounded-lg border-2 border-dashed border-white">
-              <p className="text-lg font-bold">10% Cart discount</p>
-              <p className="text-sm">
+            <div className="mt-6 lg:mt-8 p-4 lg:p-6 bg-green-600 text-white rounded-lg border-2 border-dashed border-white">
+              <p className="text-base lg:text-lg font-bold">10% Cart discount</p>
+              <p className="text-xs lg:text-sm mt-1">
                 Use coupon code: <span className="font-bold">GORKHA10</span>
               </p>
             </div>
           </div>
-          <div>
-            <div className="border rounded-lg p-6 bg-gray-50">
-              <h2 className="text-xl font-semibold mb-6">CART TOTALS</h2>
-              <div className="space-y-4">
+          <div className="mt-8 lg:mt-0">
+            <div className="border rounded-lg p-4 lg:p-6 bg-gray-50">
+              <h2 className="text-lg lg:text-xl font-semibold mb-4 lg:mb-6">CART TOTALS</h2>
+              <div className="space-y-3 lg:space-y-4">
                 <div className="flex justify-between">
-                  <span>Subtotal</span>
-                  <span className="font-semibold">₹{subtotal.toFixed(2)}</span>
+                  <span className="text-sm lg:text-base">Subtotal</span>
+                  <span className="font-semibold text-sm lg:text-base">₹{subtotal.toFixed(2)}</span>
                 </div>
                 {discount > 0 && (
                   <div className="flex justify-between text-green-600">
-                    <span>Discount</span>
-                    <span className="font-semibold">- ₹{discount.toFixed(2)}</span>
+                    <span className="text-sm lg:text-base">Discount</span>
+                    <span className="font-semibold text-sm lg:text-base">- ₹{discount.toFixed(2)}</span>
                   </div>
                 )}
-                <div className="flex justify-between font-bold text-lg border-t pt-4">
+                <div className="flex justify-between font-bold text-base lg:text-lg border-t pt-3 lg:pt-4">
                   <span>Total</span>
                   <span>₹{totalPrice.toFixed(2)}</span>
                 </div>
@@ -372,38 +416,39 @@ export default function CartPage() {
               </div>
               <Button
                 size="lg"
-                className="w-full mt-6 bg-green-800 hover:bg-green-900"
+                className="w-full mt-4 lg:mt-6 bg-green-800 hover:bg-green-900 text-sm lg:text-base py-3"
                 onClick={handlePayment}
                 disabled={loading || cartItems.length === 0}
               >
                 {loading ? 'Processing...' : 'PROCEED TO CHECKOUT'}
               </Button>
-              <div className="mt-6">
-                <h3 className="font-semibold mb-2">Coupon</h3>
-                <div className="flex gap-2">
+              <div className="mt-4 lg:mt-6">
+                <h3 className="font-semibold mb-2 text-sm lg:text-base">Coupon</h3>
+                <div className="flex flex-col sm:flex-row gap-2">
                   <Input
                     type="text"
                     placeholder="Coupon code"
                     value={couponCode}
                     onChange={(e) => setCouponCode(e.target.value)}
+                    className="text-sm"
                   />
-                  <Button variant="outline" onClick={handleApplyCoupon}>
+                  <Button variant="outline" onClick={handleApplyCoupon} className="text-sm whitespace-nowrap">
                     Apply coupon
                   </Button>
                 </div>
                 {couponError && <p className="text-red-500 text-xs mt-1">{couponError}</p>}
               </div>
-              <p className="text-xs text-gray-500 mt-6">
+              <p className="text-xs text-gray-500 mt-4 lg:mt-6">
                 Order below Rs 600 will be charged Rs. 30 for shipping for Prepaid Payment and Rs. 75 for
                 shipping for Cash On Delivery.
               </p>
             </div>
-            <div className="flex justify-center items-center space-x-4 mt-6">
-              <Image src="https://cdn.iconscout.com/icon/free/png-256/free-visa-3-226460.png" alt="Visa" width={40} height={25} className="object-contain" />
-              <Image src="https://cdn.iconscout.com/icon/free/png-256/free-mastercard-3521564-2944982.png" alt="Mastercard" width={40} height={25} className="object-contain" />
-              <Image src="https://cdn.iconscout.com/icon/free/png-256/free-rupay-3521497-2944919.png" alt="Rupay" width={40} height={25} className="object-contain" />
-              <Image src="https://cdn.iconscout.com/icon/free/png-256/free-google-pay-2038779-1721670.png" alt="GPay" width={40} height={25} className="object-contain" />
-              <Image src="https://cdn.iconscout.com/icon/free/png-256/free-paytm-226444.png" alt="Paytm" width={40} height={25} className="object-contain" />
+            <div className="flex justify-center items-center flex-wrap gap-3 lg:gap-4 mt-4 lg:mt-6">
+              <Image src="https://cdn.iconscout.com/icon/free/png-256/free-visa-3-226460.png" alt="Visa" width={35} height={22} className="object-contain" />
+              <Image src="https://cdn.iconscout.com/icon/free/png-256/free-mastercard-3521564-2944982.png" alt="Mastercard" width={35} height={22} className="object-contain" />
+              <Image src="https://cdn.iconscout.com/icon/free/png-256/free-rupay-3521497-2944919.png" alt="Rupay" width={35} height={22} className="object-contain" />
+              <Image src="https://cdn.iconscout.com/icon/free/png-256/free-google-pay-2038779-1721670.png" alt="GPay" width={35} height={22} className="object-contain" />
+              <Image src="https://cdn.iconscout.com/icon/free/png-256/free-paytm-226444.png" alt="Paytm" width={35} height={22} className="object-contain" />
             </div>
           </div>
         </div>

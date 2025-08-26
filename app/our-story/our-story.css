@@ -516,6 +516,40 @@ html {
   }
 }
 
+/* Mobile video stretching fix for hero section */
+@media (max-width: 768px) {
+  /* Ensure video covers full mobile viewport */
+  #hero {
+    min-height: 100vh;
+    min-height: 100dvh; /* Use dynamic viewport height for mobile */
+  }
+
+  #hero video {
+    width: 100vw !important;
+    height: 100vh !important;
+    height: 100dvh !important; /* Use dynamic viewport height for mobile */
+    object-fit: cover !important;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
+
+  /* Ensure overlay covers the full area */
+  #hero .absolute.inset-0 {
+    width: 100vw !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+  }
+
+  /* Adjust text positioning for mobile */
+  #hero .relative.z-20 {
+    padding-top: 20vh; /* Push text down from top on mobile */
+    padding-bottom: 10vh; /* Add bottom padding */
+  }
+}
+
 /* Custom selection colors */
 ::selection {
   background: rgba(22, 100, 52, 0.2);
