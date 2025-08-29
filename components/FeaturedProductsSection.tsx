@@ -32,7 +32,7 @@ const FeaturedProductsSection = () => {
           >
             <CarouselContent className="-ml-2 sm:-ml-4">
               {products.map((product) => (
-                <CarouselItem key={product.id} className="basis-1/2 md:basis-1/3 lg:basis-1/4 pl-2 sm:pl-4">
+                <CarouselItem key={product.id} className="basis-1/2 md:basis-1/3 lg:basis-1/4 pl-2 sm:pl-4 min-h-[580px] sm:min-h-0">
                   <ProductCard product={product} />
                 </CarouselItem>
               ))}

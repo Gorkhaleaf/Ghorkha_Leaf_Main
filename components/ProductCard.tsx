@@ -30,10 +30,10 @@ export function ProductCard({ product }: ProductCardProps) {
 
   return (
     <div
-      className="border rounded-lg overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
+      className="border rounded-lg overflow-hidden hover:shadow-lg transition-shadow cursor-pointer min-h-[550px] sm:min-h-0"
       onClick={handleProductClick}
     >
-      <div className="relative h-48 sm:h-64 md:h-80">
+      <div className="relative h-80 sm:h-64 md:h-80">
         <Image
           src={product.image}
           alt={product.name}
@@ -41,11 +41,11 @@ export function ProductCard({ product }: ProductCardProps) {
           className="object-cover"
         />
       </div>
-      <div className="p-3 sm:p-4">
-        <h3 className="font-semibold text-base sm:text-lg mb-2 cursor-pointer hover:text-green-600 line-clamp-2">
+      <div className="p-4 sm:p-4">
+        <h3 className="font-semibold text-lg sm:text-lg mb-2 cursor-pointer hover:text-green-600 line-clamp-2">
           {product.name}
         </h3>
-        <p className="text-xs sm:text-sm text-gray-600 mb-2 line-clamp-1">{product.subname}</p>
+        <p className="text-sm sm:text-sm text-gray-600 mb-2 line-clamp-1">{product.subname}</p>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0">
           <div className="flex flex-col sm:flex-row sm:items-center">
             <span className="text-base sm:text-lg font-bold text-green-600">₹{product.price}</span>

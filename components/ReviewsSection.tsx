@@ -177,10 +177,10 @@ const ReviewsSection = () => {
         </div>
 
         {/* Carousel Container */}
-        <div className="relative max-w-7xl mx-auto">
+        <div className="relative max-w-screen-2xl mx-auto">
           <div className="overflow-hidden">
             <div
-              className="flex transition-transform duration-500 ease-in-out gap-4 sm:gap-6 md:gap-8"
+              className="flex transition-transform duration-500 ease-in-out gap-2 sm:gap-3 md:gap-4"
               style={{
                 transform: `translateX(-${currentSlide * (100 / slidesToShow)}%)`
               }}
@@ -188,14 +188,14 @@ const ReviewsSection = () => {
               {reviewsData.map((review) => (
                 <div
                   key={review.id}
-                  className="flex-shrink-0 w-full sm:w-1/2 lg:w-1/3 px-1 sm:px-2"
+                  className="flex-shrink-0 w-full sm:w-1/2 lg:w-1/3 px-0.5 sm:px-1"
                 >
-                  <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 shadow-2xl hover:shadow-3xl transition-all duration-300 hover:-translate-y-2 hover:scale-105 relative overflow-hidden group">
+                  <div className="bg-white rounded-2xl sm:rounded-3xl p-3 sm:p-4 md:p-5 shadow-2xl hover:shadow-3xl transition-all duration-300 hover:-translate-y-2 hover:scale-105 relative overflow-hidden group h-full min-h-[400px] sm:min-h-[450px] md:min-h-[500px] flex flex-col">
                     {/* Top Gradient Bar */}
                     <div className="absolute top-0 left-0 right-0 h-1" style={{background: 'linear-gradient(90deg, #166434, #22c55e)'}}></div>
 
                     {/* Customer Profile */}
-                    <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6 pb-4 sm:pb-6 border-b-2 border-gray-100">
+                    <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4 pb-3 sm:pb-4 border-b-2 border-gray-100">
                       <div className="relative flex-shrink-0">
                         <img
                           src={review.customerImage}
@@ -220,27 +220,27 @@ const ReviewsSection = () => {
                     </div>
 
                     {/* Rating Stars */}
-                    <div className="flex justify-center gap-1 mb-3 sm:mb-4">
+                    <div className="flex justify-center gap-1 mb-2 sm:mb-3">
                       {[...Array(review.rating)].map((_, i) => (
                         <Star key={i} className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-400 fill-current" />
                       ))}
                     </div>
 
                     {/* Review Title */}
-                    <h3 className="text-center font-bold text-gray-800 text-xs sm:text-sm uppercase tracking-wider mb-3 sm:mb-4 border-b border-gray-200 pb-2 px-2">
+                    <h3 className="text-center font-bold text-gray-800 text-xs sm:text-sm uppercase tracking-wider mb-2 sm:mb-3 border-b border-gray-200 pb-2 px-2">
                       {review.title}
                     </h3>
 
                     {/* Review Text */}
-                    <div className="relative mb-4 sm:mb-6">
+                    <div className="relative mb-3 sm:mb-4 flex-1 flex flex-col justify-center">
                       <div className="absolute -top-1 sm:-top-2 -left-1 sm:-left-2 text-4xl sm:text-5xl md:text-6xl font-bold leading-none" style={{color: '#16643450'}}>"</div>
-                      <p className="text-gray-700 leading-relaxed italic pl-4 sm:pl-6 pr-2 text-sm sm:text-base">
+                      <p className="text-gray-700 leading-relaxed italic pl-4 sm:pl-6 pr-2 text-sm sm:text-base flex-1 flex items-center">
                         {review.review}
                       </p>
                     </div>
 
                     {/* Product Showcase */}
-                    <div className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl sm:rounded-2xl">
+                    <div className="flex items-center gap-3 sm:gap-4 p-2 sm:p-3 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl sm:rounded-2xl mt-auto">
                       <img
                         src={review.productImage}
                         alt={review.productPurchased}
@@ -260,7 +260,7 @@ const ReviewsSection = () => {
           {/* Navigation Buttons */}
           <Button
             onClick={prevSlide}
-            className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/20 hover:bg-white/30 border-2 border-white/30 backdrop-blur-md transition-all duration-300 hover:scale-110 touch-manipulation"
+            className="absolute -left-12 sm:-left-16 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/20 hover:bg-white/30 border-2 border-white/30 backdrop-blur-md transition-all duration-300 hover:scale-110 touch-manipulation z-10"
             disabled={currentSlide === 0}
           >
             <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
@@ -268,7 +268,7 @@ const ReviewsSection = () => {
 
           <Button
             onClick={nextSlide}
-            className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/20 hover:bg-white/30 border-2 border-white/30 backdrop-blur-md transition-all duration-300 hover:scale-110 touch-manipulation"
+            className="absolute -right-12 sm:-right-16 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/20 hover:bg-white/30 border-2 border-white/30 backdrop-blur-md transition-all duration-300 hover:scale-110 touch-manipulation z-10"
             disabled={currentSlide === Math.ceil(totalSlides / slidesToShow) - 1}
           >
             <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 text-white" />

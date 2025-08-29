@@ -2,6 +2,7 @@ import Image from 'next/image';
 import { Button } from './ui/button';
 import { ArrowRight } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import Link from 'next/link';
 
 const LabelSection = () => {
   const isMobile = useIsMobile();
@@ -24,13 +25,15 @@ const LabelSection = () => {
           <div className="block">Enjoy 20% offer</div>
           <div className="block">on all herbal blends</div>
         </div>
-        <Button
-          size="lg"
-          className={`bg-amber-600 hover:bg-amber-700 ${isMobile ? 'text-sm px-4 py-2' : ''}`}
-        >
-          Buy Now
-          <ArrowRight className={`ml-2 ${isMobile ? 'h-4 w-4' : 'h-5 w-5'}`} />
-        </Button>
+        <a href="https://www.gorkhaleaf.com/products" target="_blank" rel="noopener noreferrer">
+          <Button
+            size="lg"
+            className={`bg-amber-600 hover:bg-amber-700 ${isMobile ? 'text-sm px-4 py-2' : ''}`}
+          >
+            Buy Now
+            <ArrowRight className={`ml-2 ${isMobile ? 'h-4 w-4' : 'h-5 w-5'}`} />
+          </Button>
+        </a>
       </div>
     </div>
   );
