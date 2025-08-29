@@ -20,7 +20,7 @@ const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
   display: 'swap', // Prevent layout shift
-  preload: true
+  preload: false // Disable preload to prevent unused resource warning
 })
 
 // Load decorative fonts with fallback
