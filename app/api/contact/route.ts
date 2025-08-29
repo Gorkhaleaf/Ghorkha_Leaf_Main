@@ -1,42 +1,69 @@
 // app/api/contact/route.ts
 import { NextRequest, NextResponse } from 'next/server'
-import fs from 'fs'
-import path from 'path'
 import nodemailer from 'nodemailer'
+import { createClient } from '@supabase/supabase-js'
 
-// Create contacts directory if it doesn't exist
-const contactsDir = path.join(process.cwd(), 'data')
-const contactsFile = path.join(contactsDir, 'contacts.json')
+// Initialize Supabase client with error handling
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
-// Ensure directory exists
-if (!fs.existsSync(contactsDir)) {
-  fs.mkdirSync(contactsDir, { recursive: true })
+let supabase: any = null
+if (supabaseUrl && supabaseServiceKey) {
+  supabase = createClient(supabaseUrl, supabaseServiceKey)
+} else {
+  console.warn('Supabase configuration missing - contacts will not be saved to database')
 }
 
-// Initialize contacts file if it doesn't exist
-if (!fs.existsSync(contactsFile)) {
-  fs.writeFileSync(contactsFile, JSON.stringify([]))
-}
-
-// Create nodemailer transporter with better error handling
+// Create nodemailer transporter with better error handling and fallback options
 const createTransporter = () => {
   const emailUser = process.env.EMAIL_USER
   const emailPass = process.env.EMAIL_PASS
+  const smtpHost = process.env.SMTP_HOST
+  const smtpPort = process.env.SMTP_PORT
+  const sendgridApiKey = process.env.SENDGRID_API_KEY
 
-  if (!emailUser || !emailPass) {
-    console.error('Email configuration missing: EMAIL_USER or EMAIL_PASS not set')
-    return null
+  // Try SendGrid first (most reliable for production)
+  if (sendgridApiKey) {
+    console.log('Using SendGrid for email delivery')
+    return nodemailer.createTransport({
+      host: 'smtp.sendgrid.net',
+      port: 587,
+      secure: false,
+      auth: {
+        user: 'apikey',
+        pass: sendgridApiKey,
+      },
+    } as any)
   }
 
-  const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: emailUser,
-      pass: emailPass,
-    },
-  } as any)
+  // Try custom SMTP configuration
+  if (smtpHost && smtpPort) {
+    console.log('Using custom SMTP configuration')
+    return nodemailer.createTransport({
+      host: smtpHost,
+      port: parseInt(smtpPort),
+      secure: parseInt(smtpPort) === 465,
+      auth: emailUser && emailPass ? {
+        user: emailUser,
+        pass: emailPass,
+      } : undefined,
+    } as any)
+  }
 
-  return transporter
+  // Fallback to Gmail
+  if (emailUser && emailPass) {
+    console.log('Using Gmail SMTP (fallback)')
+    return nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: emailUser,
+        pass: emailPass,
+      },
+    } as any)
+  }
+
+  console.error('No email configuration found')
+  return null
 }
 
 const transporter = createTransporter()
@@ -82,10 +109,26 @@ export async function POST(request: NextRequest) {
       time: new Date().toLocaleTimeString('en-IN')
     }
 
-    // Save to JSON file
-    const existingContacts = JSON.parse(fs.readFileSync(contactsFile, 'utf8'))
-    existingContacts.push(contact)
-    fs.writeFileSync(contactsFile, JSON.stringify(existingContacts, null, 2))
+    // Save to Supabase database (if available)
+    if (supabase) {
+      try {
+        const { error } = await supabase
+          .from('contacts')
+          .insert([contact])
+
+        if (error) {
+          console.error('Error saving contact to database:', error)
+          // Continue with the process even if database save fails
+        } else {
+          console.log('Contact saved to database successfully')
+        }
+      } catch (dbError) {
+        console.error('Database operation failed:', dbError)
+        // Continue with the process even if database save fails
+      }
+    } else {
+      console.log('Database not configured - contact data will only be sent via email')
+    }
 
     // Send email to owner with table format
     try {
