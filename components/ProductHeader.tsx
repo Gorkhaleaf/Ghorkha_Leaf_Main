@@ -5,6 +5,7 @@ import { useCart } from "@/context/CartContext";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Check } from "lucide-react";
+import { BuyNowModal } from "./BuyNowModal";
 
 const ProductHeader = ({ product }: { product: any }) => {
   const { addToCart } = useCart();
@@ -12,6 +13,7 @@ const ProductHeader = ({ product }: { product: any }) => {
   const [added, setAdded] = useState(false);
   const [selectedQuantity, setSelectedQuantity] = useState(1);
   const [selectedWeight, setSelectedWeight] = useState('100g');
+  const [showBuyNowModal, setShowBuyNowModal] = useState(false);
 
   const quantityOptions = [
     { weight: '100g', multiplier: 1, quantity: 1 },
@@ -44,13 +46,18 @@ const ProductHeader = ({ product }: { product: any }) => {
   };
 
   const handleBuyNow = () => {
-    addToCart({
+    setShowBuyNowModal(true);
+  };
+
+  // Create product object with selected options for BuyNowModal
+  const getProductWithOptions = () => {
+    return {
       ...product,
       quantity: selectedQuantity,
       selectedWeight: selectedWeight,
-      calculatedPrice: calculatePrice()
-    });
-    router.push('/cart');
+      calculatedPrice: calculatePrice(),
+      price: calculatePrice() // Override price with calculated price
+    };
   };
   return (
     <div className="grid md:grid-cols-2 gap-8 mb-12">
@@ -131,6 +138,12 @@ const ProductHeader = ({ product }: { product: any }) => {
           </button>
         </div>
       </div>
+      {showBuyNowModal && (
+        <BuyNowModal
+          product={getProductWithOptions()}
+          onClose={() => setShowBuyNowModal(false)}
+        />
+      )}
     </div>
   );
 };
