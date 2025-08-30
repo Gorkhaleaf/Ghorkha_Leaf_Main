@@ -99,8 +99,8 @@ export const products: Product[] = [
     isOrganic: true,
     ingredients: sampleIngredients,
     relatedProducts: [
-      { id: "2", name: "Kurseong Gold", image: "/Products/03 Kurseong Gold.png", price: 749, originalPrice: 999, rating: 4.5 },
-      { id: "3", name: "Hearth Roasted Reserve", image: "/Products/04 Hearth Roasted.png", price: 749, originalPrice: 999, rating: 4.7 },
+      { id: "2", name: "Kurseong Gold ++", image: "/Products/03 Kurseong Gold.png", price: 749, originalPrice: 999, rating: 4.5 },
+      { id: "3", name: "Hearth Roasted ", image: "/Products/04 Hearth Roasted.png", price: 749, originalPrice: 999, rating: 4.7 },
       { id: "4", name: "Whispering Peaks", image: "/Products/05 Whispering Peaks.png", price: 749, originalPrice: 999, rating: 4.8 }
     ],
     reviews: sampleReviews,
@@ -114,7 +114,7 @@ export const products: Product[] = [
   },
   {
     id: 2,
-    name: "Kurseong Gold",
+    name: "Kurseong Gold ++",
     slug: "kurseong-gold",
     subname: "SF-KD – Second Flush Darjeeling",
     description: "Harvested during Darjeeling's famed second flush, this tea offers a smooth, amber liquor with hints of stone fruit and soft oak.",
@@ -136,7 +136,7 @@ export const products: Product[] = [
     ingredients: sampleIngredients,
     relatedProducts: [
       { id: "1", name: "Heritage Bloom", image: "/Products/02 Heritage Bloom.png", price: 749, originalPrice: 999, rating: 4.8 },
-      { id: "3", name: "Hearth Roasted Reserve", image: "/Products/04 Hearth Roasted.png", price: 749, originalPrice: 999, rating: 4.7 },
+      { id: "3", name: "Hearth Roasted ", image: "/Products/04 Hearth Roasted.png", price: 749, originalPrice: 999, rating: 4.7 },
       { id: "5", name: "Mother's Garden", image: "/Products/06 Mother_s Garden.png", price: 749, originalPrice: 999, rating: 4.6 }
     ],
     reviews: sampleReviews,
@@ -150,7 +150,7 @@ export const products: Product[] = [
   },
   {
     id: 3,
-    name: "Hearth Roasted Reserve",
+    name: "Hearth Roasted ",
     slug: "hearth-roasted-reserve",
     subname: "SF Roasted",
     description: "A bold, toasty twist on traditional Darjeeling, this roasted tea brings warmth with every sip.",
@@ -171,7 +171,7 @@ export const products: Product[] = [
     isOrganic: false,
     ingredients: sampleIngredients,
     relatedProducts: [
-      { id: "2", name: "Kurseong Gold", image: "/Products/03 Kurseong Gold.png", price: 749, originalPrice: 999, rating: 4.5 },
+      { id: "2", name: "Kurseong Gold ++", image: "/Products/03 Kurseong Gold.png", price: 749, originalPrice: 999, rating: 4.5 },
       { id: "4", name: "Whispering Peaks", image: "/Products/05 Whispering Peaks.png", price: 749, originalPrice: 999, rating: 4.8 },
       { id: "6", name: "The Warrior's Wakeup", image: "/Products/07 Warrior_s Wakeup.png", price: 749, originalPrice: 999, rating: 4.7 }
     ],
@@ -207,7 +207,7 @@ export const products: Product[] = [
     ingredients: sampleIngredients,
     relatedProducts: [
       { id: "1", name: "Heritage Bloom", image: "/Products/02 Heritage Bloom.png", price: 749, originalPrice: 999, rating: 4.8 },
-      { id: "3", name: "Hearth Roasted Reserve", image: "/Products/04 Hearth Roasted.png", price: 749, originalPrice: 999, rating: 4.7 },
+      { id: "3", name: "Hearth Roasted ", image: "/Products/04 Hearth Roasted.png", price: 749, originalPrice: 999, rating: 4.7 },
       { id: "5", name: "Mother's Garden", image: "/Products/06 Mother_s Garden.png", price: 749, originalPrice: 999, rating: 4.6 }
     ],
     reviews: sampleReviews,
@@ -242,7 +242,7 @@ export const products: Product[] = [
     isOrganic: true,
     ingredients: sampleIngredients,
     relatedProducts: [
-      { id: "2", name: "Kurseong Gold", image: "/Products/03 Kurseong Gold.png", price: 749, originalPrice: 999, rating: 4.5 },
+      { id: "2", name: "Kurseong Gold ++", image: "/Products/03 Kurseong Gold.png", price: 749, originalPrice: 999, rating: 4.5 },
       { id: "4", name: "Whispering Peaks", image: "/Products/05 Whispering Peaks.png", price: 749, originalPrice: 999, rating: 4.8 },
       { id: "7", name: "Dawn of the Hills", image: "/Products/08 Dawn of The Hills.png", price: 749, originalPrice: 999, rating: 4.6 }
     ],
@@ -279,7 +279,7 @@ export const products: Product[] = [
     ingredients: sampleIngredients,
     relatedProducts: [
       { id: "1", name: "Heritage Bloom", image: "/Products/02 Heritage Bloom.png", price: 749, originalPrice: 999, rating: 4.8 },
-      { id: "3", name: "Hearth Roasted Reserve", image: "/Products/04 Hearth Roasted.png", price: 749, originalPrice: 999, rating: 4.7 },
+      { id: "3", name: "Hearth Roasted ", image: "/Products/04 Hearth Roasted.png", price: 749, originalPrice: 999, rating: 4.7 },
       { id: "8", name: "Heritage Harvest", image: "/Products/09 Heritage Harvest.png", price: 749, originalPrice: 999, rating: 4.9 }
     ],
     reviews: sampleReviews,

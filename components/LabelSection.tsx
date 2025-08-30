@@ -15,7 +15,10 @@ const LabelSection = () => {
         fill
         className="absolute inset-0 object-cover"
       />
-      <div className={`relative z-10 flex flex-col justify-center h-full px-4 text-black
+      {isMobile && (
+        <div className="absolute inset-0 bg-black opacity-30"></div>
+      )}
+      <div className={`relative z-10 flex flex-col justify-center h-full px-4 ${isMobile ? 'text-white' : 'text-black'}
         ${isMobile ? 'items-end pr-6 text-right' : 'items-center md:items-end md:pr-16 text-center md:text-right'}`}>
         <div className={`font-gloock mb-2 ${isMobile ? 'text-2xl' : 'text-4xl'}`}>
           <div className="block">Good Tea,</div>

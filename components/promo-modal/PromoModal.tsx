@@ -327,7 +327,7 @@ export function PromoModal({
                     value={email}
                     onChange={handleEmailChange}
                     className={cn(
-                      "flex-1 h-10 sm:h-12 px-3 sm:px-4 border rounded-lg sm:rounded-xl transition-colors text-sm sm:text-base",
+                      "flex-1 h-8 sm:h-10 px-2 sm:px-3 border rounded-md sm:rounded-lg transition-colors text-xs sm:text-sm",
                       emailError
                         ? "border-red-500 focus:ring-red-500"
                         : "border-gray-300 focus:ring-brand-green focus:border-brand-green"
@@ -340,7 +340,7 @@ export function PromoModal({
                     ref={continueButtonRef}
                     type="submit"
                     disabled={isSubmitting || !email.trim()}
-                    className="h-10 sm:h-12 px-4 sm:px-6 bg-brand-green hover:bg-brand-green/90 text-white rounded-lg sm:rounded-xl font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
+                    className="h-8 sm:h-10 px-3 sm:px-4 bg-brand-green hover:bg-brand-green/90 text-white rounded-md sm:rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-xs sm:text-sm"
                   >
                     {isSubmitting ? 'Please wait...' : 'Continue'}
                   </Button>

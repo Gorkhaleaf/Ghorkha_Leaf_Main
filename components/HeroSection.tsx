@@ -62,24 +62,22 @@ const HeroSection = () => {
         minHeight: isMobile ? '100svh' : '100vh' // Use small viewport height on mobile
       }}
     >
-      {/* Full screen video background */}
+      {/* Full screen image background */}
       {mounted && (
         <div className="absolute inset-0 w-full h-full z-10">
-          <video
-            src="/trainvid.mp4"
-            autoPlay
-            loop
-            muted
-            playsInline
+          <img
+            src="/train.jpeg"
+            alt="Hero background"
             className="w-full h-full object-cover"
           />
+          <div className={`absolute inset-0 bg-black ${isMobile ? 'opacity-30' : 'opacity-10'}`}></div>
         </div>
       )}
 
-      {/* Content overlay - desktop: bottom-left, mobile: centered */}
-      <div className={`relative z-20 flex items-end h-full px-4 pb-6 sm:pb-8 md:pb-12
+      {/* Content overlay - desktop: center-left, mobile: bottom-centered */}
+      <div className={`relative z-20 flex ${isMobile ? 'items-end' : 'items-center'} h-full px-4 pb-6 sm:pb-8 md:pb-12
         ${isMobile ? 'justify-center' : 'justify-start'}`}>
-        <div className={`w-full max-w-4xl ${isMobile ? '' : 'ml-4 lg:ml-8 xl:ml-12'}`}>
+        <div className={`w-full max-w-4xl ${isMobile ? '' : 'ml-4 lg:ml-8 xl:ml-12 md:mt-20'}`}>
           <div className={`${isMobile ? 'max-w-sm mx-auto text-center' : 'max-w-2xl lg:max-w-3xl text-left'}`}>
             {/* Main heading - responsive sizing */}
             <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold leading-tight tracking-[0.02em] font-philosopher text-white drop-shadow-2xl mb-4 lg:mb-6">

@@ -37,12 +37,10 @@ export function ProductCard({ product, compact = false }: ProductCardProps) {
 
   return (
     <div
-      className={`border rounded-lg overflow-hidden hover:shadow-lg transition-shadow cursor-pointer ${
-        compact ? 'min-h-[540px] sm:min-h-0' : 'min-h-[550px] sm:min-h-0'
-      }`}
+      className="border rounded-lg overflow-hidden hover:shadow-lg transition-shadow cursor-pointer h-full flex flex-col"
       onClick={handleProductClick}
     >
-      <div className={`relative ${compact ? 'h-80 sm:h-48 md:h-64' : 'h-80 sm:h-64 md:h-80'}`}>
+      <div className={`relative ${compact ? 'h-80 sm:h-48 md:h-80' : 'h-80 sm:h-64 md:h-96'}`}>
         <Image
           src={product.image}
           alt={product.name}
@@ -50,17 +48,25 @@ export function ProductCard({ product, compact = false }: ProductCardProps) {
           className="object-cover"
         />
       </div>
-      <div className={`p-3 sm:p-3 ${compact ? 'p-2 sm:p-2' : 'p-4 sm:p-4'}`}>
-        <h3 className={`font-semibold mb-2 cursor-pointer hover:text-green-600 line-clamp-2 ${
-          compact ? 'text-base sm:text-base' : 'text-lg sm:text-lg'
-        }`}>
-          {product.name}
-        </h3>
-        <p className={`text-gray-600 mb-2 line-clamp-1 ${
-          compact ? 'text-xs sm:text-xs' : 'text-sm sm:text-sm'
-        }`}>{product.subname}</p>
-        <div className="flex flex-col gap-2">
-          <div className="flex flex-col sm:flex-row sm:items-center">
+      <div className={`p-3 sm:p-3 flex flex-col h-full ${compact ? 'p-2 sm:p-2' : 'p-4 sm:p-4'}`}>
+        {/* Product Info Section - Fixed height */}
+        <div className="flex-none mb-2">
+          <h3 className={`font-semibold mb-2 cursor-pointer hover:text-green-600 line-clamp-2 min-h-[3rem] flex items-start ${
+            compact ? 'text-base sm:text-base' : 'text-lg sm:text-lg'
+          }`}>
+            {product.name}
+          </h3>
+          <p className={`text-gray-600 line-clamp-1 min-h-[1rem] ${
+            compact ? 'text-xs sm:text-xs' : 'text-sm sm:text-sm'
+          }`}>{product.subname}</p>
+        </div>
+
+        {/* Spacer to push buttons to bottom - reduced by 50% */}
+        <div className="h-8"></div>
+
+        {/* Price and Buttons Section - Always at bottom */}
+        <div className="flex-none">
+          <div className="flex flex-col sm:flex-row sm:items-center mb-2">
             <span className={`font-bold text-green-600 ${
               compact ? 'text-sm sm:text-sm' : 'text-base sm:text-lg'
             }`}>₹{product.price}</span>

@@ -103,6 +103,7 @@ const reviewsData: Review[] = [
 const ReviewsSection = () => {
   const [currentSlide, setCurrentSlide] = useState(0)
   const [slidesToShow, setSlidesToShow] = useState(3)
+  const [itemWidthPercent, setItemWidthPercent] = useState(30)
   const totalSlides = reviewsData.length
 
   // Responsive slides configuration
@@ -110,10 +111,13 @@ const ReviewsSection = () => {
     const handleResize = () => {
       if (window.innerWidth < 640) {
         setSlidesToShow(1)
+        setItemWidthPercent(90)
       } else if (window.innerWidth < 1024) {
         setSlidesToShow(2)
+        setItemWidthPercent(45)
       } else {
         setSlidesToShow(3)
+        setItemWidthPercent(30)
       }
     }
 
@@ -129,7 +133,7 @@ const ReviewsSection = () => {
     }, 5000)
 
     return () => clearInterval(interval)
-  }, [totalSlides, slidesToShow])
+  }, [totalSlides, slidesToShow, itemWidthPercent])
 
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % Math.ceil(totalSlides / slidesToShow))
@@ -182,13 +186,13 @@ const ReviewsSection = () => {
             <div
               className="flex transition-transform duration-500 ease-in-out gap-2 sm:gap-3 md:gap-4"
               style={{
-                transform: `translateX(-${currentSlide * (100 / slidesToShow)}%)`
+                transform: `translateX(-${currentSlide * itemWidthPercent}%)`
               }}
             >
               {reviewsData.map((review) => (
                 <div
                   key={review.id}
-                  className="flex-shrink-0 w-full sm:w-1/2 lg:w-1/3 px-0.5 sm:px-1"
+                  className="flex-shrink-0 w-[90%] sm:w-[45%] lg:w-[30%] px-0.5 sm:px-1"
                 >
                   <div className="bg-white rounded-2xl sm:rounded-3xl p-3 sm:p-4 md:p-5 shadow-2xl hover:shadow-3xl transition-all duration-300 hover:-translate-y-2 hover:scale-105 relative overflow-hidden group h-full min-h-[400px] sm:min-h-[450px] md:min-h-[500px] flex flex-col">
                     {/* Top Gradient Bar */}
