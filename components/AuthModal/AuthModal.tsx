@@ -59,7 +59,7 @@ const AuthModal = ({ onClose, onAuthSuccess }: AuthModalProps) => {
           // Optionally, you can persist phone in a temporary store and run a server-side job to attach after confirmation.
         }
 
-        setMessage('Check your email for the confirmation link!');
+        setMessage('User Successfully registered-- You can sign in now!');
       } else {
         // Sign in
         const { error } = await supabase.auth.signInWithPassword({ email, password });

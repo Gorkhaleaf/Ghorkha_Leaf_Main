@@ -10,47 +10,93 @@ import { Minus, Plus, X } from "lucide-react"
 import Link from "next/link"
 import { useCart } from "@/context/CartContext"
 import { toast } from "sonner"
+import { useToast } from "@/hooks/use-toast"
+import { ToastAction } from "@/components/ui/toast"
 import { createClient } from '@/lib/supabase/client'
 import type { Session } from '@supabase/supabase-js'
 import AuthModal from '@/components/AuthModal/AuthModal'
 
 export default function CartPage() {
-   const {
-     cartItems,
-     removeFromCart,
-     updateQuantity,
-     applyCoupon,
-     totalPrice,
-     discount,
-     couponError,
-   } = useCart()
-   const [couponCode, setCouponCode] = useState("")
-   const [loading, setLoading] = useState(false);
-   const [session, setSession] = useState<Session | null>(null);
-   const [showAuthModal, setShowAuthModal] = useState(false);
-   const supabase = createClient();
+    const {
+      cartItems,
+      removeFromCart,
+      updateQuantity,
+      applyCoupon,
+      totalPrice,
+      discount,
+      couponError,
+    } = useCart()
+    const [couponCode, setCouponCode] = useState("")
+    const [loading, setLoading] = useState(false);
+    const [session, setSession] = useState<Session | null>(null);
+    const [showAuthModal, setShowAuthModal] = useState(false);
+    const [pendingPayment, setPendingPayment] = useState(false);
+    const [paymentCompleted, setPaymentCompleted] = useState(false);
+    const supabase = createClient();
+    const { toast: uiToast } = useToast();
 
   const handleApplyCoupon = () => {
     applyCoupon(couponCode)
   }
 
-  // Initialize session
+  // Initialize session and listen for auth changes
   useEffect(() => {
     const getSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       setSession(session);
     };
     getSession();
+
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('[Cart] Auth state changed:', event, !!session);
+      if (event === 'SIGNED_IN' && session) {
+        console.log('[Cart] User signed in, refreshing session...');
+        // Force refresh the session to ensure we have the latest data
+        const { data: { session: refreshedSession } } = await supabase.auth.getSession();
+        setSession(refreshedSession || session);
+      } else {
+        setSession(session);
+      }
+    });
+
+    // Cleanup subscription on unmount
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
+
+  // Auto-proceed with payment when session becomes available after login
+  useEffect(() => {
+    if (session && pendingPayment && !showAuthModal) {
+      console.log('[Cart] Session available, proceeding with pending payment');
+      setPendingPayment(false);
+      handlePayment();
+    }
+  }, [session, pendingPayment, showAuthModal]);
 
   const handlePayment = useCallback(async () => {
     console.log('[Cart] handlePayment called');
     console.log('[Cart] Session exists:', !!session);
+    console.log('[Cart] Session user:', session?.user?.id);
+    setPendingPayment(false); // Reset pending payment flag
 
+    // Double-check session in case it wasn't updated yet
     if (!session) {
-      console.log('[Cart] No session, showing auth modal');
-      setShowAuthModal(true);
-      return;
+      console.log('[Cart] No session found, checking again...');
+      const { data: { session: currentSession } } = await supabase.auth.getSession();
+      console.log('[Cart] Re-checked session:', !!currentSession);
+
+      if (!currentSession) {
+        console.log('[Cart] Still no session, showing auth modal');
+        setShowAuthModal(true);
+        setPendingPayment(true);
+        return;
+      }
+
+      // Update session state if we found one
+      setSession(currentSession);
+      console.log('[Cart] Session updated from re-check');
     }
 
     if (totalPrice === 0) {
@@ -58,18 +104,47 @@ export default function CartPage() {
       return;
     }
 
-    console.log('[Cart] Session user:', session.user);
-    console.log('[Cart] Session user ID:', session.user.id);
-    console.log('[Cart] Session user email:', session.user.email);
+    // Check if address is complete for seamless delivery
+    try {
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('address_line_1, city, state, pincode')
+        .eq('id', session!.user.id)
+        .maybeSingle();
+
+      if (profileError) {
+        console.error('[Cart] Could not fetch user profile for address check:', profileError);
+        toast.error("Unable to verify your address. Please try again.");
+        return;
+      }
+
+      if (!profile || !profile.address_line_1 || !profile.city || !profile.state || !profile.pincode) {
+        uiToast({
+          title: "Address Required",
+          description: "Please add your complete address in your profile for seamless delivery.",
+          variant: "destructive",
+          action: <ToastAction altText="Update Address" onClick={() => window.location.href = '/account'}>Update Address</ToastAction>
+        });
+        return;
+      }
+    } catch (error) {
+      console.error('[Cart] Error checking address:', error);
+      toast.error("Unable to verify your address. Please try again.");
+      return;
+    }
+
+    console.log('[Cart] Session user:', session!.user);
+    console.log('[Cart] Session user ID:', session!.user.id);
+    console.log('[Cart] Session user email:', session!.user.email);
 
     setLoading(true);
     try {
       // Fetch user profile data to get real customer information
-      console.log('[Cart] Fetching user profile for user ID:', session.user.id);
+      console.log('[Cart] Fetching user profile for user ID:', session!.user.id);
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('full_name, email, phone')
-        .eq('id', session.user.id)
+        .eq('id', session!.user.id)
         .maybeSingle(); // Use maybeSingle instead of single to avoid 406 error
 
       console.log('[Cart] Profile fetch result:', {
@@ -86,9 +161,9 @@ export default function CartPage() {
 
       // Log session user data as fallback
       console.log('[Cart] Session user data:', {
-        sessionEmail: session.user.email,
-        sessionPhone: session.user.phone,
-        userMetadata: session.user.user_metadata
+        sessionEmail: session!.user.email,
+        sessionPhone: session!.user.phone,
+        userMetadata: session!.user.user_metadata
       });
 
       // Capture current cart state
@@ -106,7 +181,7 @@ export default function CartPage() {
           amount: Math.round(currentTotal), // Send as whole rupees, no paise conversion
           currency: 'INR',
           items: currentCart,
-          user_id: session.user.id
+          user_id: session!.user.id
         }),
       });
 
@@ -133,8 +208,8 @@ export default function CartPage() {
             console.log('[Cart][handler] immediate handler entry', { maskedPaymentId: response?.razorpay_payment_id ? String(response.razorpay_payment_id).slice(0,8)+'...' : null });
 
             // Prepare customer data with detailed logging
-            const customerEmail = profile?.email || session.user.email;
-            const customerPhone = profile?.phone || session.user.phone;
+            const customerEmail = profile?.email || session!.user.email;
+            const customerPhone = profile?.phone || session!.user.phone;
 
             console.log('[Cart] Prepared customer data:', {
               customerEmail,
@@ -154,7 +229,7 @@ export default function CartPage() {
 
             // Save order via API update (mark success). We send razorpay ids so webhook / server can reconcile.
             const saveBody = {
-              user_id: session.user.id,
+              user_id: session!.user.id,
               amount: currentTotal, // Keep as rupees for database (no paise conversion)
               currency: 'INR',
               items: currentCart,
@@ -192,12 +267,22 @@ export default function CartPage() {
             }
 
             if (saveResponse.ok) {
-              console.log('Order saved successfully via API', respJson);
-              toast.success('Payment successful! Thank you for your order.');
-            } else {
-              console.error('Order save failed via API:', saveResponse.status, respJson);
-              toast.error('Payment verification failed. Please contact support.');
-            }
+                console.log('Order saved successfully via API', respJson);
+                toast.success('Payment successful! Thank you for your order.');
+                toast.success('You will receive a confirmation call from our team shortly to finalize your order details.', {
+                  description: 'Our team will contact you within 24 hours.'
+                });
+                setPaymentCompleted(true);
+                // Reset loading state
+                setLoading(false);
+                // Optionally redirect to orders page after a delay
+                setTimeout(() => {
+                  window.location.href = '/account/orders';
+                }, 2000);
+             } else {
+               console.error('Order save failed via API:', saveResponse.status, respJson);
+               toast.error('Payment verification failed. Please contact support.');
+             }
 
             // Send the same payload to debug endpoint for detailed server logging
             try {
@@ -218,12 +303,14 @@ export default function CartPage() {
           } catch (error) {
             console.error('Order save error:', error);
             toast.error('Payment verification failed. Please contact support.');
+          } finally {
+            setLoading(false);
           }
         },
         prefill: {
-          name: profile?.full_name || session.user.user_metadata?.full_name || 'Customer',
-          email: profile?.email || session.user.email || '',
-          contact: profile?.phone || session.user.phone || '',
+          name: profile?.full_name || session!.user.user_metadata?.full_name || 'Customer',
+          email: profile?.email || session!.user.email || '',
+          contact: profile?.phone || session!.user.phone || '',
         },
         notes: {
           address: 'Gorkha Leaf Corporate Office',
@@ -418,9 +505,9 @@ export default function CartPage() {
                 size="lg"
                 className="w-full mt-4 lg:mt-6 bg-green-800 hover:bg-green-900 text-sm lg:text-base py-3"
                 onClick={handlePayment}
-                disabled={loading || cartItems.length === 0}
+                disabled={loading || cartItems.length === 0 || paymentCompleted}
               >
-                {loading ? 'Processing...' : 'PROCEED TO CHECKOUT'}
+                {paymentCompleted ? 'Payment Completed' : loading ? 'Processing...' : 'PROCEED TO CHECKOUT'}
               </Button>
               <div className="mt-4 lg:mt-6">
                 <h3 className="font-semibold mb-2 text-sm lg:text-base">Coupon</h3>
@@ -456,8 +543,9 @@ export default function CartPage() {
       <Footer />
       {showAuthModal && (
         <AuthModal onClose={() => setShowAuthModal(false)} onAuthSuccess={() => {
+          console.log('[Cart] Auth success, closing modal');
           setShowAuthModal(false);
-          handlePayment();
+          setPendingPayment(true); // Mark that payment should proceed once session is available
         }} />
       )}
     </div>

@@ -6,111 +6,9 @@ import { ArrowRight } from "lucide-react"
 import { useEffect, useState, useRef } from 'react';
 import { useIsMobile } from "@/hooks/use-mobile"
 
-// Optimized SplineScene component with performance improvements
-const SplineScene = ({ scene, onLoad, onError }: {
-  scene: string;
-  onLoad?: (splineApp: any) => void;
-  onError?: (error: any) => void;
-}) => {
-  const [Spline, setSpline] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-  const [isVisible, setIsVisible] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    // Intersection Observer for lazy loading
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    if (containerRef.current) {
-      observer.observe(containerRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
-    if (!isVisible) return;
-
-    const loadSpline = async () => {
-      try {
-        // Dynamic import with error handling
-        const splineModule = await import('@splinetool/react-spline');
-        setSpline(() => splineModule.default);
-        setLoading(false);
-      } catch (err) {
-        console.error('Failed to load Spline:', err);
-        setError(true);
-        setLoading(false);
-        onError?.(err);
-      }
-    };
-
-    loadSpline();
-  }, [isVisible, onError]);
-
-  if (!isVisible) {
-    return (
-      <div ref={containerRef} className="w-full h-full flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <div className="w-12 h-12 md:w-16 md:h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto">
-            <svg className="w-6 h-6 md:w-8 md:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-          <p className="text-white text-sm md:text-base font-medium">3D Model Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (loading) {
-    return (
-      <div className="w-full h-full flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <div className="animate-spin rounded-full h-8 w-8 md:h-12 md:w-12 border-b-2 border-white/30"></div>
-          <p className="text-white text-sm md:text-base font-semibold">Loading 3D Experience...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error || !Spline) {
-    return (
-      <div className="w-full h-full flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <div className="w-12 h-12 md:w-16 md:h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto">
-            <svg className="w-6 h-6 md:w-8 md:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-          <p className="text-white text-sm md:text-base font-medium">3D Model Unavailable</p>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <Spline
-      scene={scene}
-      onLoad={onLoad}
-      onError={onError}
-    />
-  );
-};
-
 const HeroSection = () => {
    const [mounted, setMounted] = useState(false);
    const [windowHeight, setWindowHeight] = useState(0);
-   const [shouldUnloadSpline, setShouldUnloadSpline] = useState(false);
    const isMobile = useIsMobile();
    const heroRef = useRef<HTMLElement>(null);
 
@@ -153,80 +51,7 @@ const HeroSection = () => {
      };
    }, [isMobile]);
 
-   // Scroll detection and Spline unloading logic
-   useEffect(() => {
-     if (!mounted || !heroRef.current) return;
 
-     let timeoutId: NodeJS.Timeout;
-
-     const handleScroll = () => {
-       if (!heroRef.current) return;
-
-       const heroRect = heroRef.current.getBoundingClientRect();
-       const isBelowHero = heroRect.bottom < 0;
-
-       if (isBelowHero && !shouldUnloadSpline) {
-         // User has scrolled below hero section, start 1-second timeout
-         timeoutId = setTimeout(() => {
-           setShouldUnloadSpline(true);
-           console.log('Spline model unloaded for performance optimization');
-         }, 1000);
-       } else if (!isBelowHero && shouldUnloadSpline) {
-         // User scrolled back up, cancel timeout and reload Spline
-         if (timeoutId) {
-           clearTimeout(timeoutId);
-         }
-         setShouldUnloadSpline(false);
-       }
-     };
-
-     window.addEventListener('scroll', handleScroll, { passive: true });
-
-     return () => {
-       window.removeEventListener('scroll', handleScroll);
-       if (timeoutId) {
-         clearTimeout(timeoutId);
-       }
-     };
-   }, [mounted, shouldUnloadSpline]);
-
-  const handleSplineLoad = (splineApp: any) => {
-    console.log('Spline loaded:', splineApp);
-
-    // Remove background
-    if (splineApp?.scene) {
-      splineApp.scene.background = null;
-    }
-    if (splineApp?.renderer) {
-      splineApp.renderer.setClearColor(0x000000, 0);
-    }
-
-    // Optimize animations based on device
-    if (splineApp?.scene) {
-      const animationSpeed = isMobile ? 0.05 : 0.1; // Slower on mobile for better performance
-
-      splineApp.scene.traverse((child: any) => {
-        if (child.mixer) {
-          child.mixer.timeScale = animationSpeed;
-        }
-      });
-
-      if (splineApp.mixers && splineApp.mixers.length > 0) {
-        splineApp.mixers.forEach((mixer: any) => {
-          mixer.timeScale = isMobile ? 0.1 : 0.3;
-        });
-      }
-    }
-
-    // Reduce quality on mobile for better performance
-    if (isMobile && splineApp?.renderer) {
-      splineApp.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    }
-  };
-
-  const handleSplineError = (error: any) => {
-    console.error('Spline loading error:', error);
-  };
 
   return (
     <section
@@ -237,20 +62,18 @@ const HeroSection = () => {
         minHeight: isMobile ? '100svh' : '100vh' // Use small viewport height on mobile
       }}
     >
-      {/* 3D Spline Model - Full background */}
-      {mounted && !shouldUnloadSpline && (
-        <div className="absolute inset-0 w-full h-full z-10 pointer-events-none spline-transparent-bg">
-          <SplineScene
-            scene="https://prod.spline.design/bI31fOpEAAWihn4s/scene.splinecode"
-            onLoad={handleSplineLoad}
-            onError={handleSplineError}
+      {/* Full screen video background */}
+      {mounted && (
+        <div className="absolute inset-0 w-full h-full z-10">
+          <video
+            src="/trainvid.mp4"
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="w-full h-full object-cover"
           />
         </div>
-      )}
-
-      {/* Performance optimized background when Spline is unloaded */}
-      {shouldUnloadSpline && (
-        <div className="absolute inset-0 w-full h-full z-10 bg-gradient-to-br from-green-900 via-green-800 to-green-900"></div>
       )}
 
       {/* Content overlay - desktop: bottom-left, mobile: centered */}

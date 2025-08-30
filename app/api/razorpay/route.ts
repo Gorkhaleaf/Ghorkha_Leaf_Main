@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
         amount: amount,
         currency,
         items: items ?? [],
-        razorpay_order_id: order.id,
+        razorpay_order_id: (order as any).id, // Use original Razorpay order ID directly
         status: 'pending'
       };
 

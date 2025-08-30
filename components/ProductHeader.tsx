@@ -3,10 +3,12 @@
 import Image from "next/image";
 import { useCart } from "@/context/CartContext";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Check } from "lucide-react";
 
 const ProductHeader = ({ product }: { product: any }) => {
   const { addToCart } = useCart();
+  const router = useRouter();
   const [added, setAdded] = useState(false);
   const [selectedQuantity, setSelectedQuantity] = useState(1);
   const [selectedWeight, setSelectedWeight] = useState('100g');
@@ -39,6 +41,16 @@ const ProductHeader = ({ product }: { product: any }) => {
     });
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
+  };
+
+  const handleBuyNow = () => {
+    addToCart({
+      ...product,
+      quantity: selectedQuantity,
+      selectedWeight: selectedWeight,
+      calculatedPrice: calculatePrice()
+    });
+    router.push('/cart');
   };
   return (
     <div className="grid md:grid-cols-2 gap-8 mb-12">
@@ -97,19 +109,27 @@ const ProductHeader = ({ product }: { product: any }) => {
           </select>
         </div>
 
-        <button
-          onClick={handleAddToCart}
-          className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors"
-        >
-          {added ? (
-            <div className="flex items-center justify-center">
-              <Check className="h-5 w-5 mr-2" />
-              Added to Cart
-            </div>
-          ) : (
-            "Add to Cart"
-          )}
-        </button>
+        <div className="flex gap-4">
+          <button
+            onClick={handleAddToCart}
+            className="flex-1 bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors"
+          >
+            {added ? (
+              <div className="flex items-center justify-center">
+                <Check className="h-5 w-5 mr-2" />
+                Added to Cart
+              </div>
+            ) : (
+              "Add to Cart"
+            )}
+          </button>
+          <button
+            onClick={handleBuyNow}
+            className="flex-1 bg-orange-600 text-white py-3 rounded-lg font-semibold hover:bg-orange-700 transition-colors"
+          >
+            Buy Now
+          </button>
+        </div>
       </div>
     </div>
   );

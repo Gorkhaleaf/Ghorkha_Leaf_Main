@@ -86,12 +86,12 @@ const Gallery = () => {
           ))}
         </div>
         <div className="mt-8 flex justify-center">
-          <button
+          {/* <button
             className="px-8 py-3 bg-[#EBA219] text-white text-base sm:text-lg lg:text-xl font-semibold rounded-md shadow-sm hover:bg-[#d4910f] transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#EBA219]"
             style={{ fontFamily: 'Roboto, sans-serif' }}
           >
             Explore
-          </button>
+          </button> */}
         </div>
       </div>
     </section>
