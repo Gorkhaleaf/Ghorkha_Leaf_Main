@@ -32,6 +32,8 @@ export default function CartPage() {
     const [showAuthModal, setShowAuthModal] = useState(false);
     const [pendingPayment, setPendingPayment] = useState(false);
     const [paymentCompleted, setPaymentCompleted] = useState(false);
+    const [authPromptShown, setAuthPromptShown] = useState(false);
+    const [lastPaymentAttempt, setLastPaymentAttempt] = useState<number>(0);
     const supabase = createClient();
     const { toast: uiToast } = useToast();
 
@@ -43,18 +45,25 @@ export default function CartPage() {
   useEffect(() => {
     const getSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
+      console.log('[Cart] Initial session check:', !!session);
       setSession(session);
     };
     getSession();
 
     // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('[Cart] Auth state changed:', event, !!session);
+      console.log('[Cart] Auth state changed:', event, !!session, session?.user?.id);
       if (event === 'SIGNED_IN' && session) {
-        console.log('[Cart] User signed in, refreshing session...');
-        // Force refresh the session to ensure we have the latest data
-        const { data: { session: refreshedSession } } = await supabase.auth.getSession();
-        setSession(refreshedSession || session);
+        console.log('[Cart] User signed in, updating session state');
+        setSession(session);
+        // Small delay to ensure session is fully propagated
+        setTimeout(() => {
+          console.log('[Cart] Session state updated after sign in');
+        }, 100);
+      } else if (event === 'SIGNED_OUT') {
+        console.log('[Cart] User signed out');
+        setSession(null);
+        setPendingPayment(false);
       } else {
         setSession(session);
       }
@@ -68,18 +77,38 @@ export default function CartPage() {
 
   // Auto-proceed with payment when session becomes available after login
   useEffect(() => {
-    if (session && pendingPayment && !showAuthModal) {
+    if (session && pendingPayment && !showAuthModal && !loading) {
       console.log('[Cart] Session available, proceeding with pending payment');
       setPendingPayment(false);
-      handlePayment();
+      // Small delay to ensure everything is ready
+      setTimeout(() => {
+        handlePayment();
+      }, 500);
     }
-  }, [session, pendingPayment, showAuthModal]);
+  }, [session, pendingPayment, showAuthModal, loading]);
 
   const handlePayment = useCallback(async () => {
     console.log('[Cart] handlePayment called');
     console.log('[Cart] Session exists:', !!session);
     console.log('[Cart] Session user:', session?.user?.id);
-    setPendingPayment(false); // Reset pending payment flag
+
+    const now = Date.now();
+    const timeSinceLastAttempt = now - lastPaymentAttempt;
+
+    // Prevent multiple rapid payment attempts (debounce for 2 seconds)
+    if (timeSinceLastAttempt < 2000) {
+      console.log('[Cart] Payment attempt too soon, debouncing');
+      return;
+    }
+
+    // Prevent multiple simultaneous payment attempts
+    if (loading || paymentCompleted) {
+      console.log('[Cart] Payment already in progress or completed');
+      return;
+    }
+
+    setLastPaymentAttempt(now);
+    setLoading(true);
 
     // Double-check session in case it wasn't updated yet
     if (!session) {
@@ -88,9 +117,22 @@ export default function CartPage() {
       console.log('[Cart] Re-checked session:', !!currentSession);
 
       if (!currentSession) {
-        console.log('[Cart] Still no session, showing auth modal');
-        setShowAuthModal(true);
-        setPendingPayment(true);
+        if (!authPromptShown) {
+          console.log('[Cart] Still no session, showing auth modal');
+          setLoading(false);
+          setShowAuthModal(true);
+          setPendingPayment(true);
+          setAuthPromptShown(true);
+          toast.info("Please sign in to proceed with your order", {
+            description: "You'll be redirected back to checkout after signing in."
+          });
+        } else {
+          console.log('[Cart] Auth modal already shown, waiting for user action');
+          setLoading(false);
+          toast.error("Please sign in to complete your purchase", {
+            description: "Authentication is required to proceed with checkout."
+          });
+        }
         return;
       }
 
@@ -115,6 +157,7 @@ export default function CartPage() {
       if (profileError) {
         console.error('[Cart] Could not fetch user profile for address check:', profileError);
         toast.error("Unable to verify your address. Please try again.");
+        setLoading(false);
         return;
       }
 
@@ -125,11 +168,13 @@ export default function CartPage() {
           variant: "destructive",
           action: <ToastAction altText="Update Address" onClick={() => window.location.href = '/account'}>Update Address</ToastAction>
         });
+        setLoading(false);
         return;
       }
     } catch (error) {
       console.error('[Cart] Error checking address:', error);
       toast.error("Unable to verify your address. Please try again.");
+      setLoading(false);
       return;
     }
 
@@ -352,9 +397,22 @@ export default function CartPage() {
       rzp.open();
     } catch (error) {
       console.error('Payment initialization failed:', error);
-      toast.error('An unexpected error occurred. Please try again.');
-    } finally {
       setLoading(false);
+
+      // Provide more specific error messages
+      if (error instanceof Error) {
+        if (error.message.includes('session')) {
+          toast.error('Authentication session expired. Please sign in again.');
+          setShowAuthModal(true);
+          setAuthPromptShown(true);
+        } else if (error.message.includes('network') || error.message.includes('fetch')) {
+          toast.error('Network error. Please check your connection and try again.');
+        } else {
+          toast.error(`Payment initialization failed: ${error.message}`);
+        }
+      } else {
+        toast.error('An unexpected error occurred. Please try again.');
+      }
     }
   }, [session, cartItems, totalPrice]);
 
@@ -542,10 +600,29 @@ export default function CartPage() {
       </main>
       <Footer />
       {showAuthModal && (
-        <AuthModal onClose={() => setShowAuthModal(false)} onAuthSuccess={() => {
-          console.log('[Cart] Auth success, closing modal');
+        <AuthModal onClose={() => {
+          console.log('[Cart] Auth modal closed manually');
           setShowAuthModal(false);
-          setPendingPayment(true); // Mark that payment should proceed once session is available
+          setPendingPayment(false); // Cancel pending payment if user closes modal
+          setAuthPromptShown(false); // Reset auth prompt state
+          setLoading(false); // Reset loading state
+        }} onAuthSuccess={async () => {
+          console.log('[Cart] Auth success callback triggered');
+          setShowAuthModal(false);
+          setAuthPromptShown(false); // Reset auth prompt state
+
+          // Wait a bit for session to propagate, then check if we have a session
+          setTimeout(async () => {
+            const { data: { session: currentSession } } = await supabase.auth.getSession();
+            if (currentSession) {
+              console.log('[Cart] Session confirmed after auth success');
+              setSession(currentSession);
+              setPendingPayment(true); // Mark that payment should proceed
+            } else {
+              console.log('[Cart] No session found after auth success, will wait for auth state change');
+              setPendingPayment(true); // Still set pending in case session comes later
+            }
+          }, 1000);
         }} />
       )}
     </div>
