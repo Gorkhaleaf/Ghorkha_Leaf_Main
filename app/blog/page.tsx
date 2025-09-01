@@ -30,6 +30,15 @@ const blogPosts = [
     date: "December 10, 2024",
     readTime: "7 min read"
   }
+  {
+    id: 2,
+    title: "Understanding Tea Aromas: From Garden to Cup",
+    description: "Explore the fascinating journey of tea aromas, from the terroir of Darjeeling gardens to the complex bouquet in your cup. Learn to identify and appreciate the subtle notes that make each tea unique.",
+    image: "/blog-post-2.png",
+    slug: "understanding-tea-aromas",
+    date: "December 10, 2024",
+    readTime: "7 min read"
+  }
 ]
 
 export default function BlogPage() {
