@@ -1,6 +1,8 @@
 import React from "react";
 import supabase from "@/lib/supabase";
 import { notFound } from "next/navigation";
+import { Header } from "@/components/Header";
+import Footer from "@/components/Footer";
 
 export const dynamic = "force-dynamic";
 
@@ -28,32 +30,60 @@ export default async function Page({ params }: Params) {
 
     const post: any = data;
 
+    // Normalize read time field names
+    const readTime = post.readTime || post.read_time || post.read_time_text || "";
+
     return (
-      <main className="prose mx-auto p-6">
-        <article>
-          <h1>{post.title}</h1>
-          {post.date && (
-            <p style={{ color: "#374151", fontSize: "0.95rem" }}>
-              Published:{" "}
-              <time dateTime={new Date(post.date).toISOString()}>
-                {new Date(post.date).toLocaleDateString()}
-              </time>{" "}
-              — {post.read_time || post.readTime || "—"}
-            </p>
-          )}
-          {post.image && (
-            // image URL should be public (from storage) or served via CDN
-            // use simple img tag here
-            <figure>
-              <img src={post.image} alt={post.title} style={{ width: "100%", borderRadius: 8 }} />
-            </figure>
-          )}
-          <div
-            // content is stored as HTML in DB; render server-side
-            dangerouslySetInnerHTML={{ __html: post.content || "" }}
-          />
-        </article>
-      </main>
+      <div className="min-h-screen bg-brand-beige">
+        <Header />
+        <main className="container mx-auto px-4 py-16 pt-32">
+          <div className="max-w-4xl mx-auto">
+            <article className="bg-white rounded-lg shadow-lg overflow-hidden">
+              {/* hero image */}
+              {post.image && (
+                <div className="relative h-96">
+                  {/* use simple img tag for server-side rendering */}
+                  <img
+                    src={post.image}
+                    alt={post.title || "blog hero"}
+                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                  />
+                </div>
+              )}
+
+              <div className="p-8">
+                {/* meta */}
+                <div className="flex items-center text-sm text-brand-green/60 mb-4">
+                  {post.date && (
+                    <span>
+                      <time dateTime={new Date(post.date).toISOString()}>
+                        {new Date(post.date).toLocaleDateString()}
+                      </time>
+                    </span>
+                  )}
+                  <span className="mx-2">•</span>
+                  <span>{readTime || "—"}</span>
+                </div>
+
+                {/* title */}
+                <h1 className="text-3xl md:text-4xl font-bold text-brand-green mb-6">
+                  {post.title}
+                </h1>
+
+                {/* content wrapper: admin should store ONLY inner HTML here.
+                    We render it inside the consistent site markup so admins
+                    only need to paste the body content. */}
+                <div
+                  className="prose prose-lg text-brand-green/80 space-y-6"
+                  // content expected to be HTML string (sanitize before saving)
+                  dangerouslySetInnerHTML={{ __html: post.content || "" }}
+                />
+              </div>
+            </article>
+          </div>
+        </main>
+        <Footer />
+      </div>
     );
   } catch (err) {
     console.error("blog page error", err);
