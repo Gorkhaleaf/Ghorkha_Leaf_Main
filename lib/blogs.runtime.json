@@ -1,0 +1,20 @@
+[
+  {
+    "id": 1,
+    "title": "The Art of Perfect Tea Brewing: A Master's Guide",
+    "description": "Discover the ancient secrets and modern techniques that transform simple tea leaves into an extraordinary sensory experience. Learn temperature control, timing, and the subtle art of steeping.",
+    "image": "/blog-post-1.png",
+    "slug": "art-of-perfect-tea-brewing",
+    "date": "December 15, 2024",
+    "readTime": "5 min read"
+  },
+  {
+    "id": 2,
+    "title": "Understanding Tea Aromas: From Garden to Cup",
+    "description": "Explore the fascinating journey of tea aromas, from the terroir of Darjeeling gardens to the complex bouquet in your cup. Learn to identify and appreciate the subtle notes that make each tea unique.",
+    "image": "/blog-post-2.png",
+    "slug": "understanding-tea-aromas",
+    "date": "December 10, 2024",
+    "readTime": "7 min read"
+  }
+]

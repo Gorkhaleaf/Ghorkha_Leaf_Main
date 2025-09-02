@@ -1,17 +1,23 @@
-import { Metadata } from 'next'
-import Link from 'next/link'
-import Image from 'next/image'
-import { Button } from '@/components/ui/button'
-import { ArrowLeft } from 'lucide-react'
-import { Header } from '@/components/Header'
-import Footer from '@/components/Footer'
+"use client"
 
-export const metadata: Metadata = {
-  title: 'Blog - Gorkha Leaf',
-  description: 'Discover the world of tea through our expert insights and brewing guides.',
+import Link from "next/link"
+import Image from "next/image"
+import { Button } from "@/components/ui/button"
+import { ArrowLeft } from "lucide-react"
+import { Header } from "@/components/Header"
+import Footer from "@/components/Footer"
+
+type BlogPost = {
+  id: number
+  title: string
+  description: string
+  image?: string
+  slug: string
+  date?: string
+  readTime?: string
 }
 
-const blogPosts = [
+const blogPosts: BlogPost[] = [
   {
     id: 1,
     title: "The Art of Perfect Tea Brewing: A Master's Guide",
@@ -29,19 +35,21 @@ const blogPosts = [
     slug: "understanding-tea-aromas",
     date: "December 10, 2024",
     readTime: "7 min read"
-  }
+  },
   {
     id: 3,
-    title: "Understanding Tea Aromas: From Garden to Cup",
-    description: "Explore the fascinating journey of tea aromas, from the terroir of Darjeeling gardens to the complex bouquet in your cup. Learn to identify and appreciate the subtle notes that make each tea unique.",
-    image: "/blog-post-2.png",
-    slug: "understanding-tea-aromas",
-    date: "December 10, 2024",
-    readTime: "7 min read"
+    title: "Tasting Notes: Darjeeling Through the Seasons",
+    description: "A seasonal guide to Darjeeling's flavour variations and how harvest time affects aroma, body, and colour in your cup.",
+    image: "/blog-post-1.png",
+    slug: "darjeeling-seasons-tasting-notes",
+    date: "November 20, 2024",
+    readTime: "6 min read"
   }
 ]
 
 export default function BlogPage() {
+  const posts = blogPosts
+
   return (
     <div className="min-h-screen bg-brand-beige">
       <Header />
@@ -58,11 +66,11 @@ export default function BlogPage() {
         </div>
 
         <div className="grid md:grid-cols-2 gap-8">
-          {blogPosts.map((post) => (
+          {posts.map((post) => (
             <article key={post.id} className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
               <div className="relative h-64">
                 <Image
-                  src={post.image}
+                  src={post.image || "/blog-post-1.png"}
                   alt={post.title}
                   fill
                   className="object-cover"
@@ -93,4 +101,3 @@ export default function BlogPage() {
       <Footer />
     </div>
   )
-}

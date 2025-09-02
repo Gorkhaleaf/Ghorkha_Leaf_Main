@@ -1,4 +1,8 @@
-import { products, Product } from "@/lib/products"
+export const dynamic = 'force-dynamic'
+
+import { promises as fs } from "fs"
+import path from "path"
+import { products as defaultProducts, Product } from "@/lib/products"
 import { Header } from "@/components/Header"
 import Footer from "@/components/Footer"
 import ProductHeader from "@/components/ProductHeader"
@@ -9,14 +13,18 @@ import FAQSection from "@/components/FAQSection"
 import RelatedProducts from "@/components/RelatedProducts"
 import CustomerReviews from "@/components/CustomerReviews"
 
-export async function generateStaticParams() {
-  return products.map((product) => ({
-    slug: product.slug,
-  }))
-}
+export default async function ProductPage({ params }: { params: { slug: string } }) {
+  const { slug } = params
+  let products = defaultProducts as Product[]
 
-export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params;
+  try {
+    const runtimePath = path.join(process.cwd(), "lib", "products.runtime.json")
+    const raw = await fs.readFile(runtimePath, "utf8")
+    products = JSON.parse(raw)
+  } catch (err) {
+    // no runtime file exists; use defaults
+  }
+
   const product = products.find((p) => p.slug === slug)
 
   if (!product) {

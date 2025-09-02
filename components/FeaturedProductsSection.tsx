@@ -1,11 +1,29 @@
 import { Button } from "@/components/ui/button"
 import { ProductCard } from "@/components/ProductCard"
-import { products } from "@/lib/products"
 import { Filter, ArrowRight } from "lucide-react"
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
 import Link from "next/link"
+import React, { useEffect, useState } from "react"
 
-const FeaturedProductsSection = () => {
+type Product = any
+
+const FeaturedProductsSection: React.FC = () => {
+  const [products, setProducts] = useState<Product[]>([])
+
+  useEffect(() => {
+    let mounted = true
+    fetch("/api/admin/products")
+      .then((r) => r.ok ? r.json() : Promise.reject(r))
+      .then((data) => {
+        if (mounted) setProducts(data || [])
+      })
+      .catch((err) => {
+        console.error("Failed to load products for featured section", err)
+        setProducts([])
+      })
+    return () => { mounted = false }
+  }, [])
+
   return (
     <section id="featured-products" className="py-8 sm:py-12 bg-white">
       <div className="container mx-auto px-4">

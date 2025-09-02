@@ -4,13 +4,12 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import Image from "next/image"
 import { Check } from "lucide-react"
-import { Product } from "@/lib/products"
 import { useCart } from "@/context/CartContext"
 import { useState } from "react"
 import { BuyNowModal } from "./BuyNowModal"
 
 interface ProductCardProps {
-  product: Product
+  product: any
   compact?: boolean
 }
 
@@ -44,8 +43,8 @@ export function ProductCard({ product, compact = false }: ProductCardProps) {
       >
         <div className={`relative ${compact ? 'h-80 sm:h-48 md:h-80' : 'h-80 sm:h-64 md:h-96'}`}>
           <Image
-            src={product.image}
-            alt={product.name}
+            src={product.image || product.mainImage || "/Products/placeholder.png"}
+            alt={product.name || "product"}
             fill
             className="object-cover"
           />

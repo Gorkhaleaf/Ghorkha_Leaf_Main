@@ -1,24 +1,34 @@
 "use client"
 
-import { useState, useMemo } from "react"
-import { products } from "@/lib/products"
+import { useState, useMemo, useEffect } from "react"
 import { ProductCard } from "@/components/ProductCard"
 import { Header } from "@/components/Header"
 import Footer from "@/components/Footer"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Switch } from "@/components/ui/switch"
-import { ChevronDown, ChevronUp, Filter, X } from "lucide-react"
+import { ChevronDown, ChevronUp, Filter } from "lucide-react"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 
+interface Product {
+  id: number
+  name: string
+  slug?: string
+  description?: string
+  price?: number
+  image?: string
+  mainImage?: string
+  collections?: string[]
+  flavors?: string[]
+  qualities?: string[]
+  isOrganic?: boolean
+}
+
 interface FilterState {
   collections: string[]
-  origin: string[]
   flavor: string[]
   qualities: string[]
-  caffeine: string[]
-  allergens: string[]
   organic: boolean
 }
 
@@ -84,25 +94,31 @@ export default function ProductsPage() {
    const isMobile = useIsMobile()
    const [filters, setFilters] = useState<FilterState>({
      collections: [],
-     origin: [],
      flavor: [],
      qualities: [],
-     caffeine: [],
-     allergens: [],
      organic: false
    })
-
+   const [products, setProducts] = useState<Product[]>([])
    const [expandedSections, setExpandedSections] = useState({
      collections: true,
-     origin: false,
      flavor: false,
-     qualities: false,
-     caffeine: false,
-     allergens: false
+     qualities: false
    })
 
    const [sortBy, setSortBy] = useState("default")
    const [isFilterOpen, setIsFilterOpen] = useState(false)
+
+  useEffect(() => {
+    let mounted = true
+    fetch("/api/admin/products")
+      .then((r) => r.ok ? r.json() : Promise.reject(r))
+      .then((data) => { if (mounted) setProducts(data || []) })
+      .catch((err) => {
+        console.error("Failed to load products", err)
+        setProducts([])
+      })
+    return () => { mounted = false }
+  }, [])
 
   const toggleSection = (section: keyof typeof expandedSections) => {
     setExpandedSections(prev => ({
@@ -112,12 +128,9 @@ export default function ProductsPage() {
   }
 
   const filterOptions = {
-    collections: ["Black teas", "Green teas", "White teas", "Chai", "Matcha", "Herbal teas", "Oolong", "Rooibos", "Teaware"],
-    origin: ["India", "Japan", "Iran", "South Africa"],
-    flavor: ["Spicy", "Sweet", "Citrus", "Smooth", "Fruity", "Floral", "Grassy", "Minty", "Bitter", "Creamy"],
-    qualities: ["Detox", "Energy", "Relax", "Digestion"],
-    caffeine: ["No Caffeine", "Low Caffeine", "Medium Caffeine", "High Caffeine"],
-    allergens: ["Lactose-free", "Gluten-free", "Nuts-free", "Soy-free"]
+    collections: ["Black teas", "Green teas", "Herbal teas"],
+    flavor: ["Spicy", "Sweet", "Citrus", "Smooth", "Fruity", "Floral", "Grassy", "Minty", "Creamy"],
+    qualities: ["Detox", "Energy", "Relax", "Digestion"]
   }
 
   // Filter and sort products based on current filters
@@ -126,20 +139,15 @@ export default function ProductsPage() {
       // Collections filter
       if (filters.collections.length > 0) {
         const hasMatchingCollection = filters.collections.some(collection => 
-          product.collections.includes(collection)
+          (product.collections || []).includes(collection)
         )
         if (!hasMatchingCollection) return false
-      }
-
-      // Origin filter
-      if (filters.origin.length > 0) {
-        if (!filters.origin.includes(product.originCountry || "")) return false
       }
 
       // Flavor filter
       if (filters.flavor.length > 0) {
         const hasMatchingFlavor = filters.flavor.some(flavor => 
-          product.flavors.includes(flavor)
+          (product.flavors || []).includes(flavor)
         )
         if (!hasMatchingFlavor) return false
       }
@@ -147,22 +155,9 @@ export default function ProductsPage() {
       // Qualities filter
       if (filters.qualities.length > 0) {
         const hasMatchingQuality = filters.qualities.some(quality => 
-          product.qualities.includes(quality)
+          (product.qualities || []).includes(quality)
         )
         if (!hasMatchingQuality) return false
-      }
-
-      // Caffeine filter
-      if (filters.caffeine.length > 0) {
-        if (!filters.caffeine.includes(product.caffeineLevel || "")) return false
-      }
-
-      // Allergens filter
-      if (filters.allergens.length > 0) {
-        const hasAllAllergens = filters.allergens.every(allergen => 
-          product.allergens.includes(allergen)
-        )
-        if (!hasAllAllergens) return false
       }
 
       // Organic filter
@@ -174,13 +169,13 @@ export default function ProductsPage() {
     // Sort products
     switch (sortBy) {
       case "price-low":
-        filtered.sort((a, b) => a.price - b.price)
+        filtered.sort((a, b) => (a.price || 0) - (b.price || 0))
         break
       case "price-high":
-        filtered.sort((a, b) => b.price - a.price)
+        filtered.sort((a, b) => (b.price || 0) - (a.price || 0))
         break
       case "name":
-        filtered.sort((a, b) => a.name.localeCompare(b.name))
+        filtered.sort((a, b) => (a.name || "").localeCompare(b.name || ""))
         break
       default:
         // Keep original order
@@ -188,7 +183,7 @@ export default function ProductsPage() {
     }
 
     return filtered
-  }, [filters, sortBy])
+  }, [filters, sortBy, products])
 
   // Mobile Filter Drawer Component
   const MobileFilterDrawer = () => (
@@ -206,16 +201,6 @@ export default function ProductsPage() {
             onChange={(values) => setFilters(prev => ({ ...prev, collections: values }))}
             isExpanded={expandedSections.collections}
             onToggle={() => toggleSection('collections')}
-          />
-
-          {/* Origin Filter */}
-          <FilterSection
-            title="ORIGIN"
-            options={filterOptions.origin}
-            selectedValues={filters.origin}
-            onChange={(values) => setFilters(prev => ({ ...prev, origin: values }))}
-            isExpanded={expandedSections.origin}
-            onToggle={() => toggleSection('origin')}
           />
 
           {/* Flavor Filter */}
@@ -236,26 +221,6 @@ export default function ProductsPage() {
             onChange={(values) => setFilters(prev => ({ ...prev, qualities: values }))}
             isExpanded={expandedSections.qualities}
             onToggle={() => toggleSection('qualities')}
-          />
-
-          {/* Caffeine Filter */}
-          <FilterSection
-            title="CAFFEINE"
-            options={filterOptions.caffeine}
-            selectedValues={filters.caffeine}
-            onChange={(values) => setFilters(prev => ({ ...prev, caffeine: values }))}
-            isExpanded={expandedSections.caffeine}
-            onToggle={() => toggleSection('caffeine')}
-          />
-
-          {/* Allergens Filter */}
-          <FilterSection
-            title="ALLERGENS"
-            options={filterOptions.allergens}
-            selectedValues={filters.allergens}
-            onChange={(values) => setFilters(prev => ({ ...prev, allergens: values }))}
-            isExpanded={expandedSections.allergens}
-            onToggle={() => toggleSection('allergens')}
           />
 
           {/* Organic Toggle */}
@@ -331,16 +296,6 @@ export default function ProductsPage() {
                   onToggle={() => toggleSection('collections')}
                 />
 
-                {/* Origin Filter */}
-                <FilterSection
-                  title="ORIGIN"
-                  options={filterOptions.origin}
-                  selectedValues={filters.origin}
-                  onChange={(values) => setFilters(prev => ({ ...prev, origin: values }))}
-                  isExpanded={expandedSections.origin}
-                  onToggle={() => toggleSection('origin')}
-                />
-
                 {/* Flavor Filter */}
                 <FilterSection
                   title="FLAVOR"
@@ -359,26 +314,6 @@ export default function ProductsPage() {
                   onChange={(values) => setFilters(prev => ({ ...prev, qualities: values }))}
                   isExpanded={expandedSections.qualities}
                   onToggle={() => toggleSection('qualities')}
-                />
-
-                {/* Caffeine Filter */}
-                <FilterSection
-                  title="CAFFEINE"
-                  options={filterOptions.caffeine}
-                  selectedValues={filters.caffeine}
-                  onChange={(values) => setFilters(prev => ({ ...prev, caffeine: values }))}
-                  isExpanded={expandedSections.caffeine}
-                  onToggle={() => toggleSection('caffeine')}
-                />
-
-                {/* Allergens Filter */}
-                <FilterSection
-                  title="ALLERGENS"
-                  options={filterOptions.allergens}
-                  selectedValues={filters.allergens}
-                  onChange={(values) => setFilters(prev => ({ ...prev, allergens: values }))}
-                  isExpanded={expandedSections.allergens}
-                  onToggle={() => toggleSection('allergens')}
                 />
 
                 {/* Organic Toggle */}
@@ -425,16 +360,6 @@ export default function ProductsPage() {
                           onToggle={() => toggleSection('collections')}
                         />
 
-                        {/* Origin Filter */}
-                        <FilterSection
-                          title="ORIGIN"
-                          options={filterOptions.origin}
-                          selectedValues={filters.origin}
-                          onChange={(values) => setFilters(prev => ({ ...prev, origin: values }))}
-                          isExpanded={expandedSections.origin}
-                          onToggle={() => toggleSection('origin')}
-                        />
-
                         {/* Flavor Filter */}
                         <FilterSection
                           title="FLAVOR"
@@ -453,26 +378,6 @@ export default function ProductsPage() {
                           onChange={(values) => setFilters(prev => ({ ...prev, qualities: values }))}
                           isExpanded={expandedSections.qualities}
                           onToggle={() => toggleSection('qualities')}
-                        />
-
-                        {/* Caffeine Filter */}
-                        <FilterSection
-                          title="CAFFEINE"
-                          options={filterOptions.caffeine}
-                          selectedValues={filters.caffeine}
-                          onChange={(values) => setFilters(prev => ({ ...prev, caffeine: values }))}
-                          isExpanded={expandedSections.caffeine}
-                          onToggle={() => toggleSection('caffeine')}
-                        />
-
-                        {/* Allergens Filter */}
-                        <FilterSection
-                          title="ALLERGENS"
-                          options={filterOptions.allergens}
-                          selectedValues={filters.allergens}
-                          onChange={(values) => setFilters(prev => ({ ...prev, allergens: values }))}
-                          isExpanded={expandedSections.allergens}
-                          onToggle={() => toggleSection('allergens')}
                         />
 
                         {/* Organic Toggle */}
@@ -525,11 +430,8 @@ export default function ProductsPage() {
                 <Button
                   onClick={() => setFilters({
                     collections: [],
-                    origin: [],
                     flavor: [],
                     qualities: [],
-                    caffeine: [],
-                    allergens: [],
                     organic: false
                   })}
                   className="mt-4"
