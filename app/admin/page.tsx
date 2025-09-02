@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState, ChangeEvent } from "react";
+import React, { useEffect, useState } from "react";
 
 type Product = {
   id: number;
@@ -28,7 +28,6 @@ export default function AdminPage() {
 
   // Products state
   const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(false);
   const [savingId, setSavingId] = useState<number | null>(null);
 
   // Blogs state
@@ -67,31 +66,6 @@ export default function AdminPage() {
       copy[idx] = { ...copy[idx], ...updates };
       return copy;
     });
-  }
-
-  async function uploadImage(file: File) {
-    if (!file) throw new Error("no file");
-    const reader = new FileReader();
-    const dataURL: string = await new Promise((res, rej) => {
-      reader.onload = () => res(reader.result as string);
-      reader.onerror = rej;
-      reader.readAsDataURL(file);
-    });
-
-    const resp = await fetch("/api/admin/products/upload", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        filename: file.name,
-        dataUrl: dataURL,
-      }),
-    });
-
-    const json = await resp.json();
-    if (!resp.ok) {
-      throw new Error(json?.error || "upload failed");
-    }
-    return json.path as string;
   }
 
   async function saveProduct(idx: number) {
@@ -172,30 +146,30 @@ export default function AdminPage() {
     setSavingBlogId(id);
     try {
       const resp = await fetch("/api/admin/blogs/delete", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id }),
-        });
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
 
-        const contentType = resp.headers.get("content-type") || "";
-        let json: any = null;
-        if (contentType.includes("application/json")) {
-          try {
-            json = await resp.json();
-          } catch (e) {
-            json = { error: "Invalid JSON response" };
-          }
-        } else {
-          const text = await resp.text();
-          json = { error: text };
+      const contentType = resp.headers.get("content-type") || "";
+      let json: any = null;
+      if (contentType.includes("application/json")) {
+        try {
+          json = await resp.json();
+        } catch (e) {
+          json = { error: "Invalid JSON response" };
         }
+      } else {
+        const text = await resp.text();
+        json = { error: text };
+      }
 
-        if (!resp.ok) {
-          console.error("Delete failed", json);
-          const errMsg = json?.error || (typeof json === "object" ? JSON.stringify(json) : String(json));
-          alert("Delete failed: " + errMsg);
-          return;
-        }
+      if (!resp.ok) {
+        console.error("Delete failed", json);
+        const errMsg = json?.error || (typeof json === "object" ? JSON.stringify(json) : String(json));
+        alert("Delete failed: " + errMsg);
+        return;
+      }
       setBlogs((b) => {
         const copy = [...b];
         copy.splice(idx, 1);
@@ -309,21 +283,10 @@ export default function AdminPage() {
 
                         <div className="flex items-center gap-3 mt-2">
                           <input
-                            type="file"
-                            accept="image/*"
-                            onChange={async (e: ChangeEvent<HTMLInputElement>) => {
-                              const f = e.target.files?.[0];
-                              if (!f) return;
-                              try {
-                                setLoading(true);
-                                const path = await uploadImage(f);
-                                updateLocalProduct(idx, { image: path, mainImage: path });
-                              } catch (err) {
-                                alert("Upload failed: " + String(err));
-                              } finally {
-                                setLoading(false);
-                              }
-                            }}
+                            value={product.image || product.mainImage || ""}
+                            onChange={(e) => updateLocalProduct(idx, { image: e.target.value, mainImage: e.target.value })}
+                            placeholder="/Products/your-image.png"
+                            className="w-full p-2 border rounded"
                           />
                           <button
                             onClick={() => saveProduct(idx)}
@@ -390,21 +353,10 @@ export default function AdminPage() {
 
                         <div className="flex items-center gap-3 mt-2">
                           <input
-                            type="file"
-                            accept="image/*"
-                            onChange={async (e: ChangeEvent<HTMLInputElement>) => {
-                              const f = e.target.files?.[0];
-                              if (!f) return;
-                              try {
-                                setLoading(true);
-                                const path = await uploadImage(f);
-                                updateLocalBlog(idx, { image: path });
-                              } catch (err) {
-                                alert("Upload failed: " + String(err));
-                              } finally {
-                                setLoading(false);
-                              }
-                            }}
+                            value={blog.image || ""}
+                            onChange={(e) => updateLocalBlog(idx, { image: e.target.value })}
+                            placeholder="/Products/your-image.png"
+                            className="w-full p-2 border rounded"
                           />
                           <button
                             onClick={() => saveBlog(idx)}
@@ -442,36 +394,6 @@ function AddBlogForm({ onCreate, creating }: { onCreate: (b: Partial<Blog>) => P
   const [description, setDescription] = useState("");
   const [content, setContent] = useState("");
   const [imagePath, setImagePath] = useState<string | undefined>(undefined);
-  const [loadingImage, setLoadingImage] = useState(false);
-
-  async function uploadAndSet(file?: File) {
-    if (!file) return;
-    setLoadingImage(true);
-    try {
-      const reader = new FileReader();
-      const dataURL: string = await new Promise((res, rej) => {
-        reader.onload = () => res(reader.result as string);
-        reader.onerror = rej;
-        reader.readAsDataURL(file);
-      });
-
-      const resp = await fetch("/api/admin/products/upload", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ filename: file.name, dataUrl: dataURL }),
-      });
-      const json = await resp.json();
-      if (!resp.ok) {
-        throw new Error(json?.error || "upload failed");
-      }
-      setImagePath(json.path);
-    } catch (err) {
-      console.error("upload error", err);
-      alert("Upload failed: " + String(err));
-    } finally {
-      setLoadingImage(false);
-    }
-  }
 
   async function handleCreate() {
     if (!title || !slug) {
@@ -506,11 +428,8 @@ function AddBlogForm({ onCreate, creating }: { onCreate: (b: Partial<Blog>) => P
         <label className="block text-sm font-medium">Content (HTML)</label>
         <textarea value={content} onChange={(e) => setContent(e.target.value)} className="w-full p-2 border rounded mb-2" rows={8} />
 
-        <label className="block text-sm font-medium">Image</label>
-        <input type="file" accept="image/*" onChange={(e: ChangeEvent<HTMLInputElement>) => {
-          const f = e.target.files?.[0];
-          if (f) uploadAndSet(f);
-        }} />
+        <label className="block text-sm font-medium">Image Path</label>
+        <input value={imagePath || ""} onChange={(e) => setImagePath(e.target.value)} placeholder="/Products/your-image.png" className="w-full p-2 border rounded mb-2" />
 
         <div className="mt-4">
           <button onClick={handleCreate} disabled={creating} className="px-4 py-2 bg-green-600 text-white rounded">
