@@ -59,7 +59,7 @@ export function ProductCard({ product, compact = false }: ProductCardProps) {
             </h3>
             <p className={`text-gray-600 line-clamp-1 min-h-[1rem] ${
               compact ? 'text-xs sm:text-xs' : 'text-sm sm:text-sm'
-            }`}>{product.subname}</p>
+            }`}>{product.subname || product.subtitle}</p>
           </div>
 
           {/* Spacer to push buttons to bottom - reduced by 50% */}

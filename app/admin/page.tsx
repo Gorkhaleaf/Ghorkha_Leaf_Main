@@ -5,6 +5,7 @@ import React, { useEffect, useState } from "react";
 type Product = {
   id: number;
   name: string;
+  subname?: string;
   slug?: string;
   description?: string;
   price?: number;
@@ -262,6 +263,13 @@ export default function AdminPage() {
                         <input
                           value={product.name || ""}
                           onChange={(e) => updateLocalProduct(idx, { name: e.target.value })}
+                          className="w-full p-2 border rounded mb-2"
+                        />
+
+                        <label className="block text-sm font-medium">Subname</label>
+                        <input
+                          value={(product as any).subname || ""}
+                          onChange={(e) => updateLocalProduct(idx, { subname: e.target.value })}
                           className="w-full p-2 border rounded mb-2"
                         />
 

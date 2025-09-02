@@ -1,9 +1,17 @@
 import { NextResponse } from "next/server";
-import { promises as fs } from "fs";
-import path from "path";
-import { products as defaultProducts } from "../../../../../lib/products";
+import { createClient } from "@supabase/supabase-js";
+
+const SUPABASE_URL = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+const SUPABASE_KEY =
+  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || null;
 
 export async function POST(req: Request) {
+  if (!SUPABASE_URL || !SUPABASE_KEY) {
+    return NextResponse.json({ error: "Missing SUPABASE_URL or SUPABASE_KEY in environment" }, { status: 500 });
+  }
+
+  const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
   try {
     const body = await req.json();
     const { id, updates } = body || {};
@@ -11,29 +19,34 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing id or updates" }, { status: 400 });
     }
 
-    const runtimePath = path.join(process.cwd(), "lib", "products.runtime.json");
-    let products = defaultProducts;
+    // Map client fields to DB columns
+    const dbUpdates: any = {
+      ...(typeof updates.name !== "undefined" ? { name: updates.name } : {}),
+      ...(typeof updates.subname !== "undefined" ? { subname: updates.subname } : {}),
+      ...(typeof updates.slug !== "undefined" ? { slug: updates.slug } : {}),
+      ...(typeof updates.description !== "undefined" ? { description: updates.description } : {}),
+      ...(typeof updates.price !== "undefined" ? { price: updates.price } : {}),
+      // image path stored in 'image' column
+      ...(typeof updates.image !== "undefined" ? { image: updates.image } : {}),
+      // mainImage from client maps to main_image in DB
+      ...(typeof updates.mainImage !== "undefined" ? { main_image: updates.mainImage } : {}),
+    };
 
-    try {
-      const raw = await fs.readFile(runtimePath, "utf8");
-      products = JSON.parse(raw);
-    } catch (err) {
-      // no runtime file exists yet; use defaults
+    const { data, error } = await supabase
+      .from("products")
+      .update(dbUpdates)
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Supabase update product error", error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    const idx = products.findIndex((p: any) => p.id === id);
-    if (idx === -1) {
-      return NextResponse.json({ error: "Product not found" }, { status: 404 });
-    }
-
-    const updated = { ...products[idx], ...updates };
-    products[idx] = updated;
-
-    await fs.writeFile(runtimePath, JSON.stringify(products, null, 2), "utf8");
-
-    return NextResponse.json(updated);
+    return NextResponse.json(data);
   } catch (err) {
-    console.error("update error", err);
+    console.error("product update error", err);
     return NextResponse.json({ error: String(err) }, { status: 500 });
   }
 }
