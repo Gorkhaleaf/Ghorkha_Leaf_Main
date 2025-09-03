@@ -108,9 +108,35 @@ export default function ProductsPage() {
    const [sortBy, setSortBy] = useState("default")
    const [isFilterOpen, setIsFilterOpen] = useState(false)
 
+  // Function to build API URL with filter parameters
+  const buildApiUrl = (filters: FilterState) => {
+    const params = new URLSearchParams()
+
+    if (filters.collections.length > 0) {
+      params.append('collections', filters.collections.join(','))
+    }
+
+    if (filters.flavor.length > 0) {
+      params.append('flavors', filters.flavor.join(','))
+    }
+
+    if (filters.qualities.length > 0) {
+      params.append('qualities', filters.qualities.join(','))
+    }
+
+    if (filters.organic) {
+      params.append('organic', 'true')
+    }
+
+    const queryString = params.toString()
+    return `/api/admin/products${queryString ? `?${queryString}` : ''}`
+  }
+
   useEffect(() => {
     let mounted = true
-    fetch("/api/admin/products")
+    const apiUrl = buildApiUrl(filters)
+
+    fetch(apiUrl)
       .then((r) => r.ok ? r.json() : Promise.reject(r))
       .then((data) => { if (mounted) setProducts(data || []) })
       .catch((err) => {
@@ -118,7 +144,7 @@ export default function ProductsPage() {
         setProducts([])
       })
     return () => { mounted = false }
-  }, [])
+  }, [filters])
 
   const toggleSection = (section: keyof typeof expandedSections) => {
     setExpandedSections(prev => ({
@@ -133,57 +159,28 @@ export default function ProductsPage() {
     qualities: ["Detox", "Energy", "Relax", "Digestion"]
   }
 
-  // Filter and sort products based on current filters
-  const filteredAndSortedProducts = useMemo(() => {
-    let filtered = products.filter(product => {
-      // Collections filter
-      if (filters.collections.length > 0) {
-        const hasMatchingCollection = filters.collections.some(collection => 
-          (product.collections || []).includes(collection)
-        )
-        if (!hasMatchingCollection) return false
-      }
-
-      // Flavor filter
-      if (filters.flavor.length > 0) {
-        const hasMatchingFlavor = filters.flavor.some(flavor => 
-          (product.flavors || []).includes(flavor)
-        )
-        if (!hasMatchingFlavor) return false
-      }
-
-      // Qualities filter
-      if (filters.qualities.length > 0) {
-        const hasMatchingQuality = filters.qualities.some(quality => 
-          (product.qualities || []).includes(quality)
-        )
-        if (!hasMatchingQuality) return false
-      }
-
-      // Organic filter
-      if (filters.organic && !product.isOrganic) return false
-
-      return true
-    })
+  // Sort products based on current sort selection
+  const sortedProducts = useMemo(() => {
+    let sorted = [...products]
 
     // Sort products
     switch (sortBy) {
       case "price-low":
-        filtered.sort((a, b) => (a.price || 0) - (b.price || 0))
+        sorted.sort((a, b) => (a.price || 0) - (b.price || 0))
         break
       case "price-high":
-        filtered.sort((a, b) => (b.price || 0) - (a.price || 0))
+        sorted.sort((a, b) => (b.price || 0) - (a.price || 0))
         break
       case "name":
-        filtered.sort((a, b) => (a.name || "").localeCompare(b.name || ""))
+        sorted.sort((a, b) => (a.name || "").localeCompare(b.name || ""))
         break
       default:
         // Keep original order
         break
     }
 
-    return filtered
-  }, [filters, sortBy, products])
+    return sorted
+  }, [sortBy, products])
 
   // Mobile Filter Drawer Component
   const MobileFilterDrawer = () => (
@@ -397,8 +394,8 @@ export default function ProductsPage() {
                   </Sheet>
                 )}
                 <div className="text-sm text-gray-600">
-                  Showing {filteredAndSortedProducts.length} of {products.length} products
-                </div>
+                   Showing {sortedProducts.length} products
+                 </div>
               </div>
               <div className="flex items-center gap-2 sm:gap-4 w-full sm:w-auto">
                 <span className="font-medium text-sm sm:text-base text-gray-900 uppercase tracking-wide whitespace-nowrap">
@@ -418,9 +415,9 @@ export default function ProductsPage() {
             </div>
 
             {/* Products Grid */}
-            {filteredAndSortedProducts.length > 0 ? (
+            {sortedProducts.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {filteredAndSortedProducts.map(product => (
+                {sortedProducts.map((product: Product) => (
                   <ProductCard key={product.id} product={product} compact={true} />
                 ))}
               </div>
