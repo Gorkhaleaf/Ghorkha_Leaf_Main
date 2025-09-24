@@ -47,7 +47,7 @@ export function ProductCard({ product, compact = false }: ProductCardProps) {
         {/* Image Container */}
         <div 
           className={`relative bg-gray-50 ${
-            compact ? 'h-48 sm:h-52' : 'h-56 sm:h-64'
+            compact ? 'h-40 sm:h-48' : 'h-56 sm:h-64'
           }`}
           onClick={handleProductClick}
         >
@@ -72,31 +72,31 @@ export function ProductCard({ product, compact = false }: ProductCardProps) {
         </div>
 
         {/* Content Container */}
-        <div className={`flex flex-col flex-1 ${compact ? 'p-3' : 'p-4'}`}>
+        <div className={`flex flex-col flex-1 ${compact ? 'p-2 sm:p-3' : 'p-4'}`}>
           {/* Product Info */}
-          <div className="flex-1 mb-4" onClick={handleProductClick}>
-            <h3 className={`font-semibold text-gray-900 mb-2 line-clamp-2 group-hover:text-brand-green transition-colors duration-200 ${
-              compact ? 'text-xs leading-tight' : 'text-sm leading-tight'
+          <div className={`flex-1 ${compact ? 'mb-2 sm:mb-4' : 'mb-4'}`} onClick={handleProductClick}>
+            <h3 className={`font-semibold text-gray-900 line-clamp-2 group-hover:text-brand-green transition-colors duration-200 ${
+              compact ? 'text-xs leading-tight mb-1 sm:mb-2' : 'text-sm leading-tight mb-2'
             }`}>
               {product.name}
             </h3>
             
             {(product.subname || product.subtitle) && (
-              <p className={`text-gray-500 line-clamp-2 mb-3 ${
-                compact ? 'text-xs' : 'text-xs'
+              <p className={`text-gray-500 line-clamp-1 ${
+                compact ? 'text-xs mb-1 sm:mb-2' : 'text-xs mb-3'
               }`}>
                 {product.subname || product.subtitle}
               </p>
             )}
 
-            {/* Collections/Tags */}
+            {/* Collections/Tags - Limited for compact mobile */}
             {product.collections && product.collections.length > 0 && (
-              <div className="flex flex-wrap gap-1 mb-3">
-                {product.collections.slice(0, 2).map((collection: string, index: number) => (
+              <div className={`flex flex-wrap gap-1 ${compact ? 'mb-1 sm:mb-3' : 'mb-3'}`}>
+                {product.collections.slice(0, compact ? 1 : 2).map((collection: string, index: number) => (
                   <span 
                     key={index} 
                     className={`bg-gray-100 text-gray-600 rounded-full ${
-                      compact ? 'text-xs px-2 py-1' : 'text-xs px-2 py-1'
+                      compact ? 'text-xs px-2 py-0.5' : 'text-xs px-2 py-1'
                     }`}
                   >
                     {collection}
@@ -107,10 +107,10 @@ export function ProductCard({ product, compact = false }: ProductCardProps) {
           </div>
 
           {/* Price Section */}
-          <div className="mb-4">
-            <div className="flex items-baseline gap-2">
+          <div className={`${compact ? 'mb-2 sm:mb-4' : 'mb-4'}`}>
+            <div className="flex items-baseline gap-2 flex-wrap">
               <span className={`font-bold text-brand-green ${
-                compact ? 'text-base' : 'text-lg'
+                compact ? 'text-sm sm:text-base' : 'text-lg'
               }`}>
                 ₹{product.price}
               </span>
@@ -121,9 +121,11 @@ export function ProductCard({ product, compact = false }: ProductCardProps) {
                   }`}>
                     ₹{product.originalPrice}
                   </span>
-                  <span className="bg-red-100 text-red-600 text-xs font-semibold px-2 py-1 rounded-full">
-                    Save ₹{product.originalPrice - product.price}
-                  </span>
+                  {!compact && (
+                    <span className="bg-red-100 text-red-600 text-xs font-semibold px-2 py-1 rounded-full">
+                      Save ₹{product.originalPrice - product.price}
+                    </span>
+                  )}
                 </>
               )}
             </div>
@@ -135,7 +137,7 @@ export function ProductCard({ product, compact = false }: ProductCardProps) {
               onClick={handleAddToCart}
               className={`flex-1 bg-brand-green hover:bg-brand-green/90 text-white rounded-lg font-medium transition-all duration-200 active:scale-95 flex items-center justify-center gap-1 ${
                 compact 
-                  ? 'py-2 px-3 text-[10px]' 
+                  ? 'py-1.5 px-2 text-xs' 
                   : 'py-2.5 px-3 text-[11px]'
               }`}
             >
@@ -158,7 +160,7 @@ export function ProductCard({ product, compact = false }: ProductCardProps) {
               onClick={handleBuyNow}
               className={`flex-1 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-medium transition-all duration-200 active:scale-95 flex items-center justify-center gap-1 ${
                 compact 
-                  ? 'py-2 px-3 text-[10px]' 
+                  ? 'py-1.5 px-2 text-xs' 
                   : 'py-2.5 px-3 text-[11px]'
               }`}
             >

@@ -40,7 +40,34 @@ const FeaturedProductsSection: React.FC = () => {
           </div>
         </div>
 
-        <div className="relative overflow-hidden py-6 sm:py-8 px-8 sm:px-12">
+        {/* Mobile: Carousel with 2 cards, Desktop: Multi-card Carousel */}
+        <div className="block sm:hidden">
+          {/* Mobile Carousel - 2 cards at a time */}
+          <div className="relative overflow-hidden">
+            <Carousel
+              opts={{
+                align: "start",
+                loop: true,
+                skipSnaps: false,
+              }}
+              className="w-full"
+            >
+              <CarouselContent className="-ml-2">
+                {products.map((product) => (
+                  <CarouselItem key={product.id} className="basis-1/2 pl-2">
+                    <div className="max-w-sm mx-auto w-full">
+                      <ProductCard product={product} compact={true} />
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="left-2 bg-white hover:bg-gray-50 border-2 border-brand-green/20 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 w-8 h-8 z-10" />
+              <CarouselNext className="right-2 bg-white hover:bg-gray-50 border-2 border-brand-green/20 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 w-8 h-8 z-10" />
+            </Carousel>
+          </div>
+        </div>
+
+        <div className="hidden sm:block relative overflow-hidden py-6 sm:py-8 px-0 sm:px-12">
           <Carousel
             opts={{
               align: "start",
@@ -49,9 +76,9 @@ const FeaturedProductsSection: React.FC = () => {
             }}
             className="w-full featured-products-carousel"
           >
-            <CarouselContent className="-ml-3 sm:-ml-4">
+            <CarouselContent className="ml-0 sm:-ml-4">
               {products.map((product) => (
-                <CarouselItem key={product.id} className="basis-[85%] xs:basis-1/2 sm:basis-1/2 md:basis-1/3 lg:basis-1/4 xl:basis-1/5 pl-3 sm:pl-4">
+                <CarouselItem key={product.id} className="basis-[95%] xs:basis-1/2 sm:basis-1/2 md:basis-1/3 lg:basis-1/4 xl:basis-1/5 pl-0 pr-3 sm:pl-4 sm:pr-0">
                   <div className="h-full max-w-sm mx-auto">
                     <ProductCard product={product} compact={true} />
                   </div>
