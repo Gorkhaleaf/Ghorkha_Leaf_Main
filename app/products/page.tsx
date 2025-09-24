@@ -416,9 +416,11 @@ export default function ProductsPage() {
 
             {/* Products Grid */}
             {sortedProducts.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 sm:gap-6">
                 {sortedProducts.map((product: Product) => (
-                  <ProductCard key={product.id} product={product} compact={true} />
+                  <div key={product.id} className="max-w-sm mx-auto sm:max-w-none w-full">
+                    <ProductCard product={product} compact={true} />
+                  </div>
                 ))}
               </div>
             ) : (

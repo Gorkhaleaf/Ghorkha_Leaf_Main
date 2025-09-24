@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import Image from "next/image"
-import { Check } from "lucide-react"
+import { Check, ShoppingCart, Zap } from "lucide-react"
 import { useCart } from "@/context/CartContext"
 import { useState } from "react"
 import { BuyNowModal } from "./BuyNowModal"
@@ -18,6 +18,7 @@ export function ProductCard({ product, compact = false }: ProductCardProps) {
   const { addToCart } = useCart()
   const [added, setAdded] = useState(false)
   const [showBuyNowModal, setShowBuyNowModal] = useState(false)
+  const [imageError, setImageError] = useState(false)
 
   const handleProductClick = () => {
     router.push(`/products/${product.slug}`)
@@ -35,81 +36,140 @@ export function ProductCard({ product, compact = false }: ProductCardProps) {
     setShowBuyNowModal(true)
   }
 
+  const getImageSrc = () => {
+    if (imageError) return "/placeholder-logo.png"
+    return product.image || product.mainImage || "/placeholder-logo.png"
+  }
+
   return (
     <>
-      <div
-        className="border rounded-lg overflow-hidden hover:shadow-lg transition-shadow cursor-pointer h-full flex flex-col"
-        onClick={handleProductClick}
-      >
-        <div className={`relative ${compact ? 'h-80 sm:h-48 md:h-80' : 'h-80 sm:h-64 md:h-96'}`}>
+      <div className="group bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-xl hover:border-brand-green/20 transition-all duration-300 cursor-pointer h-full flex flex-col">
+        {/* Image Container */}
+        <div 
+          className={`relative bg-gray-50 ${
+            compact ? 'h-48 sm:h-52' : 'h-56 sm:h-64'
+          }`}
+          onClick={handleProductClick}
+        >
           <Image
-            src={product.image || product.mainImage || "/Products/placeholder.png"}
-            alt={product.name || "product"}
+            src={getImageSrc()}
+            alt={product.name || "Product"}
             fill
-            className="object-cover"
+            className="object-contain p-2 group-hover:scale-105 transition-transform duration-300"
+            onError={() => setImageError(true)}
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
           />
+          
+          {/* Overlay on hover */}
+          <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          
+          {/* Organic Badge */}
+          {product.isOrganic && (
+            <div className="absolute top-3 left-3 bg-green-100 text-green-800 text-xs font-semibold px-2 py-1 rounded-full">
+              Organic
+            </div>
+          )}
         </div>
-        <div className={`p-3 sm:p-3 flex flex-col h-full ${compact ? 'p-2 sm:p-2' : 'p-4 sm:p-4'}`}>
-          {/* Product Info Section - Fixed height */}
-          <div className="flex-none mb-2">
-            <h3 className={`font-semibold mb-2 cursor-pointer hover:text-green-600 line-clamp-2 min-h-[3rem] flex items-start ${
-              compact ? 'text-base sm:text-base' : 'text-lg sm:text-lg'
+
+        {/* Content Container */}
+        <div className={`flex flex-col flex-1 ${compact ? 'p-3' : 'p-4'}`}>
+          {/* Product Info */}
+          <div className="flex-1 mb-4" onClick={handleProductClick}>
+            <h3 className={`font-semibold text-gray-900 mb-2 line-clamp-2 group-hover:text-brand-green transition-colors duration-200 ${
+              compact ? 'text-xs leading-tight' : 'text-sm leading-tight'
             }`}>
               {product.name}
             </h3>
-            <p className={`text-gray-600 line-clamp-1 min-h-[1rem] ${
-              compact ? 'text-xs sm:text-xs' : 'text-sm sm:text-sm'
-            }`}>{product.subname || product.subtitle}</p>
+            
+            {(product.subname || product.subtitle) && (
+              <p className={`text-gray-500 line-clamp-2 mb-3 ${
+                compact ? 'text-xs' : 'text-xs'
+              }`}>
+                {product.subname || product.subtitle}
+              </p>
+            )}
+
+            {/* Collections/Tags */}
+            {product.collections && product.collections.length > 0 && (
+              <div className="flex flex-wrap gap-1 mb-3">
+                {product.collections.slice(0, 2).map((collection: string, index: number) => (
+                  <span 
+                    key={index} 
+                    className={`bg-gray-100 text-gray-600 rounded-full ${
+                      compact ? 'text-xs px-2 py-1' : 'text-xs px-2 py-1'
+                    }`}
+                  >
+                    {collection}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
 
-          {/* Spacer to push buttons to bottom - reduced by 50% */}
-          <div className="h-8"></div>
+          {/* Price Section */}
+          <div className="mb-4">
+            <div className="flex items-baseline gap-2">
+              <span className={`font-bold text-brand-green ${
+                compact ? 'text-base' : 'text-lg'
+              }`}>
+                ₹{product.price}
+              </span>
+              {product.originalPrice && product.originalPrice > product.price && (
+                <>
+                  <span className={`text-gray-400 line-through ${
+                    compact ? 'text-xs' : 'text-sm'
+                  }`}>
+                    ₹{product.originalPrice}
+                  </span>
+                  <span className="bg-red-100 text-red-600 text-xs font-semibold px-2 py-1 rounded-full">
+                    Save ₹{product.originalPrice - product.price}
+                  </span>
+                </>
+              )}
+            </div>
+          </div>
 
-          {/* Price and Buttons Section - Always at bottom */}
-          <div className="flex-none">
-            <div className="flex flex-col sm:flex-row sm:items-center mb-2">
-              <span className={`font-bold text-green-600 ${
-                compact ? 'text-sm sm:text-sm' : 'text-base sm:text-lg'
-              }`}>₹{product.price}</span>
-              <span className={`text-gray-500 line-through sm:ml-2 ${
-                compact ? 'text-xs sm:text-xs' : 'text-sm sm:text-base'
-              }`}>₹{product.originalPrice}</span>
-            </div>
-            <div className="flex gap-2">
-              <button
-                onClick={handleAddToCart}
-                className={`flex-1 bg-green-600 text-white rounded hover:bg-green-700 transition-colors ${
-                  compact
-                    ? 'px-2 py-1.5 text-xs sm:text-xs'
-                    : 'px-3 py-2 sm:px-4 sm:py-2 text-sm sm:text-base'
-                }`}
-              >
-                {added ? (
-                  <div className="flex items-center justify-center">
-                    <Check className={`mr-1 ${compact ? 'h-3 w-3' : 'h-4 w-4'}`} />
-                    <span className="hidden sm:inline">Added</span>
-                    <span className="sm:hidden">✓</span>
-                  </div>
-                ) : (
+          {/* Action Buttons */}
+          <div className="flex gap-2">
+            <button
+              onClick={handleAddToCart}
+              className={`flex-1 bg-brand-green hover:bg-brand-green/90 text-white rounded-lg font-medium transition-all duration-200 active:scale-95 flex items-center justify-center gap-1 ${
+                compact 
+                  ? 'py-2 px-3 text-[10px]' 
+                  : 'py-2.5 px-3 text-[11px]'
+              }`}
+            >
+              {added ? (
+                <>
+                  <Check className="h-3 w-3" />
+                  <span className="hidden sm:inline">Added</span>
+                  <span className="sm:hidden">✓</span>
+                </>
+              ) : (
+                <>
+                  <ShoppingCart className="h-3 w-3" />
                   <span className="hidden sm:inline">Add to Cart</span>
-                )}
-                {!added && <span className="sm:hidden">Add</span>}
-              </button>
-              <button
-                onClick={handleBuyNow}
-                className={`flex-1 bg-orange-600 text-white rounded hover:bg-orange-700 transition-colors ${
-                  compact
-                    ? 'px-2 py-1.5 text-xs sm:text-xs'
-                    : 'px-3 py-2 sm:px-4 sm:py-2 text-sm sm:text-base'
-                }`}
-              >
-                <span className="hidden sm:inline">Buy Now</span>
-                <span className="sm:hidden">Buy</span>
-              </button>
-            </div>
+                  <span className="sm:hidden">Add</span>
+                </>
+              )}
+            </button>
+            
+            <button
+              onClick={handleBuyNow}
+              className={`flex-1 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-medium transition-all duration-200 active:scale-95 flex items-center justify-center gap-1 ${
+                compact 
+                  ? 'py-2 px-3 text-[10px]' 
+                  : 'py-2.5 px-3 text-[11px]'
+              }`}
+            >
+              <Zap className="h-3 w-3" />
+              <span className="hidden sm:inline">Buy Now</span>
+              <span className="sm:hidden">Buy</span>
+            </button>
           </div>
         </div>
       </div>
+      
       {showBuyNowModal && (
         <BuyNowModal
           product={product}

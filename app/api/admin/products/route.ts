@@ -7,12 +7,6 @@ const SUPABASE_KEY =
   process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || null;
 
 export async function GET(request: Request) {
-  if (!SUPABASE_URL || !SUPABASE_KEY) {
-    console.error("Missing SUPABASE_URL or SUPABASE_KEY in environment");
-    return NextResponse.json({ error: "Missing SUPABASE_URL or SUPABASE_KEY in environment" }, { status: 500 });
-  }
-
-  const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
   const { searchParams } = new URL(request.url);
 
   // Extract filter parameters
@@ -21,34 +15,47 @@ export async function GET(request: Request) {
   const qualities = searchParams.get('qualities')?.split(',').filter(Boolean) || [];
   const organic = searchParams.get('organic') === 'true';
 
-  try {
-    // Get products from Supabase
-    const { data: supabaseProducts, error } = await supabase
-      .from("products")
-      .select("*")
-      .order("id", { ascending: true });
+  let productsData = products; // Default to hardcoded products
 
-    if (error) {
-      console.error("Supabase fetch products error", error);
-      return NextResponse.json({ error: error.message }, { status: 500 });
+  // Try to fetch from Supabase if configured
+  if (SUPABASE_URL && SUPABASE_KEY) {
+    try {
+      const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+      
+      const { data: supabaseProducts, error } = await supabase
+        .from("products")
+        .select("*")
+        .order("id", { ascending: true });
+
+      if (error) {
+        console.warn("Supabase fetch products error, falling back to hardcoded data:", error);
+        // Continue with hardcoded data
+      } else if (supabaseProducts && supabaseProducts.length > 0) {
+        // Merge Supabase data with hardcoded product details for filtering
+        productsData = supabaseProducts.map(supabaseProduct => {
+          const hardcodedProduct = products.find(p => p.id === supabaseProduct.id);
+          return {
+            ...supabaseProduct,
+            ...hardcodedProduct,
+            // Ensure we have the filter fields from hardcoded data
+            collections: hardcodedProduct?.collections || [],
+            flavors: hardcodedProduct?.flavors || [],
+            qualities: hardcodedProduct?.qualities || [],
+            isOrganic: hardcodedProduct?.isOrganic || false,
+          };
+        });
+      }
+    } catch (err) {
+      console.warn("Supabase connection failed, using hardcoded data:", err);
+      // Continue with hardcoded data
     }
+  } else {
+    console.info("Supabase not configured, using hardcoded products data");
+  }
 
-    // Merge Supabase data with hardcoded product details for filtering
-    const mergedProducts = (supabaseProducts || []).map(supabaseProduct => {
-      const hardcodedProduct = products.find(p => p.id === supabaseProduct.id);
-      return {
-        ...supabaseProduct,
-        ...hardcodedProduct,
-        // Ensure we have the filter fields from hardcoded data
-        collections: hardcodedProduct?.collections || [],
-        flavors: hardcodedProduct?.flavors || [],
-        qualities: hardcodedProduct?.qualities || [],
-        isOrganic: hardcodedProduct?.isOrganic || false,
-      };
-    });
-
-    // Apply filters using the merged data
-    let filteredProducts = mergedProducts;
+  try {
+    // Apply filters using the products data
+    let filteredProducts = productsData;
 
     if (collections.length > 0) {
       filteredProducts = filteredProducts.filter(product =>

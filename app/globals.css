@@ -301,22 +301,47 @@
   }
 }
 
-/* Desktop adjustments for taller images */
+/* Line clamping utilities */
+.line-clamp-1 {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Product card hover effects */
+.product-card-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.product-card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Carousel improvements */
+.featured-products-carousel .embla__slide {
+  min-width: 0;
+  flex: 0 0 auto;
+}
+
+/* Desktop adjustments for better spacing */
 @media (min-width: 768px) {
   .featured-products-carousel [role="group"] {
-    height: 520px !important;
-    display: flex !important;
-    flex-direction: column !important;
-  }
-
-  .featured-products-carousel [role="group"] > div {
-    height: 100% !important;
-    display: flex !important;
-    flex-direction: column !important;
-  }
-
-  .featured-products-carousel [role="group"] > div > div {
-    height: 100% !important;
     display: flex !important;
     flex-direction: column !important;
   }
