@@ -91,8 +91,8 @@ const AuthModal = ({ onClose, onAuthSuccess }: AuthModalProps) => {
               <input
                 type="email"
                 placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={email || ''}
+                onChange={(e) => setEmail(e.target.value || '')}
                 required
               />
             </div>
@@ -102,8 +102,8 @@ const AuthModal = ({ onClose, onAuthSuccess }: AuthModalProps) => {
               <input
                 type="tel"
                 placeholder={isSignUp ? "Phone (required)" : "Phone (optional)"}
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
+                value={phone || ''}
+                onChange={(e) => setPhone(e.target.value || '')}
                 required={isSignUp}
               />
             </div>
@@ -113,8 +113,8 @@ const AuthModal = ({ onClose, onAuthSuccess }: AuthModalProps) => {
               <input
                 type={showPassword ? 'text' : 'password'}
                 placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                value={password || ''}
+                onChange={(e) => setPassword(e.target.value || '')}
                 required
               />
               <i

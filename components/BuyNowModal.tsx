@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { createPortal } from "react-dom"
 import { Product } from "@/lib/products"
 import { createClient } from '@/lib/supabase/client'
 import type { Session } from '@supabase/supabase-js'
@@ -8,6 +9,7 @@ import AuthModal from '@/components/AuthModal/AuthModal'
 import { toast } from "sonner"
 import { ToastAction } from "@/components/ui/toast"
 import { useToast } from "@/hooks/use-toast"
+import { Zap } from "lucide-react"
 
 interface BuyNowModalProps {
   product: Product
@@ -20,8 +22,16 @@ export function BuyNowModal({ product, onClose }: BuyNowModalProps) {
   const [loading, setLoading] = useState(false)
   const [authPromptShown, setAuthPromptShown] = useState(false)
   const [pendingPayment, setPendingPayment] = useState(false)
+  const [mounted, setMounted] = useState(false)
+  const [addressWarning, setAddressWarning] = useState<string | null>(null)
   const supabase = createClient()
   const { toast: uiToast } = useToast()
+
+  // Ensure component is mounted before rendering portal
+  useEffect(() => {
+    setMounted(true)
+    return () => setMounted(false)
+  }, [])
 
   // Initialize session and listen for auth changes
   useEffect(() => {
@@ -129,18 +139,13 @@ export function BuyNowModal({ product, onClose }: BuyNowModalProps) {
       }
 
       if (!profile || !profile.address_line_1 || !profile.city || !profile.state || !profile.pincode) {
-        uiToast({
-          title: "Address Required",
-          description: "Please add your complete address in your profile for seamless delivery.",
-          variant: "destructive",
-          action: <ToastAction altText="Update Address" onClick={() => {
-            window.location.href = '/account'
-            onClose()
-          }}>Update Address</ToastAction>
-        })
+        setAddressWarning("Please add your complete address in your profile for seamless delivery.")
         setLoading(false)
         return
       }
+
+      // Clear address warning if address is complete
+      setAddressWarning(null)
     } catch (error) {
       console.error('[BuyNow] Error checking address:', error)
       toast.error("Unable to verify your address. Please try again.")
@@ -359,89 +364,306 @@ export function BuyNowModal({ product, onClose }: BuyNowModalProps) {
     }
   }
 
-  return (
+  // Don't render until mounted to avoid hydration issues
+  if (!mounted) return null
+
+  const modalContent = (
     <>
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div className="bg-white rounded-lg max-w-md w-full p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold">Buy Now</h2>
+      {/* Full Screen Overlay with Translucent Background */}
+      <div 
+        className="fixed top-0 left-0 right-0 bottom-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" 
+        style={{ 
+          zIndex: 99999,
+          position: 'fixed',
+          width: '100vw',
+          height: '100vh'
+        }}
+      >
+        {!showAuthModal ? (
+          // Full Screen Product Card - Replica of Mobile Product Card but Larger
+          <div className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg hover:border-brand-green/20 transition-all w-full max-w-[280px] flex flex-col animate-in fade-in-0 zoom-in-95 duration-300">
+            
+            {/* Close Button - Top Right */}
             <button
               onClick={onClose}
-              className="text-gray-500 hover:text-gray-700 text-2xl"
+              className="absolute top-2 right-2 z-[10000] bg-white/95 hover:bg-white text-gray-600 hover:text-gray-800 rounded-full w-10 h-10 flex items-center justify-center text-xl font-bold shadow-lg transition-all duration-200"
             >
               ×
             </button>
-          </div>
 
-          <div className="flex items-center mb-4">
-            <img
-              src={product.image}
-              alt={product.name}
-              className="w-16 h-16 object-cover rounded mr-4"
-            />
-            <div>
-              <h3 className="font-semibold">{product.name}</h3>
-              <p className="text-gray-600">{product.subname}</p>
-              <p className="text-green-600 font-bold">₹{product.price}</p>
+            {/* Product Image - Same height and styling as mobile cards but larger */}
+            <div className="relative bg-gray-50 h-48 flex-shrink-0">
+              <img
+                src={product.image || product.mainImage || "/placeholder-logo.png"}
+                alt={product.name || "Product"}
+                className="w-full h-full object-contain p-3 hover:scale-105 transition-transform duration-300"
+              />
+              
+              {/* Organic Badge - consistent with mobile cards */}
+              {product.isOrganic && (
+                <div className="absolute top-3 left-3 bg-green-100 text-green-800 text-xs font-semibold px-2 py-1 rounded-full">
+                  Organic
+                </div>
+              )}
+
+              {/* Buy Now Badge */}
+              <div className="absolute top-3 right-12 bg-orange-500 text-white text-xs font-semibold px-2 py-1 rounded-full">
+                Buy Now
+              </div>
+            </div>
+
+            {/* Content Container - Same structure as mobile cards but with more spacing */}
+            <div className="flex flex-col flex-1 p-4">
+              
+              {/* Product Info - Matching mobile card layout */}
+              <div className="flex-1 mb-4">
+                <h3 className="font-semibold text-gray-900 text-base leading-tight mb-2 line-clamp-2 min-h-[3rem]">
+                  {product.name}
+                </h3>
+                
+                {(product.subname || product.subtitle) && (
+                  <p className="text-gray-500 text-sm mb-3 line-clamp-2 min-h-[1.5rem]">
+                    {product.subname || product.subtitle}
+                  </p>
+                )}
+
+                {/* Collections/Tags - Same as mobile cards */}
+                {product.collections && product.collections.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mb-3">
+                    {product.collections.slice(0, 2).map((collection: string, index: number) => (
+                      <span 
+                        key={index} 
+                        className="bg-gray-100 text-gray-600 rounded-full text-xs px-2 py-1"
+                      >
+                        {collection}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Price Section - Same styling as mobile cards but larger */}
+              <div className="mb-4 min-h-[2rem]">
+                <div className="flex items-baseline gap-2 flex-wrap">
+                  <span className="font-bold text-brand-green text-xl">
+                    ₹{product.price}
+                  </span>
+                  {product.originalPrice && product.originalPrice > product.price && (
+                    <>
+                      <span className="text-gray-400 line-through text-sm">
+                        ₹{product.originalPrice}
+                      </span>
+                      <span className="bg-red-100 text-red-600 text-xs font-semibold px-2 py-1 rounded-full">
+                        Save ₹{product.originalPrice - product.price}
+                      </span>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {/* Order Details - Enhanced for full screen */}
+              <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+                <div className="flex justify-between items-center text-sm mb-1">
+                  <span className="text-gray-600">Quantity:</span>
+                  <span className="font-medium">1</span>
+                </div>
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-gray-600">Total Amount:</span>
+                  <span className="font-bold text-brand-green text-base">₹{product.price}</span>
+                </div>
+              </div>
+
+              {/* Address Warning - Show when address is incomplete */}
+              {addressWarning && (
+                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <div className="flex items-start gap-2">
+                    <div className="flex-shrink-0 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center mt-0.5">
+                      <span className="text-white text-xs font-bold">!</span>
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="text-red-800 font-semibold text-sm mb-1">Address Required</h4>
+                      <p className="text-red-700 text-xs mb-2">{addressWarning}</p>
+                      <button
+                        onClick={() => {
+                          window.location.href = '/account'
+                          onClose()
+                        }}
+                        className="text-xs bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md transition-colors duration-200"
+                      >
+                        Update Address
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Action Buttons - Same styling as mobile cards but larger */}
+              <div className="flex gap-3">
+                <button
+                  onClick={onClose}
+                  className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-all duration-200 active:scale-95 flex items-center justify-center gap-2 py-3 px-4 text-sm"
+                  disabled={loading}
+                >
+                  <span>Cancel</span>
+                </button>
+                
+                <button
+                  onClick={handlePayment}
+                  disabled={loading || addressWarning !== null}
+                  className={`flex-1 rounded-lg font-medium transition-all duration-200 active:scale-95 flex items-center justify-center gap-2 py-3 px-4 text-sm disabled:opacity-50 ${
+                    addressWarning 
+                      ? 'bg-gray-400 text-gray-200 cursor-not-allowed' 
+                      : 'bg-orange-500 hover:bg-orange-600 text-white'
+                  }`}
+                >
+                  <Zap className="h-4 w-4" />
+                  <span>
+                    {loading ? 'Processing...' : addressWarning ? 'Address Required' : 'Pay Now'}
+                  </span>
+                </button>
+              </div>
             </div>
           </div>
-
-          <div className="space-y-3">
-            <p className="text-sm text-gray-600">
-              Quantity: 1
-            </p>
-            <p className="text-sm text-gray-600">
-              Total: ₹{product.price}
-            </p>
-          </div>
-
-          <div className="flex gap-3 mt-6">
+        ) : (
+          // Login Required - Full Screen Card Design
+          <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-xl transition-all w-full max-w-[280px] flex flex-col animate-in fade-in-0 zoom-in-95 duration-300">
+            
+            {/* Close Button */}
             <button
-              onClick={onClose}
-              className="flex-1 px-4 py-2 border border-gray-300 rounded hover:bg-gray-50"
-              disabled={loading}
+              onClick={() => {
+                // Just close the entire modal when in login required state
+                onClose()
+              }}
+              className="absolute top-2 right-2 z-[10000] bg-white/95 hover:bg-white text-gray-600 hover:text-gray-800 rounded-full w-10 h-10 flex items-center justify-center text-xl font-bold shadow-lg transition-all duration-200"
             >
-              Cancel
+              ×
             </button>
-            <button
-              onClick={handlePayment}
-              disabled={loading}
-              className="flex-1 px-4 py-2 bg-orange-600 text-white rounded hover:bg-orange-700 disabled:opacity-50"
-            >
-              {loading ? 'Processing...' : 'Proceed to Payment'}
-            </button>
+
+            {/* Product Image - Dimmed for login state */}
+            <div className="relative bg-gray-50 h-48 flex-shrink-0 opacity-60">
+              <img
+                src={product.image || product.mainImage || "/placeholder-logo.png"}
+                alt={product.name || "Product"}
+                className="w-full h-full object-contain p-3"
+              />
+              
+              {/* Login Required Badge */}
+              <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                <div className="bg-red-500 text-white text-sm font-semibold px-3 py-2 rounded-full">
+                  Login Required
+                </div>
+              </div>
+            </div>
+
+            {/* Content Container - Login focused */}
+            <div className="flex flex-col flex-1 p-4">
+              
+              {/* Product Info - Compact */}
+              <div className="mb-4 text-center">
+                <h3 className="font-semibold text-gray-900 text-base mb-1">
+                  {product.name}
+                </h3>
+                <p className="text-brand-green font-bold text-lg">₹{product.price}</p>
+              </div>
+
+              {/* Login Message */}
+              <div className="mb-4 text-center">
+                <p className="text-gray-600 text-sm mb-2">
+                  Please sign in to complete your purchase
+                </p>
+                <p className="text-gray-500 text-xs">
+                  Quick and secure checkout after login
+                </p>
+              </div>
+
+              {/* Action Buttons - Login focused */}
+              <div className="space-y-3">
+                <button
+                  onClick={() => {
+                    console.log('[BuyNow] Opening auth modal for login')
+                    // Enable the auth modal to show the actual login form
+                    setShowAuthModal(true)
+                  }}
+                  className="w-full bg-brand-green hover:bg-brand-green/90 text-white rounded-lg font-medium py-3 px-4 text-sm transition-all duration-200 active:scale-95"
+                >
+                  Sign In / Sign Up
+                </button>
+                
+                <button
+                  onClick={() => {
+                    // Go back to the buy now modal instead of closing everything
+                    setShowAuthModal(false)
+                    setPendingPayment(false)
+                    setAuthPromptShown(false)
+                    setLoading(false)
+                    // Don't close the entire modal, just reset to buy now state
+                  }}
+                  className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium py-3 px-4 text-sm transition-all duration-200 active:scale-95"
+                >
+                  Back to Buy Now
+                </button>
+              </div>
+
+              {/* Quick Benefits */}
+              <div className="mt-4 pt-4 border-t border-gray-100">
+                <div className="flex items-center justify-center gap-4 text-xs text-gray-500">
+                  <span>✓ Fast Checkout</span>
+                  <span>✓ Order Tracking</span>
+                  <span>✓ Rewards</span>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
-      {showAuthModal && (
-        <AuthModal
-          onClose={() => {
-            console.log('[BuyNow] Auth modal closed manually')
-            setShowAuthModal(false)
-            setPendingPayment(false)
-            setAuthPromptShown(false)
-            setLoading(false)
-          }}
-          onAuthSuccess={async () => {
-            console.log('[BuyNow] Auth success callback triggered')
-            setShowAuthModal(false)
-            setAuthPromptShown(false)
 
-            // Wait a bit for session to propagate, then check if we have a session
-            setTimeout(async () => {
-              const { data: { session: currentSession } } = await supabase.auth.getSession()
-              if (currentSession) {
-                console.log('[BuyNow] Session confirmed after auth success')
-                setSession(currentSession)
-                setPendingPayment(true)
-              } else {
-                console.log('[BuyNow] No session found after auth success, will wait for auth state change')
-                setPendingPayment(true)
-              }
-            }, 1000)
+    </>
+  )
+
+  // Use portal to render modal at document body level
+  return (
+    <>
+      {createPortal(modalContent, document.body)}
+      {showAuthModal && createPortal(
+        <div 
+          className="fixed top-0 left-0 right-0 bottom-0 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4" 
+          style={{ 
+            zIndex: 100000,
+            position: 'fixed',
+            width: '100vw',
+            height: '100vh'
           }}
-        />
+        >
+          <AuthModal
+            onClose={() => {
+              console.log('[BuyNow] Auth modal closed manually')
+              setShowAuthModal(false)
+              setPendingPayment(false)
+              setAuthPromptShown(false)
+              setLoading(false)
+            }}
+            onAuthSuccess={async () => {
+              console.log('[BuyNow] Auth success callback triggered')
+              setShowAuthModal(false)
+              setAuthPromptShown(false)
+
+              // Wait a bit for session to propagate, then check if we have a session
+              setTimeout(async () => {
+                const { data: { session: currentSession } } = await supabase.auth.getSession()
+                if (currentSession) {
+                  console.log('[BuyNow] Session confirmed after auth success')
+                  setSession(currentSession)
+                  setPendingPayment(true)
+                } else {
+                  console.log('[BuyNow] No session found after auth success, will wait for auth state change')
+                  setPendingPayment(true)
+                }
+              }, 1000)
+            }}
+          />
+        </div>,
+        document.body
       )}
     </>
   )
