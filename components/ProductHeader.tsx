@@ -93,6 +93,13 @@ const ProductHeader = ({ product }: { product: any }) => {
         <h1 className="text-3xl font-bold text-green-800 mb-2">{product.name}</h1>
         <p className="text-gray-600 mb-4">{product.subtitle || product.subname}</p>
         
+        {/* Product Description */}
+        {product.description && (
+          <div className="mb-6">
+            <p className="text-gray-700 leading-relaxed">{product.description}</p>
+          </div>
+        )}
+        
         <div className="pricing mb-6">
           <span className="text-2xl font-bold text-green-600">₹{calculatePrice()}</span>
           <span className="text-lg text-gray-500 line-through ml-3">₹{Math.round(product.originalPrice * (quantityOptions.find(opt => opt.weight === selectedWeight)?.multiplier || 1))}</span>

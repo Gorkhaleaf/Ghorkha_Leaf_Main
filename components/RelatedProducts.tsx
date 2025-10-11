@@ -11,9 +11,14 @@ interface Product {
 }
 
 const RelatedProducts = ({ relatedProducts }: { relatedProducts: Product[] }) => {
+  // Don't render if no related products
+  if (!relatedProducts || relatedProducts.length === 0) {
+    return null;
+  }
+
   return (
     <section className="mb-12">
-      <h2 className="text-2xl font-bold mb-8 text-center">Frequently Purchased</h2>
+      <h2 className="text-2xl font-bold mb-8 text-center">Related Products</h2>
       
       <div className="grid md:grid-cols-3 gap-6">
         {relatedProducts.map((product, index) => (

@@ -113,38 +113,6 @@ const BrewingInstructions = () => {
               ))}
             </div>
           </div>
-          
-          {/* Taste Profile Visualization */}
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={inView ? { opacity: 1 } : {}}
-            transition={{ duration: 0.8, delay: 0.8 }}
-            className="mt-16 bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-lg max-w-4xl mx-auto"
-          >
-            <h3 className="text-2xl font-bold text-center text-green-800 mb-6">Taste Profile Visualization</h3>
-            <div className="grid grid-cols-4 gap-4">
-              {['Floral', 'Sweet', 'Bold', 'Smooth'].map((flavor, i) => (
-                <div key={i} className="text-center">
-                  <p className="font-semibold text-green-700 mb-2">{flavor}</p>
-                  <motion.div 
-                    className="h-40 w-full bg-green-100 rounded-t-lg overflow-hidden relative"
-                    initial={{ height: 0 }}
-                    animate={inView ? { height: 160 - (i * 30) } : {}}
-                    transition={{ duration: 1, delay: 0.5 + i * 0.1 }}
-                  >
-                    <motion.div 
-                      className="absolute bottom-0 left-0 right-0 bg-green-500"
-                      initial={{ height: 0 }}
-                      animate={inView ? { height: `${60 + i * 10}%` } : {}}
-                      transition={{ duration: 1.2, delay: 0.7 + i * 0.1 }}
-                    >
-                      <div className="absolute inset-0 bg-gradient-to-t from-green-600 to-transparent opacity-30"></div>
-                    </motion.div>
-                  </motion.div>
-                </div>
-              ))}
-            </div>
-          </motion.div>
         </div>
       </div>
       

@@ -11,6 +11,7 @@ import ProductFeatures from "@/components/ProductFeatures"
 import FAQSection from "@/components/FAQSection"
 import RelatedProducts from "@/components/RelatedProducts"
 import CustomerReviews from "@/components/CustomerReviews"
+import FrequentlyPurchased from "@/components/FrequentlyPurchased"
 
 export default async function ProductPage({ params }: { params: { slug: string } }) {
   const { slug } = params
@@ -31,6 +32,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
         <IngredientsSection ingredients={product.ingredients || []} />
         <ProductFeatures />
         <FAQSection />
+        <FrequentlyPurchased currentProductId={product.id} />
         <RelatedProducts relatedProducts={product.relatedProducts || []} />
         <CustomerReviews reviews={product.reviews || []} />
       </main>
