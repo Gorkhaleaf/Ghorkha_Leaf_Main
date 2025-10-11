@@ -1,8 +1,7 @@
 export const dynamic = 'force-dynamic'
 
-import { promises as fs } from "fs"
-import path from "path"
-import { products as defaultProducts, Product } from "@/lib/products"
+import { getProductBySlug } from "@/lib/supabase/products"
+import { Product } from "@/lib/products"
 import { Header } from "@/components/Header"
 import Footer from "@/components/Footer"
 import ProductHeader from "@/components/ProductHeader"
@@ -15,17 +14,9 @@ import CustomerReviews from "@/components/CustomerReviews"
 
 export default async function ProductPage({ params }: { params: { slug: string } }) {
   const { slug } = params
-  let products = defaultProducts as Product[]
 
-  try {
-    const runtimePath = path.join(process.cwd(), "lib", "products.runtime.json")
-    const raw = await fs.readFile(runtimePath, "utf8")
-    products = JSON.parse(raw)
-  } catch (err) {
-    // no runtime file exists; use defaults
-  }
-
-  const product = products.find((p) => p.slug === slug)
+  // Fetch product from Supabase
+  const product = await getProductBySlug(slug)
 
   if (!product) {
     return <div>Product not found</div>
