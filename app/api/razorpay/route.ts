@@ -6,9 +6,25 @@ import { createClient as createAdminClient } from '@supabase/supabase-js';
 const key_id = process.env.RAZORPAY_KEY_ID;
 const key_secret = process.env.RAZORPAY_KEY_SECRET;
 
+// Log credential status (mask the secret)
+console.log('[API /razorpay] Credentials loaded:', {
+  key_id_present: !!key_id,
+  key_id_value: key_id ? `${key_id.substring(0, 8)}...` : 'MISSING',
+  key_secret_present: !!key_secret,
+  key_secret_length: key_secret ? key_secret.length : 0
+});
+
+// Validate credentials are loaded
+if (!key_id || !key_secret) {
+  console.error('[API /razorpay] CRITICAL: Missing Razorpay credentials!', {
+    key_id: !!key_id,
+    key_secret: !!key_secret
+  });
+}
+
 const razorpay = new Razorpay({
-  key_id,
-  key_secret,
+  key_id: key_id!,
+  key_secret: key_secret!,
 });
 
 export async function POST(req: NextRequest) {
@@ -103,11 +119,27 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json(order);
-  } catch (error) {
-    console.error('Error creating Razorpay order:', error);
+  } catch (error: any) {
+    console.error('[API /razorpay POST] Error creating Razorpay order:', {
+      message: error?.message,
+      statusCode: error?.statusCode,
+      errorObject: error?.error,
+      description: error?.error?.description,
+      code: error?.error?.code,
+      fullError: JSON.stringify(error, null, 2)
+    });
+    
+    // Return more specific error message
+    const errorMessage = error?.error?.description || error?.message || 'Something went wrong';
+    const errorCode = error?.error?.code || 'UNKNOWN_ERROR';
+    
     return NextResponse.json(
-      { error: 'Something went wrong' },
-      { status: 500 }
+      { 
+        error: errorMessage,
+        code: errorCode,
+        hint: error?.statusCode === 401 ? 'Check if Razorpay credentials are valid and active' : undefined
+      },
+      { status: error?.statusCode || 500 }
     );
   }
 }
