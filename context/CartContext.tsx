@@ -40,6 +40,26 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [couponError, setCouponError] = useState('');
 
   const addToCart = (product: Product) => {
+    // Validate product price
+    const priceToUse = product.calculatedPrice || product.price;
+    
+    if (!priceToUse || isNaN(priceToUse) || priceToUse < 0) {
+      console.error('[CartContext] Invalid product price:', {
+        name: product.name,
+        price: product.price,
+        calculatedPrice: product.calculatedPrice,
+        priceToUse
+      });
+      return;
+    }
+
+    console.log('[CartContext] Adding to cart:', {
+      name: product.name,
+      price: priceToUse,
+      quantity: product.quantity || 1,
+      selectedWeight: product.selectedWeight
+    });
+
     setCartItems((prevItems) => {
       // Check for existing item with same id and selectedWeight
       const existingItem = prevItems.find((item) =>
@@ -48,6 +68,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       );
 
       if (existingItem) {
+        console.log('[CartContext] Item already exists, updating quantity');
         return prevItems.map((item) =>
           item.id === product.id && item.selectedWeight === product.selectedWeight
             ? { ...item, quantity: item.quantity + (product.quantity || 1) }
@@ -55,8 +76,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         );
       }
 
-      // Use calculatedPrice if available, otherwise use regular price
-      const priceToUse = product.calculatedPrice || product.price;
+      console.log('[CartContext] Adding new item to cart');
       return [...prevItems, {
         ...product,
         price: priceToUse,
@@ -98,7 +118,20 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   const cartCount = cartItems.reduce((count, item) => count + item.quantity, 0);
 
-  const subtotal = cartItems.reduce((total, item) => total + (item.calculatedPrice || item.price) * item.quantity, 0);
+  // Calculate subtotal with proper decimal handling
+  const subtotal = cartItems.reduce((total, item) => {
+    const itemPrice = item.calculatedPrice || item.price;
+    const itemTotal = itemPrice * item.quantity;
+    console.log('[CartContext] Item calculation:', {
+      name: item.name,
+      price: itemPrice,
+      quantity: item.quantity,
+      itemTotal: itemTotal
+    });
+    return total + itemTotal;
+  }, 0);
+
+  console.log('[CartContext] Subtotal calculated:', subtotal);
 
   const getDiscountRate = (couponCode: string): number => {
     const discountRates = {
@@ -109,8 +142,10 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const discount = coupon ? subtotal * getDiscountRate(coupon) : 0;
+  console.log('[CartContext] Discount:', discount);
 
-  const totalPrice = subtotal - discount;
+  const totalPrice = Math.round(subtotal - discount); // Round to nearest rupee for consistency
+  console.log('[CartContext] Final totalPrice:', totalPrice);
 
   return (
     <CartContext.Provider

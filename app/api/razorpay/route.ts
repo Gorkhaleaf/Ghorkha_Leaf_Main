@@ -14,15 +14,52 @@ const razorpay = new Razorpay({
 export async function POST(req: NextRequest) {
   const { amount, currency = 'INR', items = null, user_id = null } = await req.json();
 
+  console.log('[API /razorpay POST] Received request:', {
+    amount,
+    currency,
+    itemCount: items ? items.length : 0,
+    user_id: user_id ? 'provided' : 'null'
+  });
+
+  // Validate amount
+  if (!amount || amount < 1) {
+    console.error('[API /razorpay POST] Invalid amount:', amount);
+    return NextResponse.json(
+      { error: 'Invalid amount. Must be at least ₹1' },
+      { status: 400 }
+    );
+  }
+
+  // Convert rupees to paise (Razorpay expects amount in smallest currency unit)
+  const amountInPaise = Math.round(amount * 100);
+
+  console.log('[API /razorpay POST] Amount conversion:', {
+    amountInRupees: amount,
+    amountInPaise: amountInPaise
+  });
+
   const options = {
-    amount: amount * 100, // amount in the smallest currency unit
+    amount: amountInPaise, // amount in paise (smallest currency unit)
     currency,
     receipt: `receipt_order_${randomBytes(4).toString('hex')}`,
     notes: items ? { items: JSON.stringify(items) } : undefined
   };
 
   try {
+    console.log('[API /razorpay POST] Creating Razorpay order with options:', {
+      amount: options.amount,
+      currency: options.currency,
+      receipt: options.receipt
+    });
+
     const order = await razorpay.orders.create(options);
+
+    console.log('[API /razorpay POST] Razorpay order created successfully:', {
+      id: (order as any).id,
+      amount: (order as any).amount,
+      currency: (order as any).currency,
+      status: (order as any).status
+    });
 
     // Create admin client for potential provisional DB insert and token validation
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;

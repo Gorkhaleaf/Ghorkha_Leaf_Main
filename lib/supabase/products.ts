@@ -20,6 +20,29 @@ interface ProductRow {
   origin_country?: string;
   caffeine_level?: string;
   allergens?: string[];
+  // New fields for pricing and pack options
+  pack_size?: string;
+  mrp?: string;
+  discount_percent?: number;
+  pack_options?: string; // JSON string from database
+  brewing_instructions?: string; // JSON string from database
+  ingredients?: string; // JSON string from database
+  faqs?: string; // JSON string from database
+}
+
+/**
+ * Safely parse JSON string from database
+ */
+function safeJSONParse(jsonString: string | null | undefined, fallback: any = null) {
+  if (!jsonString) return fallback;
+  try {
+    // If it's already an object, return it
+    if (typeof jsonString === 'object') return jsonString;
+    return JSON.parse(jsonString);
+  } catch (error) {
+    console.error('Error parsing JSON:', error);
+    return fallback;
+  }
 }
 
 /**
@@ -39,7 +62,13 @@ function mapProductRowToProduct(row: ProductRow): Product {
     bestFor: undefined,
     image: row.image || "",
     price: Number(row.price || 0),
-    originalPrice: Number(row.price || 0), // Same as price since original_price doesn't exist
+    originalPrice: Number(row.mrp || row.price || 0), // Use MRP as original price
+    mrp: Number(row.mrp || row.price || 0),
+    discount_percent: row.discount_percent || 0,
+    pack_size: row.pack_size || "100g",
+    pack_options: safeJSONParse(row.pack_options, []),
+    brewing_instructions: safeJSONParse(row.brewing_instructions, null),
+    faqs: safeJSONParse(row.faqs, []),
     inStock: true, // Default to true since in_stock column doesn't exist
     tasteProfile: undefined,
     notes: undefined,
@@ -52,7 +81,7 @@ function mapProductRowToProduct(row: ProductRow): Product {
     caffeineLevel: row.caffeine_level,
     allergens: row.allergens || [],
     isOrganic: row.is_organic || false,
-    ingredients: undefined, // Not in your current schema
+    ingredients: safeJSONParse(row.ingredients, []),
     relatedProducts: undefined, // Not in your current schema
     reviews: undefined, // Not in your current schema
     mainImage: row.main_image || row.image,

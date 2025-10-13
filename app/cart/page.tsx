@@ -215,7 +215,31 @@ export default function CartPage() {
       const currentCart = [...cartItems];
       const currentTotal = totalPrice;
 
-      // Create Razorpay order on server — include items and user_id so server can pre-create pending order
+      console.log('[Cart] Payment flow - Cart summary:', {
+        itemCount: currentCart.length,
+        items: currentCart.map(item => ({
+          name: item.name,
+          price: item.calculatedPrice || item.price,
+          quantity: item.quantity,
+          subtotal: (item.calculatedPrice || item.price) * item.quantity
+        })),
+        totalPrice: currentTotal,
+        totalInPaise: currentTotal * 100
+      });
+
+      // Validate amount is reasonable
+      if (!currentTotal || currentTotal < 1) {
+        console.error('[Cart] CRITICAL: Invalid total amount:', currentTotal);
+        uiToast({
+          variant: "destructive",
+          title: "Payment Error",
+          description: "Cart total is invalid. Please refresh and try again.",
+        });
+        setLoading(false);
+        return;
+      }
+
+      // Create Razorpay order on server — amount should be in rupees (API will convert to paise)
       const response = await fetch('/api/razorpay', {
         method: 'POST',
         headers: {
@@ -223,17 +247,41 @@ export default function CartPage() {
           'Authorization': `Bearer ${(session as any).access_token}`,
         },
         body: JSON.stringify({
-          amount: Math.round(currentTotal), // Send as whole rupees, no paise conversion
+          amount: currentTotal, // Send as whole rupees, API will multiply by 100 for paise
           currency: 'INR',
           items: currentCart,
           user_id: session!.user.id
         }),
       });
 
+      if (!response.ok) {
+        console.error('[Cart] Failed to create Razorpay order:', response.status, response.statusText);
+        const errorData = await response.json();
+        console.error('[Cart] Error details:', errorData);
+        uiToast({
+          variant: "destructive",
+          title: "Payment Error",
+          description: "Failed to initialize payment. Please try again.",
+        });
+        setLoading(false);
+        return;
+      }
+
       const order = await response.json();
-      console.log('Razorpay order created:', order);
-      console.log('[Cart] Order amount from API:', order.amount, 'rupees');
-      console.log('[Cart] Expected display amount:', order.amount, 'rupees');
+      console.log('[Cart] Razorpay order created:', order);
+      console.log('[Cart] Order amount from API (in paise):', order.amount);
+      console.log('[Cart] Order amount in rupees:', order.amount / 100);
+      console.log('[Cart] Expected amount in rupees:', currentTotal);
+
+      // Validate the order amount matches our cart total
+      const orderAmountInRupees = order.amount / 100;
+      if (Math.abs(orderAmountInRupees - currentTotal) > 1) {
+        console.error('[Cart] CRITICAL: Order amount mismatch!', {
+          expected: currentTotal,
+          received: orderAmountInRupees,
+          difference: Math.abs(orderAmountInRupees - currentTotal)
+        });
+      }
 
       const handlerCalled = { called: false };
 
@@ -461,7 +509,12 @@ export default function CartPage() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-gray-900">{item.name}</p>
-                        <p className="text-sm font-semibold text-green-600 mt-1">₹{item.price.toFixed(2)}</p>
+                        <p className="text-sm font-semibold text-green-600 mt-1">
+                          ₹{(item.calculatedPrice || item.price).toFixed(2)}
+                        </p>
+                        {item.selectedWeight && (
+                          <p className="text-xs text-gray-500 mt-0.5">{item.selectedWeight}</p>
+                        )}
                       </div>
                     </div>
                     <div className="flex items-center justify-between">
@@ -482,7 +535,9 @@ export default function CartPage() {
                       </div>
                       <div className="text-right">
                         <p className="text-sm text-gray-600">Subtotal</p>
-                        <p className="font-semibold">₹{(item.price * item.quantity).toFixed(2)}</p>
+                        <p className="font-semibold">
+                          ₹{((item.calculatedPrice || item.price) * item.quantity).toFixed(2)}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -499,9 +554,16 @@ export default function CartPage() {
                       <div className="relative w-20 h-20">
                         <Image src={item.image} alt={item.name} fill className="object-contain" />
                       </div>
-                      <p className="text-sm">{item.name}</p>
+                      <div>
+                        <p className="text-sm">{item.name}</p>
+                        {item.selectedWeight && (
+                          <p className="text-xs text-gray-500 mt-1">{item.selectedWeight}</p>
+                        )}
+                      </div>
                     </div>
-                    <div className="font-semibold">₹{item.price.toFixed(2)}</div>
+                    <div className="font-semibold">
+                      ₹{(item.calculatedPrice || item.price).toFixed(2)}
+                    </div>
                     <div>
                       <div className="flex items-center border rounded">
                         <button
@@ -519,7 +581,9 @@ export default function CartPage() {
                         </button>
                       </div>
                     </div>
-                    <div className="font-semibold">₹{(item.price * item.quantity).toFixed(2)}</div>
+                    <div className="font-semibold">
+                      ₹{((item.calculatedPrice || item.price) * item.quantity).toFixed(2)}
+                    </div>
                   </div>
                 </div>
               ))
