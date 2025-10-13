@@ -6,40 +6,33 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Check } from "lucide-react";
 import { BuyNowModal } from "./BuyNowModal";
+import { PackOption } from "@/lib/products";
 
 const ProductHeader = ({ product }: { product: any }) => {
   const { addToCart } = useCart();
   const router = useRouter();
   const [added, setAdded] = useState(false);
-  const [selectedQuantity, setSelectedQuantity] = useState(1);
-  const [selectedWeight, setSelectedWeight] = useState('100g');
+  const [selectedPackIndex, setSelectedPackIndex] = useState(0);
   const [showBuyNowModal, setShowBuyNowModal] = useState(false);
 
-  const quantityOptions = [
-    { weight: '100g', multiplier: 1, quantity: 1 },
-    { weight: '250g', multiplier: 2.3, quantity: 1 },
-    { weight: '500g', multiplier: 4.2, quantity: 1 }
+  // Use pack_options from Supabase if available, otherwise fall back to default
+  const packOptions: PackOption[] = product.pack_options || [
+    { packs: 1, price: product.price, mrp: product.originalPrice || product.mrp || product.price, discount: `${product.discount_percent || 0}% OFF` }
   ];
 
-  const calculatePrice = () => {
-    const selectedOption = quantityOptions.find(option => option.weight === selectedWeight);
-    return selectedOption ? Math.round(product.price * selectedOption.multiplier) : product.price;
-  };
+  const selectedPack = packOptions[selectedPackIndex];
 
-  const handleQuantityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedOption = quantityOptions.find(option => option.weight === e.target.value);
-    if (selectedOption) {
-      setSelectedWeight(selectedOption.weight);
-      setSelectedQuantity(selectedOption.quantity);
-    }
+  const handlePackChange = (index: number) => {
+    setSelectedPackIndex(index);
   };
 
   const handleAddToCart = () => {
     addToCart({
       ...product,
-      quantity: selectedQuantity,
-      selectedWeight: selectedWeight,
-      calculatedPrice: calculatePrice()
+      quantity: 1, // Always 1 because we're buying 1 bundle of packs
+      selectedWeight: `${selectedPack.packs} Pack${selectedPack.packs > 1 ? 's' : ''} (${product.pack_size || '100g'} each)`,
+      calculatedPrice: selectedPack.price,
+      price: selectedPack.price // This is the total price for the pack bundle
     });
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
@@ -53,12 +46,13 @@ const ProductHeader = ({ product }: { product: any }) => {
   const getProductWithOptions = () => {
     return {
       ...product,
-      quantity: selectedQuantity,
-      selectedWeight: selectedWeight,
-      calculatedPrice: calculatePrice(),
-      price: calculatePrice() // Override price with calculated price
+      quantity: 1, // Always 1 bundle
+      selectedWeight: `${selectedPack.packs} Pack${selectedPack.packs > 1 ? 's' : ''} (${product.pack_size || '100g'} each)`,
+      calculatedPrice: selectedPack.price,
+      price: selectedPack.price
     };
   };
+
   return (
     <div className="grid md:grid-cols-2 gap-8 mb-12">
       {/* Left: Product Image Gallery */}
@@ -100,27 +94,57 @@ const ProductHeader = ({ product }: { product: any }) => {
           </div>
         )}
         
+        {/* Pricing */}
         <div className="pricing mb-6">
-          <span className="text-2xl font-bold text-green-600">₹{calculatePrice()}</span>
-          <span className="text-lg text-gray-500 line-through ml-3">₹{Math.round(product.originalPrice * (quantityOptions.find(opt => opt.weight === selectedWeight)?.multiplier || 1))}</span>
-          <span className="bg-red-100 text-red-800 px-2 py-1 rounded ml-3 text-sm">
-            {Math.round((1 - calculatePrice()/Math.round(product.originalPrice * (quantityOptions.find(opt => opt.weight === selectedWeight)?.multiplier || 1))) * 100)}% OFF
-          </span>
+          <div className="flex items-baseline gap-3">
+            <span className="text-3xl font-bold text-green-600">₹{selectedPack.price}</span>
+            <span className="text-xl text-gray-500 line-through">₹{selectedPack.mrp}</span>
+            <span className="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-semibold">
+              {selectedPack.discount}
+            </span>
+          </div>
+          {selectedPack.savings && (
+            <p className="text-green-700 text-sm mt-2 font-medium">
+              You save ₹{selectedPack.savings}!
+            </p>
+          )}
         </div>
 
-        <div className="quantity-selector mb-6">
-          <label className="block mb-2">Quantity</label>
-          <select
-            value={selectedWeight}
-            onChange={handleQuantityChange}
-            className="border rounded px-3 py-2 w-full"
-          >
-            {quantityOptions.map((option) => (
-              <option key={option.weight} value={option.weight}>
-                {option.weight} - ₹{Math.round(product.price * option.multiplier)}
-              </option>
+        {/* Pack Selection */}
+        <div className="pack-selector mb-6">
+          <label className="block mb-3 font-semibold text-gray-800">
+            Select Pack Size {product.pack_size && `(${product.pack_size} each)`}
+          </label>
+          <div className="grid grid-cols-2 gap-3">
+            {packOptions.map((pack, index) => (
+              <button
+                key={index}
+                onClick={() => handlePackChange(index)}
+                className={`relative border-2 rounded-lg p-4 text-left transition-all ${
+                  selectedPackIndex === index
+                    ? 'border-green-600 bg-green-50'
+                    : 'border-gray-300 hover:border-green-400'
+                }`}
+              >
+                {pack.savings && pack.packs > 1 && (
+                  <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                    Save ₹{pack.savings}
+                  </span>
+                )}
+                <div className="font-semibold text-gray-900">
+                  {pack.packs} Pack{pack.packs > 1 ? 's' : ''}
+                </div>
+                <div className="flex items-baseline gap-2 mt-1">
+                  <span className="text-lg font-bold text-green-600">₹{pack.price}</span>
+                  <span className="text-sm text-gray-500 line-through">₹{pack.mrp}</span>
+                </div>
+                <div className="text-xs text-gray-600 mt-1">{pack.discount}</div>
+                {selectedPackIndex === index && (
+                  <Check className="absolute top-2 right-2 h-5 w-5 text-green-600" />
+                )}
+              </button>
             ))}
-          </select>
+          </div>
         </div>
 
         <div className="flex gap-4">

@@ -9,6 +9,33 @@
  * - getProductById(id)
  */
 
+export interface PackOption {
+  packs: number
+  price: number
+  mrp: number
+  discount: string
+  savings?: number
+}
+
+export interface BrewingStep {
+  step: number
+  title: string
+  description: string
+}
+
+export interface BrewingInstructions {
+  temperature: string
+  leaf_amount: string
+  steep_time: string
+  steps: BrewingStep[]
+  notes: string[]
+}
+
+export interface FAQ {
+  question: string
+  answer: string
+}
+
 export interface Product {
   id: number
   name: string
@@ -22,6 +49,12 @@ export interface Product {
   image: string
   price: number
   originalPrice: number
+  mrp?: number
+  discount_percent?: number
+  pack_size?: string
+  pack_options?: PackOption[]
+  brewing_instructions?: BrewingInstructions
+  faqs?: FAQ[]
   inStock: boolean
   tasteProfile?: string
   notes?: string
