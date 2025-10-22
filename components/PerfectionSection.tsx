@@ -10,12 +10,12 @@ const PerfectionSection = () => {
     },
     {
       icon: '/perfection_section_v2/worldwide_shipping.svg',
-      text: 'Worldwide shipping',
+      text: 'Direct from Tea Gardens',
       align: 'left',
     },
     {
       icon: '/perfection_section_v2/best_seller.svg',
-      text: 'Best seller',
+      text: 'Limited Small-Batch Teas',
       align: 'left',
     },
     {
@@ -25,28 +25,28 @@ const PerfectionSection = () => {
     },
     {
       icon: '/perfection_section_v2/loyal_tea_rewards.svg',
-      text: 'Loyal-tea rewards',
+      text: 'Farm-to-Cup Freshness',
       align: 'right',
     },
     {
       icon: '/perfection_section_v2/eco_package.svg',
-      text: 'Eco package',
+      text: 'Freshly Packed',
       align: 'right',
     },
   ]
 
   return (
-    <section className="relative py-12 md:py-20 bg-[#F9F9F9] overflow-visible">
-      <div className="container mx-auto px-4 relative z-10">
-        <div className="text-center mb-8 md:mb-16">
+    <section className="relative py-7 bg-white overflow-visible" style={{ padding: '28px 16px' }}>
+      <div className="relative z-10" style={{ maxWidth: '1120px', margin: '0 auto' }}>
+        <div className="text-center mb-8 md:mb-12">
           <p
-            className="text-lg md:text-xl text-brand-green tracking-widest uppercase"
+            className="text-base md:text-lg text-brand-green tracking-widest uppercase"
             style={{ fontFamily: 'Roboto, sans-serif' }}
           >
             Best seller
           </p>
           <h2
-            className="text-2xl md:text-4xl lg:text-5xl font-bold text-brand-green mt-2 md:mt-4"
+            className="text-2xl md:text-3xl lg:text-4xl font-bold text-brand-green mt-2 md:mt-4"
             style={{ fontFamily: 'Philosopher, sans-serif' }}
           >
             We Believe in Perfection in the art of Tea.
@@ -59,7 +59,7 @@ const PerfectionSection = () => {
           <div className="flex justify-center items-center relative mb-8">
             <div className="relative">
               <Image
-                src="/Products/08 Dawn of The Hills.png"
+                src="/Products/muscatel.png"
                 alt="Gorkha Leaf Product"
                 width={300}
                 height={270}
@@ -95,7 +95,7 @@ const PerfectionSection = () => {
                     style={{ filter: 'invert(0.2) sepia(1) saturate(2) hue-rotate(80deg) brightness(0.4)' }}
                   />
                   <p
-                    className="text-xl md:text-2xl font-medium text-[#166434]"
+                    className="text-lg md:text-xl font-medium text-[#166434]"
                     style={{ fontFamily: 'Philosopher, sans-serif' }}
                   >
                     {feature.text}
@@ -160,7 +160,7 @@ const PerfectionSection = () => {
                     style={{ filter: 'invert(0.2) sepia(1) saturate(2) hue-rotate(80deg) brightness(0.4)' }}
                   />
                   <p
-                    className="text-3xl font-medium text-[#166434]"
+                    className="text-lg lg:text-xl font-medium text-[#166434]"
                     style={{ fontFamily: 'Philosopher, sans-serif' }}
                   >
                     {feature.text}
@@ -173,7 +173,7 @@ const PerfectionSection = () => {
           <div className="w-1/3 flex justify-center items-center relative z-20 h-[492px] overflow-visible">
             <div className="relative -mt-12 overflow-visible">
               <Image
-                src="/Products/08 Dawn of The Hills.png"
+                src="/Products/muscatel.png"
                 alt="Gorkha Leaf Product"
                 width={497}
                 height={447}
@@ -204,7 +204,7 @@ const PerfectionSection = () => {
                   className="flex items-center gap-3"
                 >
                   <p
-                    className="text-3xl font-medium text-[#166434]"
+                    className="text-lg lg:text-xl font-medium text-[#166434]"
                     style={{ fontFamily: 'Philosopher, sans-serif' }}
                   >
                     {feature.text}

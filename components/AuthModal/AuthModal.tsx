@@ -101,7 +101,7 @@ const AuthModal = ({ onClose, onAuthSuccess }: AuthModalProps) => {
               <i className="icon phone-icon"></i>
               <input
                 type="tel"
-                placeholder={isSignUp ? "Phone (required)" : "Phone (optional)"}
+                placeholder={isSignUp ? "Phone (required)" : "Phone (required)"}
                 value={phone || ''}
                 onChange={(e) => setPhone(e.target.value || '')}
                 required={isSignUp}

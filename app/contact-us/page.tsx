@@ -125,8 +125,8 @@ export default function ContactUsPage() {
                 </span>
               </h1>
               <p className="text-xl md:text-2xl text-[#2d7247] max-w-3xl mx-auto leading-relaxed">
-                Connect with the heart of Darjeeling's finest tea gardens. 
-                We're here to brew the perfect conversation with you.
+                Connect with the heart of authentic premium teas
+                from Himalayan Darjeeling gardens to wellness blends enriched with herbs and flowers.
               </p>
             </div>
 
@@ -143,12 +143,12 @@ export default function ContactUsPage() {
                     </div>
                     <div className="ml-6">
                       <h3 className="text-2xl font-bold text-black">Premium Tea Experience</h3>
-                      <p className="text-[#2d7247] font-medium">Direct from Darjeeling gardens</p>
+                      <p className="text-[#2d7247] font-medium">From Gardens & Blends Crafted with Care </p>
                     </div>
                   </div>
                   <p className="text-[#2d7247] leading-relaxed">
-                    Experience the authentic taste of Darjeeling tea, carefully crafted by generations 
-                    of tea masters in the misty hills of the Himalayas.
+                    Discover authentic teas and wellness infusions from Darjeeling’s prized gardens to 
+                    hand-crafted herbal blends enriched with tradition. 
                   </p>
                 </div>
 

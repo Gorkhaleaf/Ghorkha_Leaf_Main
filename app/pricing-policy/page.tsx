@@ -26,7 +26,7 @@ export default function PricingPolicyPage() {
 
             <h2 className="text-2xl font-semibold text-green-800 mt-8 mb-4">Bulk and Wholesale Pricing</h2>
             <p className="text-gray-700 mb-4">
-              We offer attractive bulk pricing for orders above certain quantities. Corporate clients, retailers, and tea enthusiasts looking to purchase larger quantities can benefit from our wholesale pricing structure. Please contact our sales team at info@gorkhaleaf.com for custom quotes on bulk orders exceeding 5 kg or for establishing wholesale partnerships.
+              We offer attractive bulk pricing for orders above certain quantities. Corporate clients, retailers, and tea enthusiasts looking to purchase larger quantities can benefit from our wholesale pricing structure. Please contact our sales team at gorkhaleaf@gmail.com for custom quotes on bulk orders exceeding 5 kg or for establishing wholesale partnerships.
             </p>
 
             <h2 className="text-2xl font-semibold text-green-800 mt-8 mb-4">Seasonal Pricing Adjustments</h2>
@@ -47,7 +47,7 @@ export default function PricingPolicyPage() {
             <div className="bg-green-50 p-6 rounded-lg mt-8">
               <h3 className="text-xl font-semibold text-green-800 mb-3">Contact Us</h3>
               <p className="text-gray-700">
-                For any pricing inquiries, bulk orders, or wholesale partnerships, please reach out to us at info@gorkhaleaf.com or call +91-7204390477. Our team is committed to providing personalized pricing solutions that meet your specific needs.
+                For any pricing inquiries, bulk orders, or wholesale partnerships, please reach out to us at gorkhaleaf@gmail.com or call +91-7204390477. Our team is committed to providing personalized pricing solutions that meet your specific needs.
               </p>
             </div>
           </div>

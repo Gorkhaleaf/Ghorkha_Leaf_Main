@@ -43,9 +43,10 @@ export default function OurStoryCompact({
           </div>
 
           <div className="os-owner-overlay" role="group" aria-label="Founder details">
+            <div className="os-founder-name" style={{ fontWeight: 'bold', marginBottom: '0.5rem' }}>Nikesh Rai</div>
             <div className="os-name">{ownerName}</div>
             <div className="os-role">Founder, Gorkha Leaf</div>
-            <div className="os-sign">“Made at origin. Honoring every leaf.”</div>
+            <div className="os-sign">"Made at origin. Honoring every leaf."</div>
             <div className="os-decor-line" />
           </div>
         </aside>

@@ -24,34 +24,34 @@ const HomeAboutSection = () => {
   return (
     <section className="py-16 bg-background">
       <div className="container mx-auto px-4">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
-          <div>
-            <Badge className="mb-6 bg-brand-green/10 text-brand-green border-brand-green/20">🌿 Our Heritage</Badge>
-            <h2 className="text-3xl md:text-4xl font-bold text-brand-green mb-6">
+        <div className="grid lg:grid-cols-2 gap-6 items-center">
+          <div className="lg:pl-20 xl:pl-32">
+            <Badge className="mb-3 bg-brand-green/10 text-brand-green border-brand-green/20 text-xs">🌿 Our Heritage</Badge>
+            <h2 className="text-2xl md:text-3xl font-bold text-brand-green mb-3" style={{ lineHeight: '1.2' }}>
               Rooted in the Misty Hills of Darjeeling
             </h2>
-            <div className="prose prose-lg text-brand-green space-y-4">
-              <p>
+            <div className="text-brand-green space-y-2">
+              <p className="text-sm md:text-base leading-relaxed">
                 Gorkha Leaf brings you handpicked tea crafted with heritage, pride, and purity. A tribute to our
                 Gorkha roots and love for every sip.
               </p>
-              <p>
+              <p className="text-sm md:text-base leading-relaxed">
                 From the legendary tea gardens of Darjeeling, where every leaf tells a story of tradition,
                 craftsmanship, and the indomitable Gorkha spirit.
               </p>
             </div>
-            <div className="grid grid-cols-3 gap-6 mt-8">
+            <div className="grid grid-cols-3 gap-4 mt-6">
               <div className="text-center">
-                <div className="text-2xl font-bold text-brand-green">5+</div>
-                <div className="text-sm text-brand-green">Years of Heritage</div>
+                <div className="text-xl md:text-2xl font-bold text-brand-green">1+</div>
+                <div className="text-xs md:text-sm text-brand-green">Years of Journey</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-brand-green">40+</div>
-                <div className="text-sm text-brand-green">Tea Varieties</div>
+                <div className="text-xl md:text-2xl font-bold text-brand-green">6+</div>
+                <div className="text-xs md:text-sm text-brand-green">Signature Teas</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-brand-green">10K+</div>
-                <div className="text-sm text-brand-green">Happy Customers</div>
+                <div className="text-xl md:text-2xl font-bold text-brand-green">100+</div>
+                <div className="text-xs md:text-sm text-brand-green">Happy Customers</div>
               </div>
             </div>
           </div>

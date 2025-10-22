@@ -16,8 +16,8 @@ const Footer = () => {
               className="h-10 w-auto brightness-0 invert mb-6"
             />
             <p className="text-green-200 mb-6 max-w-md">
-              Authentic Darjeeling tea crafted with the strength, dignity, and resilience of the Gorkha spirit. Where
-              every leaf tells a tale.
+              Authentic teas and wellness blends, crafted with the spirit and resilience of the 
+              Gorkhas where every leaf tells a tale.
             </p>
             <div className="space-y-2 text-sm text-green-200">
               <div className="flex items-center">
@@ -30,7 +30,7 @@ const Footer = () => {
               </div>
               <div className="flex items-center">
                 <Mail className="h-4 w-4 mr-2" />
-                <span>info@gorkhaleaf.com</span>
+                <span>gorkhaleaf@gmail.com</span>
               </div>
             </div>
           </div>
@@ -40,21 +40,23 @@ const Footer = () => {
             <ul className="space-y-2 text-sm text-green-200">
               <li>
                 <Link href="/products" className="hover:text-white transition-colors">
-                  First Flush
+                  Black Teas
                 </Link>
               </li>
               <li>
                 <Link href="/products" className="hover:text-white transition-colors">
-                  Second Flush
+                  Green Teas
                 </Link>
               </li>
               <li>
                 <Link href="/products" className="hover:text-white transition-colors">
-                  Green Tea
+                  White Teas
                 </Link>
               </li>
               <li>
-
+                <Link href="/products" className="hover:text-white transition-colors">
+                  Herbal Teas
+                </Link>
               </li>
             </ul>
           </div>
@@ -131,7 +133,7 @@ const Footer = () => {
                 </svg>
               </a>
               <a
-                href="https://www.facebook.com/"
+                href="https://www.facebook.com/profile.php?id=61580640381990"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:scale-110 transition-transform duration-300"

@@ -594,7 +594,7 @@ export default function CartPage() {
               </Button>
             </div>
             <div className="mt-6 lg:mt-8 p-4 lg:p-6 bg-green-600 text-white rounded-lg border-2 border-dashed border-white">
-              <p className="text-base lg:text-lg font-bold">10% Cart discount</p>
+              <p className="text-base lg:text-lg font-bold">Combo Savings + Extra 5% OFF on orders above ₹999 </p>
               <p className="text-xs lg:text-sm mt-1">
                 Use coupon code: <span className="font-bold">GORKHA10</span>
               </p>
@@ -619,9 +619,14 @@ export default function CartPage() {
                   <span>₹{totalPrice.toFixed(2)}</span>
                 </div>
                 <p className="text-xs text-gray-500">
+                  (Incl. of all taxes)
+                </p>
+                {/* Hidden for now - will be used later:
+                <p className="text-xs text-gray-500">
                   (includes ₹{(totalPrice * 0.025).toFixed(2)} 2.5% CGST, ₹
                   {(totalPrice * 0.025).toFixed(2)} 2.5% SGST)
                 </p>
+                */}
               </div>
               <Button
                 size="lg"

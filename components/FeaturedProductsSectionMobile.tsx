@@ -42,10 +42,10 @@ const MobileProductCard: React.FC<{ product: Product }> = ({ product }) => {
 
   return (
     <>
-      <div className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg hover:border-brand-green/20 transition-all duration-300 cursor-pointer h-full flex flex-col">
-        {/* Image Container - Fixed height for consistency */}
+      <div className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg hover:border-brand-green/20 transition-all duration-300 cursor-pointer flex flex-col min-h-[400px] w-full">
+        {/* Image Container - Fixed height */}
         <div 
-          className="relative bg-gray-50 h-40 flex-shrink-0"
+          className="relative bg-gray-50 h-48 flex-shrink-0"
           onClick={handleProductClick}
         >
           <Image
@@ -56,30 +56,23 @@ const MobileProductCard: React.FC<{ product: Product }> = ({ product }) => {
             onError={() => setImageError(true)}
             sizes="(max-width: 768px) 50vw, 25vw"
           />
-          
-          {/* Organic Badge */}
-          {product.isOrganic && (
-            <div className="absolute top-2 left-2 bg-green-100 text-green-800 text-xs font-semibold px-2 py-1 rounded-full">
-              Organic
-            </div>
-          )}
         </div>
 
-        {/* Content Container - Fixed structure for consistency */}
+        {/* Content Container - Fixed structure */}
         <div className="flex flex-col flex-1 p-3">
-          {/* Product Info */}
-          <div className="flex-1 mb-3" onClick={handleProductClick}>
-            <h3 className="font-semibold text-gray-900 text-sm leading-tight mb-1 line-clamp-2 hover:text-brand-green transition-colors duration-200 min-h-[2.5rem]">
+          {/* Product Info - Fixed min-height */}
+          <div className="flex-1 mb-3 min-h-[100px]" onClick={handleProductClick}>
+            <h3 className="font-semibold text-gray-900 text-sm leading-tight mb-2 line-clamp-2 hover:text-brand-green transition-colors duration-200 min-h-[2.5rem]">
               {product.name}
             </h3>
             
             {(product.subname || product.subtitle) && (
-              <p className="text-gray-500 text-xs mb-2 line-clamp-1 min-h-[1rem]">
+              <p className="text-gray-500 text-xs mb-2 line-clamp-1">
                 {product.subname || product.subtitle}
               </p>
             )}
 
-            {/* Collections/Tags - Limited to maintain consistency */}
+            {/* Collections/Tags */}
             {product.collections && product.collections.length > 0 && (
               <div className="flex flex-wrap gap-1 mb-2">
                 {product.collections.slice(0, 1).map((collection: string, index: number) => (
@@ -95,7 +88,7 @@ const MobileProductCard: React.FC<{ product: Product }> = ({ product }) => {
           </div>
 
           {/* Price Section - Fixed height */}
-          <div className="mb-3 min-h-[1.5rem]">
+          <div className="mb-3 min-h-[2rem]">
             <div className="flex items-baseline gap-2 flex-wrap">
               <span className="font-bold text-brand-green text-base">
                 ₹{product.price}
@@ -113,20 +106,20 @@ const MobileProductCard: React.FC<{ product: Product }> = ({ product }) => {
             </div>
           </div>
 
-          {/* Action Buttons - Consistent layout */}
+          {/* Action Buttons - Fixed size */}
           <div className="flex gap-2">
             <button
               onClick={handleAddToCart}
-              className="flex-1 bg-brand-green hover:bg-brand-green/90 text-white rounded-lg font-medium transition-all duration-200 active:scale-95 flex items-center justify-center gap-1 py-2 px-2 text-xs"
+              className="flex-1 bg-brand-green hover:bg-brand-green/90 text-white rounded-lg font-medium transition-all duration-200 active:scale-95 flex items-center justify-center gap-1 py-2.5 px-3 text-xs h-10"
             >
               {added ? (
                 <>
-                  <Check className="h-3 w-3" />
+                  <Check className="h-3.5 w-3.5" />
                   <span>Added</span>
                 </>
               ) : (
                 <>
-                  <ShoppingCart className="h-3 w-3" />
+                  <ShoppingCart className="h-3.5 w-3.5" />
                   <span>Add</span>
                 </>
               )}
@@ -134,9 +127,9 @@ const MobileProductCard: React.FC<{ product: Product }> = ({ product }) => {
             
             <button
               onClick={handleBuyNow}
-              className="flex-1 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-medium transition-all duration-200 active:scale-95 flex items-center justify-center gap-1 py-2 px-2 text-xs"
+              className="flex-1 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-medium transition-all duration-200 active:scale-95 flex items-center justify-center gap-1 py-2.5 px-3 text-xs h-10"
             >
-              <Zap className="h-3 w-3" />
+              <Zap className="h-3.5 w-3.5" />
               <span>Buy</span>
             </button>
           </div>

@@ -1,10 +1,10 @@
 const ProductFeatures = () => {
   const features = [
     { icon: "🌱", title: "100% Natural", description: "No artificial additives" },
-    { icon: "🏔️", title: "High Altitude", description: "Grown at 2000m+" },
+    { icon: "🏔️", title: "Himalayan Inspired", description: "Crafted with the spirit of the hills" },
     { icon: "🎯", title: "Premium Grade", description: "Hand-picked leaves" },
-    { icon: "📦", title: "Fresh Packed", description: "Vacuum sealed" },
-    { icon: "✅", title: "Organic", description: "Certified organic" },
+    { icon: "📦", title: "Freshly Packed", description: "Sealed for freshness" },
+    { icon: "✅", title: "Pure & Natural", description: "Free from chemicals" },
     { icon: "🔥", title: "Rich Flavor", description: "Bold & aromatic" }
   ];
 

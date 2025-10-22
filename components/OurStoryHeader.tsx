@@ -6,7 +6,6 @@ import {
   Search,
   ShoppingCart,
   User,
-  Heart,
   Menu,
   X
 } from "lucide-react"
@@ -97,14 +96,6 @@ export function OurStoryHeader() {
                   <User className="h-5 w-5" />
                   <span>Login</span>
                 </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="flex items-center space-x-2 hover:bg-brand-green hover:text-white transition-all duration-300"
-                >
-                  <Heart className="h-5 w-5" />
-                  <span>Wishlist</span>
-                </Button>
                 <Link href="/cart">
                   <Button
                     variant="ghost"
@@ -174,14 +165,6 @@ export function OurStoryHeader() {
                   >
                     <User className="h-5 w-5" />
                     <span>Login</span>
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="flex items-center space-x-2 hover:bg-brand-green hover:text-white transition-all duration-300"
-                  >
-                    <Heart className="h-5 w-5" />
-                    <span>Wishlist</span>
                   </Button>
                   <Link href="/cart">
                     <Button

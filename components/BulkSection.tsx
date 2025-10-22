@@ -11,6 +11,38 @@ const BulkSection: React.FC = () => {
 
         <div className="content-body">
           <p className="intro-paragraph">
+            Looking for premium teas for corporate events, festive gifting, or special occasions? Gorkha 
+            Leaf offers authentic teas and wellness blends that make every gift memorable.
+          </p>
+
+          <p className="mission-statement">
+            With our premium range of Darjeeling teas and crafted wellness blends, we curate bulk and 
+            corporate gifting solutions tailored for your needs. Whether it's employee appreciation, client 
+            hampers, festive occasions, or weddings — we ensure each box carries authenticity, 
+            freshness, and a story worth sharing.
+          </p>
+
+          <div className="why-choose-section">
+            <h2 className="section-heading">Why Choose Gorkha Leaf</h2>
+            <ul className="features-list">
+              <li><strong>Authentic & Premium Teas</strong> – From Himalayan gardens & wellness blends.</li>
+              <li><strong>Customizable Gifting</strong> – Curated packs for events, festivals & corporate needs.</li>
+              <li><strong>Freshly Packed at Source</strong> – Sealed for aroma, flavor, and long shelf life.</li>
+              <li><strong>Trusted Quality</strong> – Handpicked teas with a story of heritage & wellness.</li>
+            </ul>
+          </div>
+
+          <div className="impact-circle-section">
+            <h2 className="section-heading">Impact Circle</h2>
+            <p className="impact-intro">
+              At Gorkha Leaf, every order contributes to a bigger purpose. Through our upcoming Impact 
+              Circle initiative, we aim to support tea estate communities with education, wellness 
+              programs, and seasonal drives. When you choose Gorkha Leaf for gifting, you share not just 
+              tea — but impact.
+            </p>
+          </div>
+
+          <p className="intro-paragraph">
             With <span className="highlight-text">small steps, big vision</span>, Gorkha Leaf is the first Darjeeling tea brand
             to launch a comprehensive <span className="highlight-text">community impact program</span>. We are a conscious brand that
             cares for its customers, tea workers & the environment. Gorkha Leaf is committed to being a <span className="highlight-text">Climate
@@ -45,10 +77,10 @@ const BulkSection: React.FC = () => {
 
           <div className="contact-details">
             <div className="contact-item">
-              <strong>Call/WhatsApp :</strong> +91 98765-43210 / +91 87654-32109
+              <strong>Call/WhatsApp :</strong> +91 72043 90477
             </div>
             <div className="contact-item">
-              <strong>Email :</strong> impact@gorkhaleaf.com / partnerships@gorkhaleaf.com
+              <strong>Email :</strong> gorkhaleaf@gmail.com
             </div>
             <div className="contact-item">
               <strong>Impact Hours :</strong> 9 AM to 6 PM IST

@@ -52,7 +52,7 @@ export default function ShippingPolicyPage() {
             <div className="bg-green-50 p-6 rounded-lg mt-8">
               <h3 className="text-xl font-semibold text-green-800 mb-3">Shipping Support</h3>
               <p className="text-gray-700">
-                For any shipping-related queries, delivery issues, or special delivery requests, please contact our customer service team at info@gorkhaleaf.com or call +91-7204390477. We're committed to ensuring your Gorkha Leaf tea reaches you in perfect condition.
+                For any shipping-related queries, delivery issues, or special delivery requests, please contact our customer service team at gorkhaleaf@gmail.com or call +91-7204390477. We're committed to ensuring your Gorkha Leaf tea reaches you in perfect condition.
               </p>
             </div>
           </div>

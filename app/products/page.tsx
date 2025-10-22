@@ -6,7 +6,6 @@ import { Header } from "@/components/Header"
 import Footer from "@/components/Footer"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Switch } from "@/components/ui/switch"
 import { ChevronDown, ChevronUp, Filter } from "lucide-react"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
@@ -29,7 +28,6 @@ interface FilterState {
   collections: string[]
   flavor: string[]
   qualities: string[]
-  organic: boolean
 }
 
 interface FilterSectionProps {
@@ -95,8 +93,7 @@ export default function ProductsPage() {
    const [filters, setFilters] = useState<FilterState>({
      collections: [],
      flavor: [],
-     qualities: [],
-     organic: false
+     qualities: []
    })
    const [products, setProducts] = useState<Product[]>([])
    const [expandedSections, setExpandedSections] = useState({
@@ -122,10 +119,6 @@ export default function ProductsPage() {
 
     if (filters.qualities.length > 0) {
       params.append('qualities', filters.qualities.join(','))
-    }
-
-    if (filters.organic) {
-      params.append('organic', 'true')
     }
 
     const queryString = params.toString()
@@ -154,9 +147,9 @@ export default function ProductsPage() {
   }
 
   const filterOptions = {
-    collections: ["Black teas", "Green teas", "Herbal teas"],
-    flavor: ["Spicy", "Sweet", "Citrus", "Smooth", "Fruity", "Floral", "Grassy", "Minty", "Creamy"],
-    qualities: ["Detox", "Energy", "Relax", "Digestion"]
+    collections: ["Black Teas", "Green Teas", "Herbal Teas", "White Teas"],
+    flavor: ["Spicy", "Sweet", "Citrus", "Smooth", "Fruity", "Floral", "Grassy", "Bold"],
+    qualities: ["Detox", "Energy", "Relax", "Digestion", "Immunity", "Stress Relief"]
   }
 
   // Sort products based on current sort selection
@@ -219,19 +212,6 @@ export default function ProductsPage() {
             isExpanded={expandedSections.qualities}
             onToggle={() => toggleSection('qualities')}
           />
-
-          {/* Organic Toggle */}
-          <div className="border-b border-gray-200 pb-4">
-            <div className="flex items-center justify-between py-3">
-              <span className="font-medium text-base text-gray-900 uppercase tracking-wide">
-                ORGANIC
-              </span>
-              <Switch
-                checked={filters.organic}
-                onCheckedChange={(checked) => setFilters(prev => ({ ...prev, organic: checked }))}
-              />
-            </div>
-          </div>
 
           <div className="pt-4">
             <Button
@@ -312,19 +292,6 @@ export default function ProductsPage() {
                   isExpanded={expandedSections.qualities}
                   onToggle={() => toggleSection('qualities')}
                 />
-
-                {/* Organic Toggle */}
-                <div className="border-b border-gray-200 pb-4">
-                  <div className="flex items-center justify-between py-3">
-                    <span className="font-medium text-base text-gray-900 uppercase tracking-wide">
-                      ORGANIC
-                    </span>
-                    <Switch
-                      checked={filters.organic}
-                      onCheckedChange={(checked) => setFilters(prev => ({ ...prev, organic: checked }))}
-                    />
-                  </div>
-                </div>
               </div>
             </div>
           )}
@@ -376,19 +343,6 @@ export default function ProductsPage() {
                           isExpanded={expandedSections.qualities}
                           onToggle={() => toggleSection('qualities')}
                         />
-
-                        {/* Organic Toggle */}
-                        <div className="border-b border-gray-200 pb-4">
-                          <div className="flex items-center justify-between py-3">
-                            <span className="font-medium text-base text-gray-900 uppercase tracking-wide">
-                              ORGANIC
-                            </span>
-                            <Switch
-                              checked={filters.organic}
-                              onCheckedChange={(checked) => setFilters(prev => ({ ...prev, organic: checked }))}
-                            />
-                          </div>
-                        </div>
                       </div>
                     </SheetContent>
                   </Sheet>
@@ -416,11 +370,9 @@ export default function ProductsPage() {
 
             {/* Products Grid */}
             {sortedProducts.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 sm:gap-6">
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                 {sortedProducts.map((product: Product) => (
-                  <div key={product.id} className="max-w-sm mx-auto sm:max-w-none w-full">
-                    <ProductCard product={product} compact={true} />
-                  </div>
+                  <ProductCard key={product.id} product={product} compact={true} />
                 ))}
               </div>
             ) : (
@@ -430,8 +382,7 @@ export default function ProductsPage() {
                   onClick={() => setFilters({
                     collections: [],
                     flavor: [],
-                    qualities: [],
-                    organic: false
+                    qualities: []
                   })}
                   className="mt-4"
                 >

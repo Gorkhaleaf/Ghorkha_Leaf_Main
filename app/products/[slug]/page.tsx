@@ -29,10 +29,10 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
       <Header />
       <main className="container mx-auto px-4 py-8 pt-32">
         <ProductHeader product={product} />
-        <BrewingInstructions />
+        <BrewingInstructions brewingInstructions={product.brewing_instructions} />
         <IngredientsSection ingredients={product.ingredients || []} />
         <ProductFeatures />
-        <FAQSection />
+        <FAQSection faqs={product.faqs} />
         <FrequentlyPurchased currentProductId={product.id} />
         <RelatedProducts relatedProducts={product.relatedProducts || []} />
         <CustomerReviews reviews={product.reviews || []} />

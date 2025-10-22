@@ -1,11 +1,17 @@
 "use client"
 
 import { useState } from "react";
+import { FAQ } from "@/lib/products";
 
-const FAQSection = () => {
+interface FAQSectionProps {
+  faqs?: FAQ[];
+}
+
+const FAQSection = ({ faqs: productFaqs }: FAQSectionProps) => {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
   
-  const faqs = [
+  // Default FAQs if none provided
+  const defaultFaqs = [
     {
       question: "What is the best way to store tea?",
       answer: "Store in a cool, dry place away from light in an airtight container."
@@ -27,6 +33,9 @@ const FAQSection = () => {
       answer: "Best consumed within 24 months of manufacturing date when stored properly."
     }
   ];
+
+  // Use database FAQs if available, otherwise use defaults
+  const faqs = productFaqs && productFaqs.length > 0 ? productFaqs : defaultFaqs;
 
   return (
     <section className="mb-12">

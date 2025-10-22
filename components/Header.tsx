@@ -7,7 +7,6 @@ import {
   Search,
   ShoppingCart,
   User,
-  Heart,
   ChevronDown,
   Menu,
   X,
@@ -190,15 +189,6 @@ export function Header() {
                           Login
                         </Button>
                       )}
-
-                      <Button
-                        variant="ghost"
-                        className="w-full justify-start px-3 py-2 text-lg hover:bg-black hover:text-white transition-all duration-300"
-                      >
-                        <Heart className="h-5 w-5 mr-2" />
-                        Wishlist
-                      </Button>
-
                     </div>
                   </div>
                 </SheetContent>
@@ -282,14 +272,6 @@ export function Header() {
                     <span className="nav-action-moderate">Login</span>
                   </Button>
                 )}
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="flex items-center space-x-2 hover:bg-black hover:text-white transition-all duration-300"
-                >
-                  <Heart className="h-5 w-5" />
-                  <span className="nav-action-moderate">Wishlist</span>
-                </Button>
                 <Link href="/cart">
                   <Button
                     variant="ghost"

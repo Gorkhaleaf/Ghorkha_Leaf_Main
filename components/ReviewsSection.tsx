@@ -34,19 +34,6 @@ const reviewsData: Review[] = [
     purchaseDate: "2024-11-15"
   },
   {
-    id: 2,
-    rating: 5,
-    title: "UNMATCHED QUALITY & FRESHNESS",
-    review: "I've tried teas from around the world, but Gorkha Leaf's quality is exceptional. The leaves arrive so fresh, you can smell the mountain air in every package.",
-    customerName: "Mike Taylor",
-    location: "London, UK",
-    customerImage: "/testimonials/mike-taylor.png",
-    productImage: "/green-tea.png",
-    verified: true,
-    productPurchased: "Everest Morning Blend",
-    purchaseDate: "2024-12-01"
-  },
-  {
     id: 3,
     rating: 5,
     title: "MY DAILY RITUAL TRANSFORMED",
@@ -171,13 +158,6 @@ const ReviewsSection = () => {
           <p className="text-lg sm:text-xl text-white/90 mb-4 md:mb-6 font-light tracking-wide px-4">
             Real experiences from our cherished customers worldwide
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 text-lg sm:text-xl md:text-2xl text-yellow-400 font-semibold">
-            <div className="flex items-center gap-2">
-              <Star className="w-6 h-6 sm:w-8 sm:h-8 fill-current animate-pulse" />
-              <span className="text-sm sm:text-base md:text-lg">15,000+ Reviews (4.8/5 Stars)</span>
-              <Star className="w-6 h-6 sm:w-8 sm:h-8 fill-current animate-pulse" />
-            </div>
-          </div>
         </div>
 
         {/* Carousel Container */}

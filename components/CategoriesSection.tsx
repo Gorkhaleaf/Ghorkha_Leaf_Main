@@ -12,7 +12,7 @@ import {
 import Image from "next/image";
 import Autoplay from "embla-carousel-autoplay";
 
-const categories = [
+const baseCategories = [
   { name: "Black Tea", image: "/categories/black-tea.png" },
   { name: "Green Tea", image: "/categories/green-tea.png" },
   { name: "White Tea", image: "/categories/white-tea.png" },
@@ -20,16 +20,18 @@ const categories = [
   { name: "Herbal Tea", image: "/categories/herbal-tea.png" },
   { name: "Chai", image: "/categories/chai.png" },
   { name: "Oolong", image: "/categories/oolong.png" },
-  { name: "Rooibos", image: "/categories/rooibos.png" },
-  { name: "Teaware", image: "/categories/teaware.png" },
 ];
 
+// Duplicate categories for seamless infinite scroll
+const categories = [...baseCategories, ...baseCategories, ...baseCategories];
+
 const CategoriesSection = () => {
-  const plugin = React.useRef(
-    Autoplay({ delay: 2000, stopOnInteraction: true })
-  );
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
+
+  const autoplayPlugin = React.useRef(
+    Autoplay({ delay: 2000, stopOnInteraction: true })
+  );
 
   useEffect(() => {
     if (!api) {
@@ -61,15 +63,15 @@ const CategoriesSection = () => {
         <div className="overflow-hidden py-8">
           <Carousel
             setApi={setApi}
-            plugins={[plugin.current]}
+            plugins={[autoplayPlugin.current]}
             opts={{
-            align: "center",
-            loop: true,
-          }}
-          className="w-full"
-          onMouseEnter={() => plugin.current.stop()}
-          onMouseLeave={() => plugin.current.play()}
-        >
+              align: "center",
+              loop: true,
+            }}
+            className="w-full"
+            onMouseEnter={() => autoplayPlugin.current.stop()}
+            onMouseLeave={() => autoplayPlugin.current.play()}
+          >
           <CarouselContent className="-ml-4">
             {categories.map((category, index) => (
               <CarouselItem

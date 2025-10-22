@@ -398,13 +398,6 @@ export function BuyNowModal({ product, onClose }: BuyNowModalProps) {
                 alt={product.name || "Product"}
                 className="w-full h-full object-contain p-3 hover:scale-105 transition-transform duration-300"
               />
-              
-              {/* Organic Badge - consistent with mobile cards */}
-              {product.isOrganic && (
-                <div className="absolute top-3 left-3 bg-green-100 text-green-800 text-xs font-semibold px-2 py-1 rounded-full">
-                  Organic
-                </div>
-              )}
 
               {/* Buy Now Badge */}
               <div className="absolute top-3 right-12 bg-orange-500 text-white text-xs font-semibold px-2 py-1 rounded-full">

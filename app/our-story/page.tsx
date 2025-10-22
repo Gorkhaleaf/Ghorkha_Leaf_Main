@@ -75,7 +75,7 @@ function AnimatedCounter({ end, duration = 2000, suffix = "", className }: { end
   }, [isVisible, end, duration])
 
   return (
-    <div ref={ref} className={`text-4xl md:text-6xl font-bold ${className || 'text-brand-green'}`}>
+    <div ref={ref} className={`text-3xl md:text-5xl font-bold ${className || 'text-brand-green'}`}>
       {count.toLocaleString()}{suffix}
     </div>
   )
@@ -203,7 +203,7 @@ export default function OurStory() {
       {/* Breadcrumb Navigation */}
       <nav className="pt-32 pb-4 px-4 bg-gray-50">
         <div className="container mx-auto">
-          <div className="flex items-center space-x-2 text-sm text-gray-600">
+          <div className="flex items-center space-x-2 text-xs text-gray-600">
             <Link href="/" className="hover:text-brand-green transition-colors">Home</Link>
             <span>/</span>
             <span className="text-brand-green font-medium">Our Story</span>
@@ -223,13 +223,13 @@ export default function OurStory() {
         <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/40 to-transparent z-10"></div>
         
         <div className="relative z-20 text-center text-white max-w-4xl mx-auto px-4">
-          <h1 className="text-5xl md:text-7xl font-bold mb-6 animate-fade-in-up">
+          <h1 className="text-4xl md:text-6xl font-bold mb-6 animate-fade-in-up">
             Our Story
           </h1>
-          <p className="text-xl md:text-2xl mb-8 animate-fade-in-up animation-delay-300">
+          <p className="text-lg md:text-xl mb-8 animate-fade-in-up animation-delay-300">
             Connecting People, One Cup at a Time
           </p>
-          <p className="text-lg md:text-xl mb-12 max-w-2xl mx-auto animate-fade-in-up animation-delay-600">
+          <p className="text-base md:text-lg mb-12 max-w-2xl mx-auto animate-fade-in-up animation-delay-600">
             Love for tea is universal across borders and oceans. It transcends culture, connecting traditions throughout the world.
           </p>
           {/* <Button 
@@ -254,7 +254,7 @@ export default function OurStory() {
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-16">
-              <h2 className="text-4xl md:text-5xl font-bold text-brand-green mb-6">
+              <h2 className="text-3xl md:text-4xl font-bold text-brand-green mb-6">
                 🌿 My Story – The Heart Behind Gorkha Leaf
               </h2>
               <div className="w-24 h-1 bg-brand-green mx-auto mb-8"></div>
@@ -263,16 +263,16 @@ export default function OurStory() {
             <div className="grid lg:grid-cols-2 gap-16 items-center mb-16">
               <div className="space-y-8">
                 <div className="bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300">
-                  <p className="text-lg leading-relaxed text-gray-700 mb-6">
+                  <p className="text-base leading-relaxed text-gray-700 mb-6">
                     I was born to a family deeply rooted in the hills of Darjeeling. My mother worked tirelessly in the tea gardens, hand-plucking leaves under the sun with grace, strength, and dignity. Her labor, like that of many others in the estates, and yet, the world that sips Darjeeling tea often forgets the hands that plucked it.
                   </p>
-                  <p className="text-lg leading-relaxed text-gray-700">
+                  <p className="text-base leading-relaxed text-gray-700">
                     My father began his journey in the same tea estate, but life took a turn — he was fortunate to move into the Indian Army. I often think about how different our life could have been had he stayed behind. His path gave our family a level of stability, but it never distanced us from the struggles of our community back home.
                   </p>
                 </div>
                 
                 <div className="bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300">
-                  <p className="text-lg leading-relaxed text-gray-700">
+                  <p className="text-base leading-relaxed text-gray-700">
                     Growing up, I witnessed both — the hardship of those in the tea estates and the discipline and sacrifice that come with serving the nation. That contrast shaped me.
                   </p>
                 </div>
@@ -313,22 +313,22 @@ export default function OurStory() {
 
               <div className="space-y-8 order-1 lg:order-2">
                 <div className="bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300">
-                  <p className="text-lg leading-relaxed text-gray-700 mb-6">
+                  <p className="text-base leading-relaxed text-gray-700 mb-6">
                     When I decided to start my own business, I looked no further than the land I came from — rich, aromatic, and known worldwide. But this wasn't just about selling tea. This was about telling the story of every leaf, every laborer, and every hill that gave it life.
                   </p>
-                  <p className="text-lg leading-relaxed text-gray-700">
+                  <p className="text-base leading-relaxed text-gray-700">
                     <strong className="text-brand-green">Gorkha Leaf is my tribute</strong> — to my parents, to every tea worker, and to the Gorkha spirit of resilience and pride.
                   </p>
                 </div>
                 
                 <div className="bg-gradient-to-r from-brand-green to-brand-green/80 p-8 rounded-2xl shadow-lg text-white">
-                  <p className="text-lg leading-relaxed mb-6">
+                  <p className="text-base leading-relaxed mb-6">
                     While I may not be able to change everything overnight, my dream is bigger than a brand. I want to give back: to support education for children in tea estates, bring smiles through festive gifts, and host community lunches that bring people together — starting in Darjeeling and spreading across every tea-growing region.
                   </p>
                   <div className="text-center">
-                    <p className="text-xl font-bold mb-2">This isn't just tea. This is a promise.</p>
-                    <p className="text-lg">It's my story.</p>
-                    <p className="text-lg">It's our story.</p>
+                    <p className="text-lg font-bold mb-2">This isn't just tea. This is a promise.</p>
+                    <p className="text-base">It's my story.</p>
+                    <p className="text-base">It's our story.</p>
                   </div>
                 </div>
               </div>
@@ -342,7 +342,7 @@ export default function OurStory() {
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-16">
-              <h2 className="text-4xl md:text-5xl font-bold text-brand-green mb-6">
+              <h2 className="text-3xl md:text-4xl font-bold text-brand-green mb-6">
                 Our Mission & Vision
               </h2>
               <div className="w-24 h-1 bg-brand-green mx-auto mb-8"></div>
@@ -354,9 +354,9 @@ export default function OurStory() {
                   <div className="w-20 h-20 bg-brand-green rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
                     <Target className="w-10 h-10 text-white" />
                   </div>
-                  <h3 className="text-3xl font-bold text-brand-green mb-6">Mission</h3>
+                  <h3 className="text-2xl font-bold text-brand-green mb-6">Mission</h3>
                 </div>
-                <p className="text-lg leading-relaxed text-gray-700 text-center">
+                <p className="text-base leading-relaxed text-gray-700 text-center">
                   To bring the authentic essence of Darjeeling's tea culture to the world — one leaf, one story, and one soul at a time — while supporting the people and heritage that make it special.
                 </p>
               </div>
@@ -366,9 +366,9 @@ export default function OurStory() {
                   <div className="w-20 h-20 bg-brand-green rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
                     <Eye className="w-10 h-10 text-white" />
                   </div>
-                  <h3 className="text-3xl font-bold text-brand-green mb-6">Vision</h3>
+                  <h3 className="text-2xl font-bold text-brand-green mb-6">Vision</h3>
                 </div>
-                <p className="text-lg leading-relaxed text-gray-700 text-center">
+                <p className="text-base leading-relaxed text-gray-700 text-center">
                   To become a globally loved tea brand that celebrates the Gorkha spirit, uplifts local communities, and preserves the legacy of Himalayan tea craftsmanship.
                 </p>
               </div>
@@ -381,7 +381,7 @@ export default function OurStory() {
       <section id="values" className="py-20 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-brand-green mb-6">
+            <h2 className="text-3xl md:text-4xl font-bold text-brand-green mb-6">
               Core Values
             </h2>
             <div className="w-24 h-1 bg-brand-green mx-auto mb-8"></div>
@@ -397,10 +397,10 @@ export default function OurStory() {
                   <div className="w-16 h-16 bg-brand-green rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
                     <value.icon className="w-8 h-8 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold text-brand-green mb-4 group-hover:text-brand-green/80 transition-colors">
+                  <h3 className="text-lg font-bold text-brand-green mb-4 group-hover:text-brand-green/80 transition-colors">
                     {value.title}
                   </h3>
-                  <p className="text-gray-600 leading-relaxed">
+                  <p className="text-gray-600 leading-relaxed text-sm">
                     {value.description}
                   </p>
                 </div>
@@ -415,7 +415,7 @@ export default function OurStory() {
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-16">
-              <h2 className="text-4xl md:text-5xl font-bold text-brand-green mb-6">
+              <h2 className="text-3xl md:text-4xl font-bold text-brand-green mb-6">
                 📜 Why I Chose the Name "Gorkha Leaf"
               </h2>
               <div className="w-24 h-1 bg-brand-green mx-auto mb-8"></div>
@@ -424,32 +424,32 @@ export default function OurStory() {
             <div className="grid lg:grid-cols-2 gap-16 items-center mb-16">
               <div className="space-y-8">
                 <div className="bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300">
-                  <p className="text-lg leading-relaxed text-gray-700 mb-6">
+                  <p className="text-base leading-relaxed text-gray-700 mb-6">
                     The name Gorkha Leaf is not just a brand — it's a tribute to who we are, where we come from, and what we stand for.
                   </p>
-                  <p className="text-lg leading-relaxed text-gray-700">
+                  <p className="text-base leading-relaxed text-gray-700">
                     <strong className="text-brand-green">"Gorkha"</strong> represents the proud and resilient people of the hills — known not only for their contribution to tea cultivation but also for their legendary strength, discipline, and bravery.
                   </p>
                 </div>
                 
                 <div className="bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300">
-                  <p className="text-lg leading-relaxed text-gray-700 mb-6">
+                  <p className="text-base leading-relaxed text-gray-700 mb-6">
                     Historically, the Gorkhas are known as fearless warriors, respected across the world for their service in the Indian Army and British Army. My own father served in the army, which makes this connection even more personal.
                   </p>
-                  <p className="text-lg leading-relaxed text-gray-700">
+                  <p className="text-base leading-relaxed text-gray-700">
                     <strong className="text-brand-green">"Leaf"</strong> represents our product — the sacred Darjeeling tea leaf — but it also symbolizes every story and sacrifice woven into that cup of tea.
                   </p>
                 </div>
               </div>
               
               <div className="relative">
-                <div className="aspect-square rounded-full overflow-hidden shadow-2xl">
+                <div className="aspect-square rounded-full overflow-hidden shadow-2xl" style={{ width: '500px', height: '500px' }}>
                   <Image
-                    src="/Extra_content/owner2.png"
+                    src="/KukuriWithTeaLeaves.png"
                     alt="Gorkha heritage and tea tradition"
                     width={500}
                     height={500}
-                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
+                    className="w-full h-full object-contain hover:scale-105 transition-transform duration-700"
                   />
                 </div>
                 <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-brand-green rounded-full flex items-center justify-center">
@@ -460,7 +460,7 @@ export default function OurStory() {
 
             {/* Gorkha Leaf Values */}
             <div className="text-center mb-12">
-              <h3 className="text-3xl font-bold text-brand-green mb-8">
+              <h3 className="text-2xl font-bold text-brand-green mb-8">
                 Together, Gorkha Leaf stands for:
               </h3>
             </div>
@@ -474,10 +474,10 @@ export default function OurStory() {
                   <div className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-300">
                     {value.icon}
                   </div>
-                  <h4 className="text-xl font-bold text-brand-green mb-3">
+                  <h4 className="text-lg font-bold text-brand-green mb-3">
                     {value.title}
                   </h4>
-                  <p className="text-gray-600 text-sm">
+                  <p className="text-gray-600 text-xs">
                     {value.description}
                   </p>
                 </div>
@@ -486,7 +486,7 @@ export default function OurStory() {
 
             <div className="text-center mt-16">
               <div className="bg-gradient-to-r from-brand-green to-brand-green/80 p-8 rounded-2xl shadow-lg text-white max-w-2xl mx-auto">
-                <p className="text-xl font-bold">
+                <p className="text-lg font-bold">
                   It's a name that holds the past with pride and moves toward the future with purpose.
                 </p>
               </div>
@@ -499,7 +499,7 @@ export default function OurStory() {
       <section id="impact" className="py-20 bg-gradient-to-r from-brand-green to-brand-green/80 text-white">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">
+            <h2 className="text-3xl md:text-4xl font-bold mb-6">
               Our Impact
             </h2>
             <div className="w-24 h-1 bg-white mx-auto mb-8"></div>
@@ -507,20 +507,20 @@ export default function OurStory() {
           
           <div className="grid md:grid-cols-4 gap-8 text-center">
             <div>
-              <AnimatedCounter end={125} className="text-white" />
-              <p className="text-xl mt-4">Years of Heritage</p>
+              <AnimatedCounter end={1} suffix="+" className="text-white" />
+              <p className="text-lg mt-4">Year of Journey</p>
             </div>
             <div>
-              <AnimatedCounter end={50} suffix="+" className="text-white" />
-              <p className="text-xl mt-4">Countries Served</p>
+              <AnimatedCounter end={6} className="text-white" />
+              <p className="text-lg mt-4">Signature Blends</p>
             </div>
             <div>
-              <AnimatedCounter end={10000} suffix="+" className="text-white" />
-              <p className="text-xl mt-4">Happy Customers</p>
+              <AnimatedCounter end={100} suffix="+" className="text-white" />
+              <p className="text-lg mt-4">Early Customers</p>
             </div>
             <div>
-              <AnimatedCounter end={25} className="text-white" />
-              <p className="text-xl mt-4">Tea Varieties</p>
+              <div className="text-3xl md:text-5xl font-bold text-white">🏔️</div>
+              <p className="text-lg mt-4">Rooted in Darjeeling, Inspired by Wellness</p>
             </div>
           </div>
         </div>

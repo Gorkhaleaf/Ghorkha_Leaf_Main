@@ -2,14 +2,20 @@
 
 import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
+import { BrewingInstructions as BrewingInstructionsType } from "@/lib/products";
 
-const BrewingInstructions = () => {
+interface BrewingInstructionsProps {
+  brewingInstructions?: BrewingInstructionsType;
+}
+
+const BrewingInstructions = ({ brewingInstructions }: BrewingInstructionsProps) => {
   const [ref, inView] = useInView({
     triggerOnce: true,
     threshold: 0.1,
   });
 
-  const steps = [
+  // Default instructions if none provided
+  const defaultSteps = [
     {
       title: "1. 🫖 Boil Water",
       content: "Use fresh, filtered water. Temperature depends on tea type:\n• Green Tea: 75–85°C (not boiling)\n• Black Tea: 90–95°C\n• Herbal Tea: 95–100°C"
@@ -27,6 +33,19 @@ const BrewingInstructions = () => {
       content: "Strain the leaves or remove the bag.\nSip slowly and enjoy the aroma, warmth, and wellness.\nOptional: Add honey or lemon."
     }
   ];
+
+  // Use database instructions if available, otherwise use defaults
+  const steps = brewingInstructions?.steps.map((step, index) => ({
+    title: `${step.step}. ${step.title}`,
+    content: step.description
+  })) || defaultSteps;
+
+  // Additional brewing information from database
+  const brewingInfo = brewingInstructions ? `
+🌡️ Temperature: ${brewingInstructions.temperature}
+🍃 Tea Amount: ${brewingInstructions.leaf_amount}
+⏱️ Steep Time: ${brewingInstructions.steep_time}
+  `.trim() : null;
 
   // Liquid motion divider SVG
   const LiquidDivider = () => (
@@ -83,18 +102,18 @@ const BrewingInstructions = () => {
                 <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-green-900 opacity-70"></div>
               </div>
               
-              {/* Floating tea leaves */}
-              <motion.div 
-                animate={{ y: [0, -15, 0] }}
-                transition={{ repeat: Infinity, duration: 3 }}
-                className="absolute top-10 -left-6"
-              >
-                <img 
-                  src="/public/about us gifs/leaf.gif" 
-                  alt="Floating tea leaf" 
-                  className="w-16 h-16 opacity-80"
-                />
-              </motion.div>
+              {/* Brewing Info Card - Only show if database instructions exist */}
+              {brewingInfo && (
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8, delay: 0.4 }}
+                  className="mt-6 bg-white/90 backdrop-blur-sm p-6 rounded-xl shadow-lg border border-green-100"
+                >
+                  <h4 className="text-lg font-bold text-green-800 mb-3">📋 Quick Reference</h4>
+                  <p className="text-gray-700 whitespace-pre-line text-sm">{brewingInfo}</p>
+                </motion.div>
+              )}
             </motion.div>
             
             {/* Right: Animated instructions */}
@@ -111,6 +130,26 @@ const BrewingInstructions = () => {
                   <p className="text-gray-700 whitespace-pre-line">{step.content}</p>
                 </motion.div>
               ))}
+              
+              {/* Additional Notes from database */}
+              {brewingInstructions?.notes && brewingInstructions.notes.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={inView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ duration: 0.5, delay: steps.length * 0.2 }}
+                  className="bg-amber-50/90 backdrop-blur-sm p-6 rounded-xl shadow-lg border border-amber-200"
+                >
+                  <h4 className="text-xl font-bold text-amber-800 mb-3">💡 Pro Tips</h4>
+                  <ul className="space-y-2">
+                    {brewingInstructions.notes.map((note, idx) => (
+                      <li key={idx} className="text-gray-700 flex items-start">
+                        <span className="text-amber-600 mr-2">•</span>
+                        <span>{note}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </motion.div>
+              )}
             </div>
           </div>
         </div>
