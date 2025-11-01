@@ -1,3 +1,4 @@
-# Disallow all web crawlers from all content
+# Allow all web crawlers from all content
 User-agent: *
-Disallow: /
+Allow: /
+Sitemap: https://www.gorkhaleaf.com/sitemap.xml
