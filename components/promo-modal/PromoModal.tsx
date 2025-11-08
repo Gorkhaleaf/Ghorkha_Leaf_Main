@@ -294,7 +294,7 @@ export function PromoModal({
               id="promo-modal-title"
               className="text-xs sm:text-sm font-semibold text-gray-800 uppercase tracking-wider"
             >
-              Independence Day SALE
+              WINTER SPECIAL OFFER
             </h1>
 
             <div className="space-y-1">
@@ -302,7 +302,7 @@ export function PromoModal({
                 FLAT
               </p>
               <p className="text-3xl sm:text-4xl md:text-5xl font-bold text-amber-600 leading-none tracking-tight">
-                30% OFF
+                10% OFF
               </p>
               <p className="text-xs font-bold text-brand-green uppercase tracking-wide">
                 SITEWIDE
