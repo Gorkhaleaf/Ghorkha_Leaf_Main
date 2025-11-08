@@ -80,7 +80,7 @@ export const metadata: Metadata = {
     google: "your-google-verification-code",
   },
   other: {
-    "robots": "noindex, nofollow",
+    "robots": "index, follow",
   },
   generator: 'v0.dev'
 }
