@@ -88,7 +88,7 @@ const HeroSection = () => {
 
             {/* Offer text - responsive sizing */}
             <p className="text-xl sm:text-2xl md:text-3xl mb-6 lg:mb-8 text-white tracking-[0.12em] drop-shadow-xl">
-              UPTO 32% OFF ON FIRST ORDER
+              UPTO 10% OFF ON FIRST ORDER
             </p>
 
             {/* Shop Now button - desktop: normal, mobile: full width */}
