@@ -148,7 +148,7 @@ const Footer = () => {
                 </svg>
               </a>
               <a
-                href="https://www.whatsapp.com/"
+                href="https://wa.me/917204390477?text=Hi%20Gorkha%20Leaf%2C%20I%20am%20interested%20in%20your%20Darjeeling%20tea"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:scale-110 transition-transform duration-300"
