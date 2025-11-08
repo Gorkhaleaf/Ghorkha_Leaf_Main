@@ -31,7 +31,7 @@ const reviewsData: Review[] = [
     productImage: "/darjeeling-500x500.jpg",
     verified: true,
     productPurchased: "Premium Himalayan Gold",
-    purchaseDate: "2024-11-15"
+    purchaseDate: "2025-11-15"
   },
   {
     id: 3,
@@ -44,7 +44,7 @@ const reviewsData: Review[] = [
     productImage: "/black-tea.png",
     verified: true,
     productPurchased: "Royal Gurkha Reserve",
-    purchaseDate: "2024-10-20"
+    purchaseDate: "2025-10-20"
   },
   {
     id: 4,
@@ -57,7 +57,7 @@ const reviewsData: Review[] = [
     productImage: "/herbal-tea.png",
     verified: true,
     productPurchased: "Organic Mountain Mist",
-    purchaseDate: "2024-11-28"
+    purchaseDate: "2025-10-28"
   },
   {
     id: 5,
@@ -70,7 +70,7 @@ const reviewsData: Review[] = [
     productImage: "/oolong.png",
     verified: true,
     productPurchased: "Heritage Gift Collection",
-    purchaseDate: "2024-12-10"
+    purchaseDate: "2025-08-10"
   },
   {
     id: 6,
@@ -83,7 +83,7 @@ const reviewsData: Review[] = [
     productImage: "/chai.png",
     verified: true,
     productPurchased: "Warrior's Strength Chai",
-    purchaseDate: "2024-11-05"
+    purchaseDate: "2025-11-05"
   }
 ]
 
