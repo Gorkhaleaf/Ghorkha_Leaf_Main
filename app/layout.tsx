@@ -96,6 +96,21 @@ export default function RootLayout({
       className={`${inter.variable} ${playfair.variable}`}
     >
       <body className={inter.className}>
+        {/* Google Analytics */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-839SCRG86M"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-839SCRG86M');
+          `}
+        </Script>
+
+        {/* Rest of your providers/components */}
         <LenisProvider>
           <CartProvider>
             <LazyPromoModalProvider
