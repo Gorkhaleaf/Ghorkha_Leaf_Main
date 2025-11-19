@@ -22,8 +22,6 @@ export default function CartPage() {
       removeFromCart,
       updateQuantity,
       applyCoupon,
-      totalPrice,
-      discount,
       couponError,
     } = useCart()
     const [couponCode, setCouponCode] = useState("")
@@ -462,12 +460,16 @@ export default function CartPage() {
         toast.error('An unexpected error occurred. Please try again.');
       }
     }
-  }, [session, cartItems, totalPrice]);
+  }, [session, cartItems, subtotal, shippingFee, comboDiscount, couponDiscount, totalPrice]);
 
+  const [couponCode, setCouponCode] = useState("");  
   const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0)
   const shippingFee = subtotal < 600 ? 30 : 0;
   const comboDiscount = subtotal >= 999 ? subtotal * 0.05 : 0;
-  const totalPrice = subtotal + shippingFee - comboDiscount;   
+  // Placeholder for future coupon logic
+// You would set this dynamically if couponCode is valid
+  const couponDiscount = 0;   
+  const totalPrice = subtotal + shippingFee - comboDiscount - couponDiscount;   
 
   return (
     <div className="bg-white">
@@ -617,6 +619,13 @@ export default function CartPage() {
                     <span className="font-semibold text-sm lg:text-base">- ₹{comboDiscount.toFixed(2)}</span>
                   </div>
                 )}
+                {/* Coupon Discount (if applied) */}
+                  {couponDiscount > 0 && (
+                <div className="flex justify-between text-blue-600">
+                  <span className="text-sm lg:text-base">Coupon Discount</span>
+                  <span className="font-semibold text-sm lg:text-base">- ₹{couponDiscount.toFixed(2)}</span>
+                </div>
+              )}  
                 {/* Shipping Fee (for subtotal < 600) */}
                   {shippingFee > 0 && (
                     <div className="flex justify-between text-orange-600">
