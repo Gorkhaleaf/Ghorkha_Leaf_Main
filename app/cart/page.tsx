@@ -213,7 +213,7 @@ export default function CartPage() {
 
       // Capture current cart state
       const currentCart = [...cartItems];
-      const currentTotal = finalTotal;
+      const currentTotal = totalPrice;
 
       console.log('[Cart] Payment flow - Cart summary:', {
         itemCount: currentCart.length,
