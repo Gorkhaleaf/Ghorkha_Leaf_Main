@@ -611,11 +611,18 @@ export default function CartPage() {
                   <span className="text-sm lg:text-base">Subtotal</span>
                   <span className="font-semibold text-sm lg:text-base">₹{subtotal.toFixed(2)}</span>
                 </div>
-                {discount > 0 && (
+                {comboDiscount > 0 && (
                   <div className="flex justify-between text-green-600">
-                    <span className="text-sm lg:text-base">Discount</span>
-                    <span className="font-semibold text-sm lg:text-base">- ₹{discount.toFixed(2)}</span>
+                    <span className="text-sm lg:text-base">Combo Discount (5%)</span>
+                    <span className="font-semibold text-sm lg:text-base">- ₹{ComboDiscount.toFixed(2)}</span>
                   </div>
+                )}
+                {/* Shipping Fee (for subtotal < 600) */}
+                  {shippingFee > 0 && (
+                    <div className="flex justify-between text-orange-600">
+                      <span className="text-sm lg:text-base">Shipping Fee</span>
+                      <span className="font-semibold text-sm lg:text-base">+ ₹{shippingFee}</span>
+                    </div>
                 )}
                 <div className="flex justify-between font-bold text-base lg:text-lg border-t pt-3 lg:pt-4">
                   <span>Total</span>
