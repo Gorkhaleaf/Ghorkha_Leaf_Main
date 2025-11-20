@@ -469,7 +469,15 @@ export default function CartPage() {
   // Placeholder for future coupon logic
 // You would set this dynamically if couponCode is valid
   const couponDiscount = 0;   
-  const totalPrice = subtotal + shippingFee - comboDiscount - couponDiscount;   
+  const totalPrice = subtotal + shippingFee - comboDiscount - couponDiscount;
+  console.log({
+  subtotal,
+  shippingFee,
+  comboDiscount,
+  couponDiscount,
+  totalPrice,
+  cartItems
+});  
 
   return (
     <div className="bg-white">
