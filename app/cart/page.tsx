@@ -466,17 +466,12 @@ export default function CartPage() {
   const shippingFee = subtotal < 600 ? 30 : 0;
   const comboDiscount = subtotal >= 999 ? subtotal * 0.05 : 0;
   // Placeholder for future coupon logic
-// You would set this dynamically if couponCode is valid
-  const couponDiscount = 0;   
-  const totalPrice = subtotal + shippingFee - comboDiscount - couponDiscount;
-  console.log({
-  subtotal,
-  shippingFee,
-  comboDiscount,
-  couponDiscount,
-  totalPrice,
-  cartItems
-});  
+  // cart totals used in UI and payment
+  const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0)
+  const shippingFee = subtotal < 600 ? 30 : 0;
+  const comboDiscount = subtotal >= 999 ? subtotal * 0.05 : 0;
+  const couponDiscount = 0; // or your real coupon logic
+  const totalPrice = subtotal + shippingFee - comboDiscount - couponDiscount; 
 
   return (
     <div className="bg-white">
