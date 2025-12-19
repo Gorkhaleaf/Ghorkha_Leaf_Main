@@ -1,5 +1,7 @@
 "use client";
 
+export const ssr = false;
+
 export const dynamic = "force-dynamic";
 
 import { useState, useEffect, useCallback } from "react"
