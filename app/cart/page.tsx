@@ -461,10 +461,7 @@ export default function CartPage() {
       }
     }
   }, [session, cartItems, subtotal, shippingFee, comboDiscount, couponDiscount, totalPrice]);
- 
-  const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0)
-  const shippingFee = subtotal < 600 ? 30 : 0;
-  const comboDiscount = subtotal >= 999 ? subtotal * 0.05 : 0;
+
   // Placeholder for future coupon logic
   // cart totals used in UI and payment
   const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0)
