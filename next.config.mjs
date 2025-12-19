@@ -108,11 +108,6 @@ const nextConfig = {
       ],
     },
   ],
-    // ⬇️ ADD THIS BLOCK
-  exportPathMap: async function (defaultPathMap) {
-    delete defaultPathMap['/cart'];
-    return defaultPathMap;
-  },
-};
+}
 
 export default nextConfig
