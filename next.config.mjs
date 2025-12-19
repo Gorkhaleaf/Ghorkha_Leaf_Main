@@ -38,6 +38,13 @@ const nextConfig = {
         port: '',
         pathname: '/**',
       },
+          // (optional) you can also add a remotePattern for Supabase:
+    {
+      protocol: 'https',
+      hostname: 'ioguexibabxzfbmmnwzg.supabase.co',
+      port: '',
+      pathname: '/storage/v1/object/public/**',
+    },
     ],
   },
   // Optimize chunks and bundles
