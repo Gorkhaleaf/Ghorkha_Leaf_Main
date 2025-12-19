@@ -113,6 +113,6 @@ const nextConfig = {
     delete defaultPathMap['/cart'];
     return defaultPathMap;
   },
-}
+};
 
 export default nextConfig
