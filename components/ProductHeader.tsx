@@ -58,7 +58,7 @@ const ProductHeader = ({ product }: { product: any }) => {
       {/* Left: Product Image Gallery */}
       <div className="product-gallery">
         <div className="main-image mb-4">
-          <Image 
+          <img 
             src={product.main_image || product.image} 
             alt={product.name} 
             width={600}
