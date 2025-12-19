@@ -498,144 +498,134 @@ export default function CartPage() {
               <h2 className="text-lg lg:text-xl font-semibold mb-4 lg:mb-6">
                 CART TOTALS
               </h2>
-
+          
               <div className="space-y-3 lg:space-y-4">
                 <div className="flex justify-between">
                   <span className="text-sm lg:text-base">Subtotal</span>
                   <span className="font-semibold text-sm lg:text-base">
                     ₹{subtotal.toFixed(2)}
+                </span>
+              </div>
+        
+              {comboDiscount > 0 && (
+                <div className="flex justify-between text-green-600">
+                  <span className="text-sm lg:text-base">Combo Discount (5%)</span>
+                  <span className="font-semibold text-sm lg:text-base">
+                    - ₹{comboDiscount.toFixed(2)}
                   </span>
                 </div>
-
-                {comboDiscount > 0 && (
-                  <div className="flex justify-between text-green-600">
-                    <span className="text-sm lg:text-base">
-                      Combo Discount (5%)
-                    </span>
-                    <span className="font-semibold text-sm lg:text-base">
-                      - ₹{comboDiscount.toFixed(2)}
-                    </span>
-                  </div>
-                )}
-
-                {couponDiscount > 0 && (
-                  <div className="flex justify-between text-blue-600">
-                    <span className="text-sm lg:text-base">
-                      Coupon Discount
-                    </span>
-                    <span className="font-semibold text-sm lg:text-base">
-                      - ₹{couponDiscount.toFixed(2)}
-                    </span>
-                  </div>
-                )}
-
-                {shippingFee > 0 && (
-                  <div className="flex justify-between text-orange-600">
-                    <span className="text-sm lg:text-base">Shipping Fee</span>
-                    <span className="font-semibold text-sm lg:text-base">
-                      + ₹{shippingFee}
-                    </span>
-                  </div>
-                )}
-
-                <div className="flex justify-between font-bold text-base lg:text-lg border-t pt-3 lg:pt-4">
-                  <span>Total</span>
-                  <span>₹{totalPrice.toFixed(2)}</span>
+              )}
+        
+              {couponDiscount > 0 && (
+                <div className="flex justify-between text-blue-600">
+                  <span className="text-sm lg:text-base">Coupon Discount</span>
+                  <span className="font-semibold text-sm lg:text-base">
+                    - ₹{couponDiscount.toFixed(2)}
+                  </span>
                 </div>
-
-                <p className="text-xs text-gray-500">(Incl. of all taxes)</p>
-              </div>
-
-              <Button
-                size="lg"
-                className="w-full mt-4 lg:mt-6 bg-green-800 hover:bg-green-900 text-sm lg:text-base py-3"
-                onClick={handlePayment}
-                disabled={loading || cartItems.length === 0 || paymentCompleted}
-              >
-                {paymentCompleted
-                  ? "Payment Completed"
-                  : loading
-                  ? "Processing..."
-                  : "PROCEED TO CHECKOUT"}
-              </Button>
-
-              <div className="mt-4 lg:mt-6">
-                <h3 className="font-semibold mb-2 text-sm lg:text-base">
-                  Coupon
-                </h3>
-
-                <div className="flex flex-col sm:flex-row gap-2">
-                  <Input
-                    type="text"
-                    placeholder="Coupon code"
-                    value={couponCode}
-                    onChange={(e) => setCouponCode(e.target.value)}
-                    className="text-sm"
-                  />
-
-                  <Button
-                    variant="outline"
-                    onClick={handleApplyCoupon}
-                    className="text-sm whitespace-nowrap"
-                  >
-                    Apply coupon
-                  </Button>
+              )}
+        
+              {shippingFee > 0 && (
+                <div className="flex justify-between text-orange-600">
+                  <span className="text-sm lg:text-base">Shipping Fee</span>
+                  <span className="font-semibold text-sm lg:text-base">
+                    + ₹{shippingFee}
+                  </span>
                 </div>
-
-                {couponError && (
-                  <p className="text-red-500 text-xs mt-1">{couponError}</p>
-                )}
+              )}
+        
+              <div className="flex justify-between font-bold text-base lg:text-lg border-t pt-3 lg:pt-4">
+                <span>Total</span>
+                <span>₹{totalPrice.toFixed(2)}</span>
               </div>
-
-              <p className="text-xs text-gray-500 mt-4 lg:mt-6">
-                Order below Rs 600 will be charged Rs. 30 for shipping for
-                Prepaid Payment and Rs. 75 for shipping for Cash On Delivery.
-              </p>
+        
+              <p className="text-xs text-gray-500">(Incl. of all taxes)</p>
             </div>
-
-            {/* PAYMENT ICONS */}
-            <div className="flex justify-center items-center flex-wrap gap-3 lg:gap-4 mt-4 lg:mt-6">
-              <Image
-                src="https://cdn.iconscout.com/icon/free/png-256/free-visa-3-226460.png"
-                alt="Visa"
-                width={35}
-                height={22}
-                className="object-contain"
-              />
-
-              <Image
-                src="https://cdn.iconscout.com/icon/free/png-256/free-mastercard-3521564-2944982.png"
-                alt="Mastercard"
-                width={35}
-                height={22}
-                className="object-contain"
-              />
-
-              <Image
-                src="https://cdn.iconscout.com/icon/free/png-256/free-rupay-3521497-2944919.png"
-                alt="Rupay"
-                width={35}
-                height={22}
-                className="object-contain"
-              />
-
-              <Image
-                src="https://cdn.iconscout.com/icon/free/png-256/free-google-pay-2038779-1721670.png"
-                alt="GPay"
-                width={35}
-                height={22}
-                className="object-contain"
-              />
-
-              <Image
-                src="https://cdn.iconscout.com/icon/free/png-256/free-paytm-226444.png"
-                alt="Paytm"
-                width={35}
-                height={22}
-                className="object-contain"
-              />
+        
+            <Button
+              size="lg"
+              className="w-full mt-4 lg:mt-6 bg-green-800 hover:bg-green-900 text-sm lg:text-base py-3"
+              onClick={handlePayment}
+              disabled={loading || cartItems.length === 0 || paymentCompleted}
+            >
+              {paymentCompleted
+                ? "Payment Completed"
+                : loading
+                ? "Processing..."
+                : "PROCEED TO CHECKOUT"}
+            </Button>
+        
+            <div className="mt-4 lg:mt-6">
+              <h3 className="font-semibold mb-2 text-sm lg:text-base">Coupon</h3>
+        
+              <div className="flex flex-col sm:flex-row gap-2">
+                <Input
+                  type="text"
+                  placeholder="Coupon code"
+                  value={couponCode}
+                  onChange={(e) => setCouponCode(e.target.value)}
+                  className="text-sm"
+                />
+        
+                <Button
+                  variant="outline"
+                  onClick={handleApplyCoupon}
+                  className="text-sm whitespace-nowrap"
+                >
+                  Apply coupon
+                </Button>
+              </div>
+        
+              {couponError && (
+                <p className="text-red-500 text-xs mt-1">{couponError}</p>
+              )}
             </div>
+        
+            <p className="text-xs text-gray-500 mt-4 lg:mt-6">
+              Order below Rs 600 will be charged Rs. 30 for shipping for Prepaid
+              Payment and Rs. 75 for Cash On Delivery.
+            </p>
           </div>
+        
+          {/* PAYMENT ICONS */}
+          <div className="flex justify-center items-center flex-wrap gap-3 lg:gap-4 mt-4 lg:mt-6">
+            <Image
+              src="https://cdn.iconscout.com/icon/free/png-256/free-visa-3-226460.png"
+              alt="Visa"
+              width={35}
+              height={22}
+              className="object-contain"
+            />
+            <Image
+              src="https://cdn.iconscout.com/icon/free/png-256/free-mastercard-3521564-2944982.png"
+              alt="Mastercard"
+              width={35}
+              height={22}
+              className="object-contain"
+            />
+            <Image
+              src="https://cdn.iconscout.com/icon/free/png-256/free-rupay-3521497-2944919.png"
+              alt="Rupay"
+              width={35}
+              height={22}
+              className="object-contain"
+            />
+            <Image
+              src="https://cdn.iconscout.com/icon/free/png-256/free-google-pay-2038779-1721670.png"
+              alt="GPay"
+              width={35}
+              height={22}
+              className="object-contain"
+            />
+            <Image
+              src="https://cdn.iconscout.com/icon/free/png-256/free-paytm-226444.png"
+              alt="Paytm"
+              width={35}
+              height={22}
+              className="object-contain"
+            />
+          </div>
+        </div>
         </div>
       </main>
 
