@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 
-export const dynamic = "force-dynamic";
+export const runtime = "edge";
 
 const CartPageClient = dynamic(() => import("./CartPageClient"), {
   ssr: false,
