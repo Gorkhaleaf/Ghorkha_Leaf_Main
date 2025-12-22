@@ -102,10 +102,12 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const applyCoupon = (couponCode: string) => {
-    const validCoupons = {
-      'GORKHA10': 0.1,  // 10% discount
-      'IDAY30': 0.3     // 30% discount for Independence Day
-    };
+    const COUPONS: Record<string, number> = {
+      GORKHALFF5: 5,
+      NEWYEARLT0: 10,
+      GORKHALEST12: 12,
+  };
+
 
     if (validCoupons[couponCode as keyof typeof validCoupons]) {
       setCoupon(couponCode);
