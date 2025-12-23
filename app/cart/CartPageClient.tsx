@@ -487,7 +487,7 @@ export default function CartPage() {
               </p>
 
               <p className="text-xs lg:text-sm mt-1">
-                Use coupon code:{" "}
+                {" "}
                 <span className="font-bold"></span>
               </p>
             </div>
