@@ -110,12 +110,12 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
 
     if (COUPONS[couponCode.trim().toUpperCase()]) {
-  setCoupon(couponCode.trim().toUpperCase());
-  setCouponError('');
-} else {
-  setCoupon('');
-  setCouponError('Invalid coupon code');
-}
+    setCoupon(couponCode.trim().toUpperCase());
+    setCouponError('');
+    } else {
+    setCoupon('');
+    setCouponError('Invalid coupon code');
+  }
 
 
   const cartCount = cartItems.reduce((count, item) => count + item.quantity, 0);
