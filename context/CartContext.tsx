@@ -109,14 +109,14 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   };
 
 
-    if (validCoupons[couponCode as keyof typeof validCoupons]) {
-      setCoupon(couponCode);
-      setCouponError('');
-    } else {
-      setCoupon('');
-      setCouponError('Invalid coupon code');
-    }
-  };
+    if (COUPONS[couponCode.trim().toUpperCase()]) {
+  setCoupon(couponCode.trim().toUpperCase());
+  setCouponError('');
+} else {
+  setCoupon('');
+  setCouponError('Invalid coupon code');
+}
+
 
   const cartCount = cartItems.reduce((count, item) => count + item.quantity, 0);
 
