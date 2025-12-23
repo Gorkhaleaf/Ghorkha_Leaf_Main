@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { Header } from "@/components/Header";
+
 import Footer from "@/components/Footer";
 import Image from "next/image";
 import { Button } from "@/components/ui/button.tsx";
@@ -36,6 +37,7 @@ export default function CartPage() {
     updateQuantity,
     applyCoupon,
     couponError,
+    discount,
   } = useCart();
 
   const [couponCode, setCouponCode] = useState("");
@@ -291,7 +293,7 @@ export default function CartPage() {
   );
   const shippingFee = subtotal < 600 ? 30 : 0;
   const comboDiscount = subtotal >= 999 ? subtotal * 0.05 : 0;
-  const couponDiscount = 0;
+  const couponDiscount = discount;
   const totalPrice =
     subtotal + shippingFee - comboDiscount - couponDiscount;
 
