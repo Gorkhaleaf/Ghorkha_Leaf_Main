@@ -150,7 +150,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const discount = coupon ? subtotal * getDiscountRate(coupon) : 0;
   console.log('[CartContext] Discount:', discount);
 
-  const totalPrice = Math.round(subtotal - discount); // Round to nearest rupee for consistency
+  const totalPrice = Math.max(0, Math.round(subtotal - discount)); // Round to nearest rupee for consistency
   console.log('[CartContext] Final totalPrice:', totalPrice);
 
   return (
