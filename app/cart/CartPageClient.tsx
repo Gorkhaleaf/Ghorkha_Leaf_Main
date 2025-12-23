@@ -483,12 +483,12 @@ export default function CartPage() {
 
             <div className="mt-6 lg:mt-8 p-4 lg:p-6 bg-green-600 text-white rounded-lg border-2 border-dashed border-white">
               <p className="text-base lg:text-lg font-bold">
-                Combo Savings + Extra 5% OFF on orders above ₹999{" "}
+                Free Shipping on Orders Above ₹999{" "}
               </p>
 
               <p className="text-xs lg:text-sm mt-1">
                 Use coupon code:{" "}
-                <span className="font-bold">GORKHA10</span>
+                <span className="font-bold"></span>
               </p>
             </div>
           </div>
