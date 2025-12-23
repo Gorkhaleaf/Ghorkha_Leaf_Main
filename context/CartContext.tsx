@@ -116,7 +116,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     setCoupon('');
     setCouponError('Invalid coupon code');
   }
-
+  };
 
   const cartCount = cartItems.reduce((count, item) => count + item.quantity, 0);
 
