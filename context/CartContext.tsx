@@ -102,21 +102,22 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const applyCoupon = (couponCode: string) => {
-    const COUPONS: Record<string, number> = {
-      GORKHALFF5: 5,
-      NEWYEARLT0: 10,
-      GORKHALEST12: 12,
+  const code = couponCode.trim().toUpperCase();
+
+  const COUPONS: Record<string, number> = {
+    GORKHALFF5: 5,
+    NEWYEARLT0: 10,
+    GORKHALEST12: 12,
   };
 
-
-    if (COUPONS[couponCode.trim().toUpperCase()]) {
-    setCoupon(couponCode.trim().toUpperCase());
+  if (COUPONS[code]) {
+    setCoupon(code);
     setCouponError('');
-    } else {
+  } else {
     setCoupon('');
     setCouponError('Invalid coupon code');
   }
-  };
+};
 
   const cartCount = cartItems.reduce((count, item) => count + item.quantity, 0);
 
