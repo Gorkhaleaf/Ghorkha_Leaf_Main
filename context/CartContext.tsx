@@ -136,12 +136,15 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   console.log('[CartContext] Subtotal calculated:', subtotal);
 
   const getDiscountRate = (couponCode: string): number => {
-    const discountRates = {
-      'GORKHA10': 0.1,  // 10% discount
-      'IDAY30': 0.3     // 30% discount
-    };
-    return discountRates[couponCode as keyof typeof discountRates] || 0;
+  const COUPONS: Record<string, number> = {
+    GORKHALFF5: 5,
+    NEWYEARLT0: 10,
+    GORKHALEST12: 12,
   };
+
+  const code = couponCode.trim().toUpperCase();
+  return COUPONS[code] ? COUPONS[code] / 100 : 0;   // Convert % → decimal
+};
 
   const discount = coupon ? subtotal * getDiscountRate(coupon) : 0;
   console.log('[CartContext] Discount:', discount);
