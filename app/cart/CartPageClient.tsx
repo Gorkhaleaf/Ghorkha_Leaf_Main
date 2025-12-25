@@ -485,7 +485,7 @@ export default function CartPage() {
 
             <div className="mt-6 lg:mt-8 p-4 lg:p-6 bg-green-600 text-white rounded-lg border-2 border-dashed border-white">
               <p className="text-base lg:text-lg font-bold">
-                Free Shipping on Orders Above ₹600{" "}
+                Free Shipping on Orders Above ₹900{" "}
               </p>
 
               <p className="text-xs lg:text-sm mt-1">
