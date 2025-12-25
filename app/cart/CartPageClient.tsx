@@ -291,7 +291,7 @@ export default function CartPage() {
     (acc, item) => acc + item.price * item.quantity,
     0
   );
-  const shippingFee = subtotal < 600 ? 30 : 0;
+  const shippingFee = subtotal < 900 ? 40 : 0;
   const comboDiscount = subtotal >= 999 ? subtotal * 0.05 : 0;
   const couponDiscount = discount;
   const totalPrice =
