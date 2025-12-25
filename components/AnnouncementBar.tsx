@@ -1,5 +1,5 @@
 export function AnnouncementBar() {
-  const announcementText = "⚡ Quick delivery across India    •    ⚡ Ship within 24 hours    •    🎉 Free delivery for orders above ₹699*    •    🍃 Authentic teas & wellness blends    •    ✋ Handpicked quality, packed fresh    •    🏔️ From the hills to your cup";
+  const announcementText = "⚡ Quick delivery across India    •    ⚡ Ship within 24 hours    •    🎉 Free delivery for orders above ₹900*    •    🍃 Authentic teas & wellness blends    •    ✋ Handpicked quality, packed fresh    •    🏔️ From the hills to your cup";
   
   // Create seamless repetition with consistent spacing
   const repeatedText = Array(8).fill(announcementText).join('    •    ');
