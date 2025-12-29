@@ -246,16 +246,16 @@ if (Math.abs(orderAmountInRupees - currentTotal) > 1) {
 **Problem:** Different keys were used for frontend and backend:
 ```bash
 # ❌ WRONG - Different keys
-RAZORPAY_KEY_ID=rzp_test_5RfHPvh1LkyHa3           # Backend
-NEXT_PUBLIC_RAZORPAY_KEY_ID=obWWlJRsyRAVdfhg1YevbDqT  # Frontend
+RAZORPAY_KEY_ID=<YOUR_RAZORPAY_KEY_ID>           # Backend
+NEXT_PUBLIC_RAZORPAY_KEY_ID=<YOUR_RAZORPAY_KEY_ID>  # Frontend
 ```
 
 **Solution:** Use **same key ID** for both:
 ```bash
 # ✅ CORRECT - Same key
-RAZORPAY_KEY_ID=rzp_test_5RfHPvh1LkyHa3
-NEXT_PUBLIC_RAZORPAY_KEY_ID=rzp_test_5RfHPvh1LkyHa3
-RAZORPAY_KEY_SECRET=FreQD2DODtD3n8y0XV0jR59i
+RAZORPAY_KEY_ID=<YOUR_RAZORPAY_KEY_ID>
+NEXT_PUBLIC_RAZORPAY_KEY_ID=<YOUR_RAZORPAY_KEY_ID>
+RAZORPAY_KEY_SECRET=<YOUR_RAZORPAY_SECRET>
 ```
 
 ---
