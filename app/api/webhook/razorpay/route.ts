@@ -105,6 +105,54 @@ export async function POST(req: NextRequest) {
         .update(updates)
         .eq('razorpay_order_id', razorpay_order_id)
         .select();
+      // 🚚 CREATE SHIPROCKET ORDER (ONLY AFTER SUCCESSFUL PAYMENT)
+if (
+  (status === 'captured' || status === 'paid' || status === 'authorized') &&
+  Array.isArray(data) &&
+  data.length > 0
+) {
+  const order = data[0];
+
+  // ⛔ Prevent duplicate Shiprocket orders
+  if (!order.shiprocket_order_id) {
+    console.log('[Shiprocket] Creating order for:', order.id);
+
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_SITE_URL}/api/shiprocket/create-order`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            order_id: order.id, // ✅ send ONLY order id
+          }),
+        }
+      );
+
+      const shiprocketData = await response.json();
+
+      if (!response.ok) {
+        console.error('[Shiprocket] Failed:', shiprocketData);
+      } else {
+        // ✅ Save Shiprocket order id
+        await admin
+          .from('orders')
+          .update({
+            shiprocket_order_id: shiprocketData.order_id,
+            shiprocket_status: shiprocketData.status || 'NEW',
+          })
+          .eq('id', order.id);
+
+        console.log('[Shiprocket] Order created:', shiprocketData.order_id);
+      }
+    } catch (err) {
+      console.error('[Shiprocket] Error:', err);
+    }
+  } else {
+    console.log('[Shiprocket] Order already exists, skipping');
+  }
+}
+
 
       let rowsCount = Array.isArray(data as any) ? (data as any).length : (data ? 1 : 0);
       console.log('[webhook/razorpay] updated orders:', { rows: rowsCount, error: error || null });
