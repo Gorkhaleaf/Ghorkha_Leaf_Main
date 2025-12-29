@@ -110,6 +110,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     GORKHALEST12: 12,
     GORKHALET22SPC: 22,
     NEWYEAR5: 5,
+    GORKHALFF5100: 99,
   };
 
   if (COUPONS[code]) {
@@ -145,6 +146,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     GORKHALEST12: 12,
     GORKHALET22SPC: 22,
     NEWYEAR5: 5,
+    GORKHALFF5100: 99,
   };
 
   const code = couponCode.trim().toUpperCase();
