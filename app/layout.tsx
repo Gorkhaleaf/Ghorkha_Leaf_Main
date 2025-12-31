@@ -126,7 +126,9 @@ export default function RootLayout({
             </LazyPromoModalProvider>
           </CartProvider>
         </LenisProvider>
-        <Script src="https://checkout.razorpay.com/v1/checkout.js" />
+        <Script
+  src="https://checkout.razorpay.com/v1/checkout.js"
+  strategy="beforeInteractive" />
         <Analytics />
         <SpeedInsights />
       </body>
