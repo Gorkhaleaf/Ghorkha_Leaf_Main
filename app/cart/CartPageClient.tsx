@@ -239,7 +239,7 @@ export default function CartPage() {
       currency: order.currency,
       name: "Gorkha Leaf",
       description: "Tea Purchase",
-      order_id: order.id,
+      order_id: order.razorpay_order_id,
       handler: async function (response: any) {
         const saveBody = {
           user_id: session!.user.id,
