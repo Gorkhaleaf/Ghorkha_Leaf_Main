@@ -235,7 +235,7 @@ export default function CartPage() {
 
     const rzp = new (window as any).Razorpay({
       key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-      amount: order.amount,
+      amount: order.amount * 100,
       currency: order.currency,
       name: "Gorkha Leaf",
       description: "Tea Purchase",
