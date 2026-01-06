@@ -584,8 +584,8 @@ export default function CartPage() {
             </div>
         
             <p className="text-xs text-gray-500 mt-4 lg:mt-6">
-              Order below Rs 900 will be charged Rs. 40 for shipping for Prepaid
-              Payment and Rs. 75 for Cash On Delivery.
+              Order below Rs 999 will be charged Rs. 60 for shipping for Prepaid
+              Payment and Rs. 85 for Cash On Delivery.
             </p>
           </div>
         
