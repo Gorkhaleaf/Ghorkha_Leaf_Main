@@ -291,7 +291,7 @@ export default function CartPage() {
     (acc, item) => acc + item.price * item.quantity,
     0
   );
-  const shippingFee = subtotal < 900 ? 40 : 0;
+  const shippingFee = subtotal < 999 ? 60 : 0;
   const comboDiscount = subtotal >= 999 ? subtotal * 0.05 : 0;
   const couponDiscount = discount;
   const totalPrice =
@@ -485,7 +485,7 @@ export default function CartPage() {
 
             <div className="mt-6 lg:mt-8 p-4 lg:p-6 bg-green-600 text-white rounded-lg border-2 border-dashed border-white">
               <p className="text-base lg:text-lg font-bold">
-                Free Shipping on Orders Above ₹900{" "}
+                Free Shipping on Orders Above ₹999{" "}
               </p>
 
               <p className="text-xs lg:text-sm mt-1">
