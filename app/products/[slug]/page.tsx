@@ -12,6 +12,8 @@ import FAQSection from "@/components/FAQSection"
 import RelatedProducts from "@/components/RelatedProducts"
 import CustomerReviews from "@/components/CustomerReviews"
 import FrequentlyPurchased from "@/components/FrequentlyPurchased"
+import ViewContentPixel from "@/components/meta/ViewContentPixel"
+
 
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   // Await params for Next.js 15
