@@ -29,6 +29,8 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   return (
     <div className="bg-background">
       <Header />
+      <ViewContentPixel product={product} />
+      
       <main className="container mx-auto px-4 py-8 pt-32">
         <ProductHeader product={product} />
         <BrewingInstructions brewingInstructions={product.brewing_instructions} />
