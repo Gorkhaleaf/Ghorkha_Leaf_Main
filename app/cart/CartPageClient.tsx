@@ -241,6 +241,19 @@ export default function CartPage() {
       description: "Tea Purchase",
       order_id: order.razorpay_order_id,
       handler: async function (response: any) {
+        // Meta Pixel - Purchase Event
+if (typeof window !== "undefined" && (window as any).fbq) {
+
+  (window as any).fbq("track", "Purchase", {
+    content_ids: currentCart.map((item: any) => item.id),
+    content_type: "product",
+    value: currentTotal,
+    currency: "INR",
+    num_items: currentCart.length,
+  });
+
+}
+
         const saveBody = {
           user_id: session!.user.id,
           amount: currentTotal,
