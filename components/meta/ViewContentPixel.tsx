@@ -10,12 +10,11 @@ export default function ViewContentPixel({ product }: { product: any }) {
 
     if (!product) return;
 
-    // Prevent multiple fires
+    // Prevent duplicate firing
     if (firedRef.current) return;
 
-    firedRef.current = true;
-
     if (typeof window !== "undefined" && (window as any).fbq) {
+
       (window as any).fbq("track", "ViewContent", {
         content_ids: [product.id],
         content_name: product.name,
@@ -23,6 +22,8 @@ export default function ViewContentPixel({ product }: { product: any }) {
         value: product.price,
         currency: "INR",
       });
+
+      firedRef.current = true; // MARK AS FIRED
     }
 
   }, [product]);
