@@ -1,30 +1,32 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 
 export default function ViewContentPixel({ product }: { product: any }) {
-
-  const firedRef = useRef(false);
 
   useEffect(() => {
 
     if (!product) return;
+    if (typeof window === "undefined") return;
+    if (!(window as any).fbq) return;
 
-    // Prevent duplicate firing
-    if (firedRef.current) return;
+    const key = `vc_fired_${product.id}`;
 
-    if (typeof window !== "undefined" && (window as any).fbq) {
-
-      (window as any).fbq("track", "ViewContent", {
-        content_ids: [product.id],
-        content_name: product.name,
-        content_type: "product",
-        value: product.price,
-        currency: "INR",
-      });
-
-      firedRef.current = true; // MARK AS FIRED
+    // Prevent duplicate firing in same session
+    if (sessionStorage.getItem(key)) {
+      return;
     }
+
+    (window as any).fbq("track", "ViewContent", {
+      content_ids: [product.id],
+      content_name: product.name,
+      content_type: "product",
+      value: product.price,
+      currency: "INR",
+    });
+
+    // Mark as fired
+    sessionStorage.setItem(key, "true");
 
   }, [product]);
 
