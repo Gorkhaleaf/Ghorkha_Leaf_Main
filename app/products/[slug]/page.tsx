@@ -42,6 +42,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   <ProductViewTracker product={product} />
 </Suspense>
         <ProductHeader product={product} />
+        <ProductPixelClient product={product} />
         <BrewingInstructions brewingInstructions={product.brewing_instructions} />
         <IngredientsSection ingredients={product.ingredients || []} />
         <ProductFeatures />
