@@ -59,6 +59,15 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       quantity: product.quantity || 1,
       selectedWeight: product.selectedWeight
     });
+    if (typeof window !== "undefined" && (window as any).fbq) {
+  (window as any).fbq("track", "AddToCart", {
+    content_ids: [product.id],
+    content_name: product.name,
+    content_type: "product",
+    value: priceToUse,
+    currency: "INR",
+  });
+}
 
     setCartItems((prevItems) => {
       // Check for existing item with same id and selectedWeight
