@@ -1,10 +1,19 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 export default function ViewContentPixel({ product }: { product: any }) {
+
+  const firedRef = useRef(false);
+
   useEffect(() => {
+
     if (!product) return;
+
+    // Prevent multiple fires
+    if (firedRef.current) return;
+
+    firedRef.current = true;
 
     if (typeof window !== "undefined" && (window as any).fbq) {
       (window as any).fbq("track", "ViewContent", {
@@ -15,7 +24,8 @@ export default function ViewContentPixel({ product }: { product: any }) {
         currency: "INR",
       });
     }
+
   }, [product]);
 
-  return null; // important
+  return null;
 }
