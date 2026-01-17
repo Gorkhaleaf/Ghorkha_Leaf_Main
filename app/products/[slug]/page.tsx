@@ -36,7 +36,9 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
       <ViewContentPixel product={product} />
       
       <main className="container mx-auto px-4 py-8 pt-32">
-        <ProductViewTracker product={product} />
+        <Suspense fallback={null}>
+  <ProductViewTracker product={product} />
+</Suspense>
         <ProductHeader product={product} />
         <BrewingInstructions brewingInstructions={product.brewing_instructions} />
         <IngredientsSection ingredients={product.ingredients || []} />
