@@ -12,7 +12,6 @@ import FAQSection from "@/components/FAQSection"
 import RelatedProducts from "@/components/RelatedProducts"
 import CustomerReviews from "@/components/CustomerReviews"
 import FrequentlyPurchased from "@/components/FrequentlyPurchased"
-import ViewContentPixel from "@/components/meta/ViewContentPixel"
 import { Suspense } from "react";
 import ProductViewTracker from "@/components/meta/ProductViewTracker";
 import ProductPixelClient from "@/components/meta/ProductPixelClient";
@@ -35,7 +34,6 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   return (
     <div className="bg-background">
       <Header />
-      <ViewContentPixel product={product} />
       
       <main className="container mx-auto px-4 py-8 pt-32">
         <Suspense fallback={null}>
