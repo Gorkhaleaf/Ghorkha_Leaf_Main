@@ -15,6 +15,8 @@ import FrequentlyPurchased from "@/components/FrequentlyPurchased"
 import ViewContentPixel from "@/components/meta/ViewContentPixel"
 import { Suspense } from "react";
 import ProductViewTracker from "@/components/meta/ProductViewTracker";
+import ProductPixelClient from "@/components/meta/ProductPixelClient";
+
 
 
 
