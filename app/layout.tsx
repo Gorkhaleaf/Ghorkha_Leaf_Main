@@ -78,6 +78,9 @@ export const metadata: Metadata = {
   },
   verification: {
     google: "your-google-verification-code",
+    other: {
+    "facebook-domain-verification": "gz6ghzrygcdj3lszcsj1wpma9ik24b",
+  },
   },
   other: {
     "robots": "index, follow",
