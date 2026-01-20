@@ -9,6 +9,8 @@ import { Toaster } from "@/components/ui/toaster"
 import Script from "next/script"
 import { Analytics } from "@vercel/analytics/react"
 import { SpeedInsights } from "@vercel/speed-insights/next"
+import WhatsAppButton from "@/components/WhatsAppButton";
+
 
 // Initialize performance optimizations
 if (typeof window !== 'undefined') {
@@ -158,6 +160,7 @@ export default function RootLayout({
   strategy="beforeInteractive" />
         <Analytics />
         <SpeedInsights />
+        <WhatsAppButton />
       </body>
     </html>
   );
