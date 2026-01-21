@@ -8,12 +8,22 @@ export default function WhatsAppButton() {
 
   const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
 
+  const handleWhatsAppClick = () => {
+    if (typeof window !== "undefined" && (window as any).fbq) {
+      (window as any).fbq("track", "Lead", {
+        source: "whatsapp_button",
+        page: window.location.pathname,
+      });
+    }
+  };
+
   return (
     <a
       href={whatsappUrl}
       target="_blank"
       rel="noopener noreferrer"
-      className="fixed left-4 bottom-6 z-50"
+      onClick={handleWhatsAppClick}
+      className="fixed left-4 bottom-20 md:bottom-6 z-50"
     >
       <div className="bg-green-500 p-3 rounded-full shadow-lg hover:scale-110 transition-transform">
         <Image
