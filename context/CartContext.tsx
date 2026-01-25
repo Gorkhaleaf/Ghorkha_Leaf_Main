@@ -133,6 +133,7 @@ if (typeof window !== "undefined" && (window as any).fbq) {
     GORKHALEST12: 12,
     GORKHALET22SPC: 22,
     FESTIVE5: 5,
+    REPUBLIC5: 5,
   };
 
   if (COUPONS[code]) {
@@ -168,6 +169,7 @@ if (typeof window !== "undefined" && (window as any).fbq) {
     GORKHALEST12: 12,
     GORKHALET22SPC: 22,
     FESTIVE5: 5,
+    REPUBLIC5: 5,
   };
 
   const code = couponCode.trim().toUpperCase();
