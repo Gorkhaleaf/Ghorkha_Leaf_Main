@@ -50,7 +50,7 @@ const HomeAboutSection = () => {
                 <div className="text-xs md:text-sm text-brand-green">Signature Teas</div>
               </div>
               <div className="text-center">
-                <div className="text-xl md:text-2xl font-bold text-brand-green">100+</div>
+                <div className="text-xl md:text-2xl font-bold text-brand-green">200+</div>
                 <div className="text-xs md:text-sm text-brand-green">Happy Customers</div>
               </div>
             </div>
