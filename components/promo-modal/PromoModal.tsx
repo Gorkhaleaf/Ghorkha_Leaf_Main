@@ -302,7 +302,7 @@ export function PromoModal({
                 FLAT
               </p>
               <p className="text-3xl sm:text-4xl md:text-5xl font-bold text-amber-600 leading-none tracking-tight">
-                10% OFF
+                5% OFF
               </p>
               <p className="text-xs font-bold text-brand-green uppercase tracking-wide">
                 SITEWIDE
