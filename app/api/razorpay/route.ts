@@ -118,7 +118,10 @@ export async function POST(req: NextRequest) {
       console.warn('[API /razorpay POST] failed to create provisional order', e);
     }
 
-    return NextResponse.json(order);
+    return NextResponse.json({
+  ...order,
+  razorpay_order_id: order.id,
+});
   } catch (error: any) {
     console.error('[API /razorpay POST] Error creating Razorpay order:', {
       message: error?.message,
