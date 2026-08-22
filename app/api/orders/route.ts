@@ -1,12 +1,43 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { createClient as createAdminClient } from '@supabase/supabase-js';
+import crypto from 'crypto';
 
 function maskToken(token: string | null | undefined) {
   if (!token) return null;
   return `${String(token).slice(0, 8)}...${String(token).slice(-4)}`;
 }
+// PASTE THE NEW FUNCTION HERE 👇
 
+function verifyRazorpaySignature(
+  orderId: string,
+  paymentId: string,
+  receivedSignature: string
+) {
+  const secret = process.env.RAZORPAY_KEY_SECRET;
+
+  if (!secret) {
+    console.error('[Razorpay] RAZORPAY_KEY_SECRET is missing');
+    return false;
+  }
+
+  const body = `${orderId}|${paymentId}`;
+
+  const expectedSignature = crypto
+    .createHmac('sha256', secret)
+    .update(body)
+    .digest('hex');
+
+  try {
+    return crypto.timingSafeEqual(
+      Buffer.from(expectedSignature, 'hex'),
+      Buffer.from(receivedSignature, 'hex')
+    );
+  } catch {
+    return false;
+  }
+}
+// EXISTING NEXT FUNCTION CONTINUES HERE 👇
 function base64Decode(str: string) {
   try {
     if (typeof Buffer !== 'undefined' && Buffer.from) {
