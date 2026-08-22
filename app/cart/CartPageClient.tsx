@@ -132,9 +132,10 @@ export default function CartPage() {
     }
 
     if (totalPrice === 0) {
-      toast.error("Your cart is empty. Please add items to proceed.");
-      return;
-    }
+  toast.error("Your cart is empty. Please add items to proceed.");
+  setLoading(false);
+  return;
+}
 
     // -------------------------------------------------
     // ADDRESS VERIFICATION (UNCHANGED)
@@ -234,13 +235,25 @@ export default function CartPage() {
     const order = await response.json();
 
     const rzp = new (window as any).Razorpay({
-      key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-      amount: order.amount,
-      currency: order.currency,
-      name: "Gorkha Leaf",
-      description: "Tea Purchase",
-      order_id: order.razorpay_order_id,
-      handler: async function (response: any) {
+  key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+  amount: order.amount,
+  currency: order.currency,
+  name: "Gorkha Leaf",
+  description: "Tea Purchase",
+  order_id: order.razorpay_order_id,
+
+  modal: {
+    ondismiss: function () {
+      setLoading(false);
+      setLastPaymentAttempt(0);
+
+      if (!paymentCompleted) {
+        toast.info("Payment cancelled. You can try again.");
+      }
+    },
+  },
+
+  handler: async function (response: any) {
         // Meta Pixel - Purchase Event
 if (typeof window !== "undefined" && (window as any).fbq) {
 
@@ -286,7 +299,17 @@ if (typeof window !== "undefined" && (window as any).fbq) {
       },
     });
 
-    rzp.open();
+    rzp.on("payment.failed", function (response: any) {
+  setLoading(false);
+  setLastPaymentAttempt(0);
+
+  toast.error(
+    response?.error?.description ||
+    "Payment failed. Please try again."
+  );
+});
+
+rzp.open();
   }, [
     supabase,
     session,
