@@ -342,7 +342,35 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Check if there's a pending order with the same razorpay_order_id to update
+    // -------------------------------------------------
+    // VALIDATE RAZORPAY PAYMENT DETAILS
+    // -------------------------------------------------
+
+    if (!body.razorpay_order_id) {
+      return NextResponse.json(
+        { error: 'Missing Razorpay order ID' },
+        { status: 400 }
+      );
+    }
+
+    if (!body.razorpay_payment_id) {
+      return NextResponse.json(
+        { error: 'Missing Razorpay payment ID' },
+        { status: 400 }
+      );
+    }
+
+    if (!body.razorpay_signature) {
+      return NextResponse.json(
+        { error: 'Missing Razorpay signature' },
+        { status: 400 }
+      );
+    }
+
+    // -------------------------------------------------
+    // FIND THE EXISTING PENDING ORDER
+    // -------------------------------------------------
+
     const existingPendingOrder = await admin
       .from('orders')
       .select('*')
@@ -350,79 +378,101 @@ export async function POST(req: NextRequest) {
       .eq('status', 'pending')
       .single();
 
-    if (existingPendingOrder.data) {
-      console.log('[API /orders POST] Found existing pending order, updating to success');
+    if (!existingPendingOrder.data) {
+      console.warn(
+        '[API /orders POST] No matching pending order found:',
+        body.razorpay_order_id
+      );
 
-      const updatePayload = {
-        razorpay_payment_id: body.razorpay_payment_id,
-        razorpay_signature: body.razorpay_signature,
-        status: body?.status ?? 'success',
-        // Update customer fields
-        customer_email: customerEmail,
-        customer_phone: customerPhone,
-        customer_email_canonical: customerEmail,
-        customer_phone_normalized: customerPhone ? String(customerPhone).replace(/\D/g, '') : null,
-        // Update user association
-        user_uid: session.user.id,
-        user_id: session.user.id
-      };
-
-      const updateResult = await admin
-        .from('orders')
-        .update(updatePayload)
-        .eq('id', existingPendingOrder.data.id)
-        .select();
-
-      const data = updateResult.data;
-      const error = updateResult.error;
-
-      console.log('[API /orders POST] supabase update result (admin):', {
-        rows: Array.isArray(data as any) ? (data as any).length : (data ? 1 : 0),
-        error: error || null,
-        updated: data
-      });
-
-      if (error) throw error;
-
-      return NextResponse.json({ success: true, order: data }, { status: 200 });
+      return NextResponse.json(
+        { error: 'Pending order not found' },
+        { status: 404 }
+      );
     }
 
-    console.log('[API /orders POST] Creating new order');
+    const pendingOrder = existingPendingOrder.data;
 
-    const insertPayload = {
-      amount: body.amount,
-      currency: body.currency,
-      items: body.items ?? [],
-      razorpay_order_id: body.razorpay_order_id, // Use original Razorpay order ID directly
+    // -------------------------------------------------
+    // VERIFY RAZORPAY PAYMENT SIGNATURE
+    // -------------------------------------------------
+
+    const isSignatureValid = verifyRazorpaySignature(
+      pendingOrder.razorpay_order_id,
+      body.razorpay_payment_id,
+      body.razorpay_signature
+    );
+
+    if (!isSignatureValid) {
+      console.error(
+        '[API /orders POST] INVALID RAZORPAY SIGNATURE',
+        {
+          razorpay_order_id: pendingOrder.razorpay_order_id,
+          razorpay_payment_id: body.razorpay_payment_id,
+        }
+      );
+
+      return NextResponse.json(
+        { error: 'Payment verification failed' },
+        { status: 400 }
+      );
+    }
+
+    console.log(
+      '[API /orders POST] Razorpay signature verified successfully'
+    );
+
+    // -------------------------------------------------
+    // PAYMENT VERIFIED → MARK ORDER AS SUCCESS
+    // -------------------------------------------------
+
+    const updatePayload = {
       razorpay_payment_id: body.razorpay_payment_id,
       razorpay_signature: body.razorpay_signature,
-      status: body?.status ?? 'success',
-      // Populate customer fields from user profile or JWT
+      status: 'success',
+
       customer_email: customerEmail,
       customer_phone: customerPhone,
+
       customer_email_canonical: customerEmail,
-      customer_phone_normalized: customerPhone ? String(customerPhone).replace(/\D/g, '') : null,
-      // Set user association
+
+      customer_phone_normalized: customerPhone
+        ? String(customerPhone).replace(/\D/g, '')
+        : null,
+
       user_uid: session.user.id,
-      user_id: session.user.id
+      user_id: session.user.id,
     };
 
-    console.log('[API /orders POST] inserting order (admin) customer_email:', insertPayload.customer_email, 'customer_phone:', insertPayload.customer_phone, 'amount:', insertPayload.amount, 'itemsCount:', Array.isArray(insertPayload.items) ? insertPayload.items.length : undefined);
-
-    const insertResult = await admin
+    const updateResult = await admin
       .from('orders')
-      .insert([insertPayload])
+      .update(updatePayload)
+      .eq('id', pendingOrder.id)
+      .eq('status', 'pending')
       .select();
 
-    const data = insertResult.data;
-    const error = insertResult.error;
-    const rowsCount = Array.isArray(data as any) ? (data as any).length : (data ? 1 : 0);
+    const data = updateResult.data;
+    const error = updateResult.error;
 
-    console.log('[API /orders POST] supabase insert result (admin):', { rows: rowsCount, error: error || null, inserted: data });
+    console.log(
+      '[API /orders POST] Verified order update result:',
+      {
+        rows: Array.isArray(data as any)
+          ? (data as any).length
+          : (data ? 1 : 0),
+        error: error || null,
+      }
+    );
 
     if (error) throw error;
 
-    return NextResponse.json({ success: true, order: data }, { status: 200 });
+    return NextResponse.json(
+      {
+        success: true,
+        verified: true,
+        order: data,
+      },
+      { status: 200 }
+    );
   } catch (error) {
     console.error('[API /orders POST] Order creation failed:', error);
     return NextResponse.json(
