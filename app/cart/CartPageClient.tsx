@@ -107,29 +107,14 @@ export default function CartPage() {
     setLoading(true);
 
     if (!session) {
-      const { data: { session: currentSession } } =
-        await supabase.auth.getSession();
+  const {
+    data: { session: currentSession },
+  } = await supabase.auth.getSession();
 
-      if (!currentSession) {
-        if (!authPromptShown) {
-          setLoading(false);
-          setShowAuthModal(true);
-          setPendingPayment(true);
-          setAuthPromptShown(true);
-
-          toast.info("Please sign in to proceed with your order", {
-            description:
-              "You'll be redirected back to checkout after signing in.",
-          });
-        } else {
-          setLoading(false);
-          toast.error("Please sign in to complete your purchase");
-        }
-        return;
-      }
-
-      setSession(currentSession);
-    }
+  if (currentSession) {
+    setSession(currentSession);
+  }
+}
 
     if (totalPrice === 0) {
   toast.error("Your cart is empty. Please add items to proceed.");
