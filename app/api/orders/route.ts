@@ -577,7 +577,7 @@ export async function GET(req: NextRequest) {
     const { data, error } = await admin
       .from('orders')
       .select('*')
-      .eq('user_id', session.user.id)
+      .eq('user_uid', session.user.id)
       .order('created_at', { ascending: false });
 
     const rowsCount = Array.isArray(data as any) ? (data as any).length : (data ? 1 : 0);
