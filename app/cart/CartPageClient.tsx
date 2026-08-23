@@ -106,16 +106,29 @@ export default function CartPage() {
     setLastPaymentAttempt(now);
     setLoading(true);
 
-    if (!session) {
+    let activeSession = session;
+
+if (!activeSession) {
   const {
     data: { session: currentSession },
   } = await supabase.auth.getSession();
 
-  if (currentSession) {
-    setSession(currentSession);
-  }
-}
+  if (!currentSession) {
+    setLoading(false);
+    setShowAuthModal(true);
+    setPendingPayment(true);
+    setAuthPromptShown(true);
 
+    toast.info("Please sign in to proceed with your order", {
+      description: "You'll be redirected back to checkout after signing in.",
+    });
+
+    return;
+  }
+
+  activeSession = currentSession;
+  setSession(currentSession);
+}
     if (totalPrice === 0) {
   toast.error("Your cart is empty. Please add items to proceed.");
   setLoading(false);
@@ -129,7 +142,7 @@ export default function CartPage() {
       const { data: profile } = await supabase
         .from("profiles")
         .select("address_line_1, city, state, pincode")
-        .eq("id", session!.user.id)
+        .eq("id", activeSession.user.id)
         .maybeSingle();
 
       if (
@@ -197,13 +210,13 @@ export default function CartPage() {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${(session as any).access_token}`,
+        Authorization: `Bearer ${(activeSession as any).access_token}`,
       },
       body: JSON.stringify({
         amount: currentTotal,
         currency: "INR",
         items: currentCart,
-        user_id: session!.user.id,
+        user_id: activeSession.user.id
       }),
     });
 
@@ -253,7 +266,7 @@ if (typeof window !== "undefined" && (window as any).fbq) {
 }
 
         const saveBody = {
-          user_id: session!.user.id,
+          user_id: activeSession.user.id,
           amount: currentTotal,
           currency: "INR",
           items: currentCart,
@@ -261,8 +274,8 @@ if (typeof window !== "undefined" && (window as any).fbq) {
           razorpay_payment_id: response.razorpay_payment_id,
           razorpay_signature: response.razorpay_signature,
           status: "success",
-          customer_email: profile?.email || session!.user.email,
-          customer_phone: profile?.phone || session!.user.phone,
+          customer_email: profile?.email || activeSession.user.email,
+          customer_phone: profile?.phone || activeSession.user.phone,
         };
 
         await fetch("/api/orders", {
