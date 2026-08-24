@@ -800,30 +800,28 @@ rzp.open();
           />
         </div>
 
-        <Button
-          className="w-full"
-          onClick={() => {
-            if (
-              !guestDetails.customer_name ||
-              !guestDetails.customer_email ||
-              !guestDetails.customer_phone ||
-              !guestDetails.address ||
-              !guestDetails.city ||
-              !guestDetails.state ||
-              !guestDetails.pincode
-            ) {
-              toast.error("Please fill in all required details.");
-              return;
-            }
+<Button
+  type="button"
+  className="w-full"
+  onClick={() => {
+    if (
+      !guestDetails.customer_name ||
+      !guestDetails.customer_email ||
+      !guestDetails.customer_phone ||
+      !guestDetails.address ||
+      !guestDetails.city ||
+      !guestDetails.state ||
+      !guestDetails.pincode
+    ) {
+      toast.error("Please fill in all required details.");
+      return;
+    }
 
-            setShowGuestCheckout(false);
-
-            // Continue to Razorpay
-            handlePayment();
-          }}
-        >
-          PROCEED TO PAYMENT
-        </Button>
+    handleGuestPayment();
+  }}
+>
+  PROCEED TO PAYMENT
+</Button>
 
       </div>
     </div>
