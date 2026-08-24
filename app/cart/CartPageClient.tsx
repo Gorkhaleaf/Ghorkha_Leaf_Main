@@ -48,6 +48,19 @@ export default function CartPage() {
   const [paymentCompleted, setPaymentCompleted] = useState(false);
   const [authPromptShown, setAuthPromptShown] = useState(false);
   const [lastPaymentAttempt, setLastPaymentAttempt] = useState<number>(0);
+  // ADD GUEST CHECKOUT STATES HERE
+const [showGuestCheckout, setShowGuestCheckout] = useState(false);
+
+const [guestDetails, setGuestDetails] = useState({
+  customer_name: "",
+  customer_email: "",
+  customer_phone: "",
+  address: "",
+  city: "",
+  state: "",
+  pincode: "",
+  country: "India",
+});
 
   const { toast: uiToast } = useToast();
 
@@ -115,16 +128,13 @@ if (!activeSession) {
 
   if (!currentSession) {
     setLoading(false);
-    setShowAuthModal(true);
-    setPendingPayment(true);
-    setAuthPromptShown(true);
-
-    toast.info("Please sign in to proceed with your order", {
-      description: "You'll be redirected back to checkout after signing in.",
-    });
-
+    setShowGuestCheckout(true);
     return;
   }
+
+  activeSession = currentSession;
+  setSession(currentSession);
+}
 
   activeSession = currentSession;
   setSession(currentSession);
