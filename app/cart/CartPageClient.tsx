@@ -278,15 +278,14 @@ if (typeof window !== "undefined" && (window as any).fbq) {
           customer_phone: profile?.phone || activeSession.user.phone,
         };
 
-        await fetch("/api/orders", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${(session as any).access_token}`,
-          },
-          body: JSON.stringify(saveBody),
-        });
-
+await fetch("/api/orders", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${(activeSession as any).access_token}`,
+  },
+  body: JSON.stringify(saveBody),
+});
         toast.success("Payment successful! Thank you for your order.");
         setPaymentCompleted(true);
         setLoading(false);
