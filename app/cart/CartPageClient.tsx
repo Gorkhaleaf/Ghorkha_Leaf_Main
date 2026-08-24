@@ -332,7 +332,13 @@ rzp.open();
     paymentCompleted,
     authPromptShown,
   ]);
+const handleGuestPayment = async () => {
+  setShowGuestCheckout(false);
 
+  setTimeout(() => {
+    handlePayment();
+  }, 100);
+};
   // ----------------------------------------
   // CART TOTALS (UNCHANGED)
   // ----------------------------------------
