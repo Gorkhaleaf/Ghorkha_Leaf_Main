@@ -135,10 +135,6 @@ if (!activeSession) {
   activeSession = currentSession;
   setSession(currentSession);
 }
-
-  activeSession = currentSession;
-  setSession(currentSession);
-}
     if (totalPrice === 0) {
   toast.error("Your cart is empty. Please add items to proceed.");
   setLoading(false);
