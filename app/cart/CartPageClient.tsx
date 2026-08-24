@@ -126,14 +126,16 @@ if (!activeSession) {
     data: { session: currentSession },
   } = await supabase.auth.getSession();
 
-  if (!currentSession) {
+  if (!currentSession && !guestDetails.customer_name) {
     setLoading(false);
     setShowGuestCheckout(true);
     return;
   }
 
-  activeSession = currentSession;
-  setSession(currentSession);
+  if (currentSession) {
+    activeSession = currentSession;
+    setSession(currentSession);
+  }
 }
     if (totalPrice === 0) {
   toast.error("Your cart is empty. Please add items to proceed.");
@@ -215,9 +217,13 @@ if (!activeSession) {
     const response = await fetch("/api/razorpay", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
+  "Content-Type": "application/json",
+  ...(activeSession
+    ? {
         Authorization: `Bearer ${(activeSession as any).access_token}`,
-      },
+      }
+    : {}),
+},
       body: JSON.stringify({
         amount: currentTotal,
         currency: "INR",
@@ -287,9 +293,13 @@ if (typeof window !== "undefined" && (window as any).fbq) {
 await fetch("/api/orders", {
   method: "POST",
   headers: {
-    "Content-Type": "application/json",
-    Authorization: `Bearer ${(activeSession as any).access_token}`,
-  },
+  "Content-Type": "application/json",
+  ...(activeSession
+    ? {
+        Authorization: `Bearer ${(activeSession as any).access_token}`,
+      }
+    : {}),
+},
   body: JSON.stringify(saveBody),
 });
         toast.success("Payment successful! Thank you for your order.");
@@ -672,6 +682,153 @@ rzp.open();
 
       <Footer />
 
+      {/* GUEST CHECKOUT MODAL */}
+{showGuestCheckout && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+    <div className="w-full max-w-lg rounded-lg bg-white p-6 shadow-xl max-h-[90vh] overflow-y-auto">
+
+      <div className="mb-5 flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-bold">Guest Checkout</h2>
+          <p className="text-sm text-gray-500 mt-1">
+            Please enter your details to continue.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => setShowGuestCheckout(false)}
+          className="text-xl text-gray-500"
+        >
+          ×
+        </button>
+      </div>
+
+      <div className="space-y-4">
+
+        <Input
+          placeholder="Full Name"
+          value={guestDetails.customer_name}
+          onChange={(e) =>
+            setGuestDetails({
+              ...guestDetails,
+              customer_name: e.target.value,
+            })
+          }
+        />
+
+        <Input
+          type="email"
+          placeholder="Email Address"
+          value={guestDetails.customer_email}
+          onChange={(e) =>
+            setGuestDetails({
+              ...guestDetails,
+              customer_email: e.target.value,
+            })
+          }
+        />
+
+        <Input
+          type="tel"
+          placeholder="Phone Number"
+          value={guestDetails.customer_phone}
+          onChange={(e) =>
+            setGuestDetails({
+              ...guestDetails,
+              customer_phone: e.target.value,
+            })
+          }
+        />
+
+        <Input
+          placeholder="Address"
+          value={guestDetails.address}
+          onChange={(e) =>
+            setGuestDetails({
+              ...guestDetails,
+              address: e.target.value,
+            })
+          }
+        />
+
+        <div className="grid grid-cols-2 gap-3">
+          <Input
+            placeholder="City"
+            value={guestDetails.city}
+            onChange={(e) =>
+              setGuestDetails({
+                ...guestDetails,
+                city: e.target.value,
+              })
+            }
+          />
+
+          <Input
+            placeholder="State"
+            value={guestDetails.state}
+            onChange={(e) =>
+              setGuestDetails({
+                ...guestDetails,
+                state: e.target.value,
+              })
+            }
+          />
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <Input
+            placeholder="Pincode"
+            value={guestDetails.pincode}
+            onChange={(e) =>
+              setGuestDetails({
+                ...guestDetails,
+                pincode: e.target.value,
+              })
+            }
+          />
+
+          <Input
+            placeholder="Country"
+            value={guestDetails.country}
+            onChange={(e) =>
+              setGuestDetails({
+                ...guestDetails,
+                country: e.target.value,
+              })
+            }
+          />
+        </div>
+
+        <Button
+          className="w-full"
+          onClick={() => {
+            if (
+              !guestDetails.customer_name ||
+              !guestDetails.customer_email ||
+              !guestDetails.customer_phone ||
+              !guestDetails.address ||
+              !guestDetails.city ||
+              !guestDetails.state ||
+              !guestDetails.pincode
+            ) {
+              toast.error("Please fill in all required details.");
+              return;
+            }
+
+            setShowGuestCheckout(false);
+
+            // Continue to Razorpay
+            handlePayment();
+          }}
+        >
+          PROCEED TO PAYMENT
+        </Button>
+
+      </div>
+    </div>
+  </div>
+)}
       {/* AUTH MODAL */}
       {showAuthModal && (
         <AuthModal
