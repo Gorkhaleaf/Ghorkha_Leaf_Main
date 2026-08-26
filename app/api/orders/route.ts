@@ -521,23 +521,33 @@ if (session?.user?.id) {
       }
     );
 
-    if (error) throw error;
+    if (error) {
+  throw error;
+}
 
-    return NextResponse.json(
-      {
-        success: true,
-        verified: true,
-        order: data,
-      },
-      { status: 200 }
-    );
-  } catch (error) {
-    console.error('[API /orders POST] Order creation failed:', error);
-    return NextResponse.json(
-      { error: 'Failed to save order', details: process.env.NODE_ENV === 'development' ? String(error) : undefined },
-      { status: 500 }
-    );
-  }
+return NextResponse.json(
+  {
+    success: true,
+    verified: true,
+    order: data,
+  },
+  { status: 200 }
+);
+
+} catch (error) {
+  console.error('[API /orders POST] Order creation failed:', error);
+
+  return NextResponse.json(
+    {
+      error: 'Failed to save order',
+      details:
+        process.env.NODE_ENV === 'development'
+          ? String(error)
+          : undefined,
+    },
+    { status: 500 }
+  );
+}
 export async function GET(req: NextRequest) {
   // Use cookies store only for fallback extraction; avoid calling supabase auth helpers
   const cookieStore = cookies();
