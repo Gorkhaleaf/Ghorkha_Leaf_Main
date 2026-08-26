@@ -538,8 +538,6 @@ if (session?.user?.id) {
       { status: 500 }
     );
   }
-
-
 export async function GET(req: NextRequest) {
   // Use cookies store only for fallback extraction; avoid calling supabase auth helpers
   const cookieStore = cookies();
