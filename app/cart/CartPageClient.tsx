@@ -164,8 +164,15 @@ if (activeSession) {
     ) {
       uiToast({
         title: "Address Required",
-        description:
-          "Please add your complete address in your profile for seamless delivery.",
+        description: "Please add your complete address in your profile for seamless delivery.",
+        action: (
+          <ToastAction
+            altText="Update Address"
+            onClick={() => (window.location.href = "/account")}
+          >
+            Update Address
+          </ToastAction>
+        ),
       });
 
       setLoading(false);
@@ -222,12 +229,24 @@ if (activeSession) {
       : {}),
   },
   body: JSON.stringify({
-    amount: currentTotal,
-    currency: "INR",
-    items: currentCart,
-    user_id: activeSession?.user?.id || null,
-    guest: !activeSession,
-  }),
+  amount: currentTotal,
+  currency: "INR",
+  items: currentCart,
+
+  user_id: activeSession?.user?.id || null,
+
+  customer_name: activeSession
+    ? profile?.full_name || profile?.name || null
+    : guestDetails.customer_name,
+
+  customer_email: activeSession
+    ? profile?.email || activeSession.user.email
+    : guestDetails.customer_email,
+
+  customer_phone: activeSession
+    ? profile?.phone || activeSession.user.phone || null
+    : guestDetails.customer_phone,
+}),
 });
 
     if (!response.ok) {
@@ -276,18 +295,23 @@ if (typeof window !== "undefined" && (window as any).fbq) {
 }
 
         const saveBody = {
+  // Logged-in user ID, otherwise null for guest checkout
   user_id: activeSession?.user?.id || null,
+
   amount: currentTotal,
   currency: "INR",
   items: currentCart,
+
   razorpay_order_id: response.razorpay_order_id,
   razorpay_payment_id: response.razorpay_payment_id,
   razorpay_signature: response.razorpay_signature,
+
   status: "success",
 
+  // Guest / logged-in customer details
   customer_name:
     activeSession
-      ? profile?.full_name
+      ? profile?.full_name || profile?.name || null
       : guestDetails.customer_name,
 
   customer_email:
@@ -297,14 +321,33 @@ if (typeof window !== "undefined" && (window as any).fbq) {
 
   customer_phone:
     activeSession
-      ? profile?.phone || activeSession.user.phone
+      ? profile?.phone || activeSession.user.phone || null
       : guestDetails.customer_phone,
 
-  address: activeSession ? null : guestDetails.address,
-  city: activeSession ? null : guestDetails.city,
-  state: activeSession ? null : guestDetails.state,
-  pincode: activeSession ? null : guestDetails.pincode,
-  country: activeSession ? "India" : guestDetails.country,
+  address:
+    activeSession
+      ? profile?.address_line_1 || null
+      : guestDetails.address,
+
+  city:
+    activeSession
+      ? profile?.city || null
+      : guestDetails.city,
+
+  state:
+    activeSession
+      ? profile?.state || null
+      : guestDetails.state,
+
+  pincode:
+    activeSession
+      ? profile?.pincode || null
+      : guestDetails.pincode,
+
+  country:
+    activeSession
+      ? profile?.country || "India"
+      : guestDetails.country,
 };
     
 await fetch("/api/orders", {
@@ -350,8 +393,13 @@ rzp.open();
     authPromptShown,
   ]);
 const handleGuestPayment = async () => {
+  // Reset the payment debounce from the first checkout click
+  setLastPaymentAttempt(0);
+
+  // Close guest form
   setShowGuestCheckout(false);
 
+  // Continue to payment
   setTimeout(() => {
     handlePayment();
   }, 100);
