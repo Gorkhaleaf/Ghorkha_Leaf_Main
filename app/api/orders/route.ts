@@ -198,13 +198,40 @@ export async function POST(req: NextRequest) {
     authError = e;
   }
 
-  // If we still don't have a session, reject early (we avoid calling auth helper to prevent cookie parse issues)
-  if (authError || !session) {
-    console.warn('[API /orders POST] unauthorized - no session or auth error', authError);
-    return NextResponse.json({ error: 'Unauthorized', details: process.env.NODE_ENV === 'development' ? String(authError) : undefined }, { status: 401 });
-  }
+  // Logged-in users have a session.
+// Guests are allowed to continue without one.
+if (authError) {
+  console.warn('[API /orders POST] auth error', authError);
+}
 
   const body = await req.json();
+  const customerName = body.customer_name || profile?.full_name || null;
+
+const customerEmail =
+  body.customer_email ||
+  profile?.email ||
+  null;
+
+const customerPhone =
+  body.customer_phone ||
+  profile?.phone ||
+  null;
+
+const customerAddress =
+  body.address || null;
+
+const customerCity =
+  body.city || null;
+
+const customerState =
+  body.state || null;
+
+const customerPincode =
+  body.pincode || null;
+
+const customerCountry =
+  body.country || "India";
+  
   console.log('[API /orders POST] request body (masked):', {
     user_id: body?.user_id,
     amount: body?.amount,
@@ -221,27 +248,53 @@ export async function POST(req: NextRequest) {
     console.warn('[API /orders POST] failed to stringify items', e);
   }
 
-  if (body.user_id !== session.user.id) {
-    console.warn('[API /orders POST] user id mismatch', { bodyUserId: body.user_id, sessionUserId: session.user.id });
-    return NextResponse.json({ error: 'User ID mismatch' }, { status: 403 });
-  }
+  if (
+  session &&
+  body.user_id &&
+  body.user_id !== session.user.id
+) {
+  console.warn('[API /orders POST] user id mismatch', {
+    bodyUserId: body.user_id,
+    sessionUserId: session.user.id,
+  });
+
+  return NextResponse.json(
+    { error: 'User ID mismatch' },
+    { status: 403 }
+  );
+}
 
   // Use service-role admin client for DB write to avoid any Supabase auth helper cookie parsing
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
   const admin = createAdminClient(url, serviceKey);
 
+  let profile: any = null;
+
+if (session?.user?.id) {
   try {
-    // Get user profile data to populate customer fields
-    const { data: profile, error: profileError } = await admin
+    // Logged-in user: get profile data
+    const { data: profileData, error: profileError } = await admin
       .from('profiles')
       .select('email, phone, full_name')
       .eq('id', session.user.id)
-      .single();
+      .maybeSingle();
 
     if (profileError) {
-      console.warn('[API /orders POST] Could not fetch user profile:', profileError);
+      console.warn(
+        '[API /orders POST] Could not fetch user profile:',
+        profileError
+      );
+    } else {
+      profile = profileData;
     }
+  } catch (error) {
+    console.warn(
+      '[API /orders POST] Error while fetching user profile:',
+      error
+    );
+  }
+}
 
     // Use customer data from request body if provided, otherwise fallback to profile/JWT
     console.log('[API /orders POST] Customer data sources:', {
@@ -426,23 +479,28 @@ export async function POST(req: NextRequest) {
     // -------------------------------------------------
 
     const updatePayload = {
-      razorpay_payment_id: body.razorpay_payment_id,
-      razorpay_signature: body.razorpay_signature,
-      status: 'success',
+  razorpay_payment_id: body.razorpay_payment_id,
+  razorpay_signature: body.razorpay_signature,
+  status: body?.status ?? "success",
 
-      customer_email: customerEmail,
-      customer_phone: customerPhone,
+  user_uid: session?.user?.id || null,
+  user_id: session?.user?.id || null,
 
-      customer_email_canonical: customerEmail,
+  customer_name: customerName,
+  customer_email: customerEmail,
+  customer_phone: customerPhone,
 
-      customer_phone_normalized: customerPhone
-        ? String(customerPhone).replace(/\D/g, '')
-        : null,
+  address: customerAddress,
+  city: customerCity,
+  state: customerState,
+  pincode: customerPincode,
+  country: customerCountry,
 
-      user_uid: session.user.id,
-      user_id: session.user.id,
-    };
-
+  customer_email_canonical: customerEmail,
+  customer_phone_normalized: customerPhone
+    ? String(customerPhone).replace(/\D/g, "")
+    : null,
+};
     const updateResult = await admin
       .from('orders')
       .update(updatePayload)
