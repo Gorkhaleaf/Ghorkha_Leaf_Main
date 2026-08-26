@@ -204,6 +204,7 @@ if (authError) {
   console.warn('[API /orders POST] auth error', authError);
 }
 
+  try {
   const body = await req.json();
   const customerName = body.customer_name || profile?.full_name || null;
 
