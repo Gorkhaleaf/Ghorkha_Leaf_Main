@@ -107,13 +107,13 @@ const [guestDetails, setGuestDetails] = useState({
   // -------------------------------------------------------
   // PAYMENT HANDLER (UNCHANGED — ONLY SUPABASE GUARDED)
   // -------------------------------------------------------
-  const handlePayment = useCallback(async () => {
+  const handlePayment = useCallback(async (skipDebounce = false) => {
     if (!supabase) return; // Protect Supabase calls
 
     const now = Date.now();
     const timeSinceLastAttempt = now - lastPaymentAttempt;
 
-    if (timeSinceLastAttempt < 2000) return;
+    if (!skipDebounce && timeSinceLastAttempt < 2000) return;
     if (loading || paymentCompleted) return;
 
     setLastPaymentAttempt(now);
@@ -391,6 +391,7 @@ rzp.open();
     loading,
     paymentCompleted,
     authPromptShown,
+    guestDetails,
   ]);
 const handleGuestPayment = async () => {
   // Reset the payment debounce from the first checkout click
