@@ -305,8 +305,8 @@ if (session?.user?.id) {
       profilePhone: profile?.phone
     });
 
-    let customerEmail = body.customer_email || profile?.email || null;
-    let customerPhone = body.customer_phone || profile?.phone || null;
+    customerEmail = body.customer_email || profile?.email || null;
+    customerPhone = body.customer_phone || profile?.phone || null;
 
     console.log('[API /orders POST] Selected customer data:', {
       customerEmail,
