@@ -28,7 +28,22 @@ const razorpay = new Razorpay({
 });
 
 export async function POST(req: NextRequest) {
-  const { amount, currency = 'INR', items = null, user_id = null } = await req.json();
+  const {
+  amount,
+  currency = "INR",
+  items = null,
+  user_id = null,
+
+  customer_name = null,
+  customer_email = null,
+  customer_phone = null,
+
+  address = null,
+  city = null,
+  state = null,
+  pincode = null,
+  country = "India",
+} = await req.json();
 
   console.log('[API /razorpay POST] Received request:', {
     amount,
@@ -103,13 +118,25 @@ export async function POST(req: NextRequest) {
     // Always attempt to create a provisional pending order so webhook can reconcile
     try {
       const insertPayload: any = {
-        user_uid: derivedUserId,
-        amount: amount,
-        currency,
-        items: items ?? [],
-        razorpay_order_id: (order as any).id, // Use original Razorpay order ID directly
-        status: 'pending'
-      };
+  user_uid: derivedUserId || null,
+
+  amount: amount,
+  currency,
+  items: items ?? [],
+
+  razorpay_order_id: (order as any).id,
+  status: "pending",
+
+  customer_name,
+  customer_email,
+  customer_phone,
+
+  address,
+  city,
+  state,
+  pincode,
+  country,
+};
 
       const { data, error } = await admin.from('orders').insert([insertPayload]).select();
       const rowsCount = Array.isArray(data as any) ? (data as any).length : (data ? 1 : 0);
