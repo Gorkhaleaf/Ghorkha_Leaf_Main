@@ -564,10 +564,11 @@ export async function GET(req: NextRequest) {
     authError = e;
   }
 
-  if (authError || !session) {
-    console.warn('[API /orders GET] unauthorized - no session or auth error', authError);
-    return NextResponse.json({ error: 'Unauthorized', details: process.env.NODE_ENV === 'development' ? String(authError) : undefined }, { status: 401 });
-  }
+  // Logged-in users have a session.
+// Guests are allowed to continue without one.
+if (authError) {
+  console.warn('[API /orders GET] auth error', authError);
+}
 
   // Query using service-role admin client to avoid cookie parsing inside auth-helpers
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
