@@ -146,57 +146,54 @@ if (!activeSession) {
     // -------------------------------------------------
     // ADDRESS VERIFICATION (UNCHANGED)
     // -------------------------------------------------
-    try {
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("address_line_1, city, state, pincode")
-        .eq("id", activeSession.user.id)
-        .maybeSingle();
+    // ADDRESS VERIFICATION
+if (activeSession) {
+  try {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("address_line_1, city, state, pincode")
+      .eq("id", activeSession.user.id)
+      .maybeSingle();
 
-      if (
-        !profile ||
-        !profile.address_line_1 ||
-        !profile.city ||
-        !profile.state ||
-        !profile.pincode
-      ) {
-        uiToast({
-          title: "Address Required",
-          description:
-            "Please add your complete address in your profile for seamless delivery.",
-          variant: "destructive",
-          action: (
-            <ToastAction
-              altText="Update Address"
-              onClick={() => (window.location.href = "/account")}
-            >
-              Update Address
-            </ToastAction>
-          ),
-        });
+    if (
+      !profile ||
+      !profile.address_line_1 ||
+      !profile.city ||
+      !profile.state ||
+      !profile.pincode
+    ) {
+      uiToast({
+        title: "Address Required",
+        description:
+          "Please add your complete address in your profile for seamless delivery.",
+      });
 
-        setLoading(false);
-        return;
-      }
-    } catch (err) {
-      toast.error("Unable to verify your address. Please try again.");
       setLoading(false);
       return;
     }
+  } catch (err) {
+    toast.error("Unable to verify your address. Please try again.");
+    setLoading(false);
+    return;
+  }
+}
 
     // -------------------------------------------------
     // FETCH CUSTOMER PROFILE (UNCHANGED)
     // -------------------------------------------------
     let profile: any = null;
-    try {
-      const { data } = await supabase
-        .from("profiles")
-        .select("full_name, email, phone")
-        .eq("id", session!.user.id)
-        .maybeSingle();
 
-      profile = data;
-    } catch {}
+if (activeSession) {
+  try {
+    const { data } = await supabase
+      .from("profiles")
+      .select("full_name, email, phone")
+      .eq("id", activeSession.user.id)
+      .maybeSingle();
+
+    profile = data;
+  } catch {}
+}
 
     const currentCart = [...cartItems];
     const currentTotal = totalPrice;
@@ -215,22 +212,23 @@ if (!activeSession) {
     // CREATE RAZORPAY ORDER (UNCHANGED)
     // -------------------------------------------------
     const response = await fetch("/api/razorpay", {
-      method: "POST",
-      headers: {
-  "Content-Type": "application/json",
-  ...(activeSession
-    ? {
-        Authorization: `Bearer ${(activeSession as any).access_token}`,
-      }
-    : {}),
-},
-      body: JSON.stringify({
-        amount: currentTotal,
-        currency: "INR",
-        items: currentCart,
-        user_id: activeSession.user.id
-      }),
-    });
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    ...(activeSession
+      ? {
+          Authorization: `Bearer ${(activeSession as any).access_token}`,
+        }
+      : {}),
+  },
+  body: JSON.stringify({
+    amount: currentTotal,
+    currency: "INR",
+    items: currentCart,
+    user_id: activeSession?.user?.id || null,
+    guest: !activeSession,
+  }),
+});
 
     if (!response.ok) {
       uiToast({
@@ -278,18 +276,37 @@ if (typeof window !== "undefined" && (window as any).fbq) {
 }
 
         const saveBody = {
-          user_id: activeSession.user.id,
-          amount: currentTotal,
-          currency: "INR",
-          items: currentCart,
-          razorpay_order_id: response.razorpay_order_id,
-          razorpay_payment_id: response.razorpay_payment_id,
-          razorpay_signature: response.razorpay_signature,
-          status: "success",
-          customer_email: profile?.email || activeSession.user.email,
-          customer_phone: profile?.phone || activeSession.user.phone,
-        };
+  user_id: activeSession?.user?.id || null,
+  amount: currentTotal,
+  currency: "INR",
+  items: currentCart,
+  razorpay_order_id: response.razorpay_order_id,
+  razorpay_payment_id: response.razorpay_payment_id,
+  razorpay_signature: response.razorpay_signature,
+  status: "success",
 
+  customer_name:
+    activeSession
+      ? profile?.full_name
+      : guestDetails.customer_name,
+
+  customer_email:
+    activeSession
+      ? profile?.email || activeSession.user.email
+      : guestDetails.customer_email,
+
+  customer_phone:
+    activeSession
+      ? profile?.phone || activeSession.user.phone
+      : guestDetails.customer_phone,
+
+  address: activeSession ? null : guestDetails.address,
+  city: activeSession ? null : guestDetails.city,
+  state: activeSession ? null : guestDetails.state,
+  pincode: activeSession ? null : guestDetails.pincode,
+  country: activeSession ? "India" : guestDetails.country,
+};
+    
 await fetch("/api/orders", {
   method: "POST",
   headers: {
