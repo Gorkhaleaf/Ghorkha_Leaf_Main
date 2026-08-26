@@ -240,12 +240,32 @@ if (activeSession) {
     : guestDetails.customer_name,
 
   customer_email: activeSession
-    ? profile?.email || activeSession.user.email
+    ? profile?.email || activeSession.user.email || null
     : guestDetails.customer_email,
 
   customer_phone: activeSession
     ? profile?.phone || activeSession.user.phone || null
     : guestDetails.customer_phone,
+
+  address: activeSession
+    ? profile?.address_line_1 || null
+    : guestDetails.address,
+
+  city: activeSession
+    ? profile?.city || null
+    : guestDetails.city,
+
+  state: activeSession
+    ? profile?.state || null
+    : guestDetails.state,
+
+  pincode: activeSession
+    ? profile?.pincode || null
+    : guestDetails.pincode,
+
+  country: activeSession
+    ? profile?.country || "India"
+    : guestDetails.country || "India",
 }),
 });
 
