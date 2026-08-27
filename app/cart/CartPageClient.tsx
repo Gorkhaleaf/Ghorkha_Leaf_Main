@@ -955,22 +955,7 @@ const handleGuestPayment = async () => {
 <Button
   type="button"
   className="w-full"
-  onClick={() => {
-    if (
-      !guestDetails.customer_name ||
-      !guestDetails.customer_email ||
-      !guestDetails.customer_phone ||
-      !guestDetails.address ||
-      !guestDetails.city ||
-      !guestDetails.state ||
-      !guestDetails.pincode
-    ) {
-      toast.error("Please fill in all required details.");
-      return;
-    }
-
-    handleGuestPayment();
-  }}
+  onClick={handleGuestPayment}
 >
   PROCEED TO PAYMENT
 </Button>
