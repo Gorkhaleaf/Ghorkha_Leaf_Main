@@ -414,13 +414,61 @@ rzp.open();
     guestDetails,
   ]);
 const handleGuestPayment = async () => {
-  // Reset the payment debounce from the first checkout click
+  const email = guestDetails.customer_email.trim();
+  const phone = guestDetails.customer_phone.trim();
+  const pincode = guestDetails.pincode.trim();
+
+  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const phoneValid = /^[6-9]\d{9}$/.test(phone);
+  const pincodeValid = /^\d{6}$/.test(pincode);
+
+  if (!guestDetails.customer_name.trim()) {
+    toast.error("Please enter your full name.");
+    return;
+  }
+
+  if (!emailValid) {
+    toast.error("Please enter a valid email address.");
+    return;
+  }
+
+  if (!phoneValid) {
+    toast.error("Please enter a valid 10-digit Indian mobile number.");
+    return;
+  }
+
+  if (!guestDetails.address.trim()) {
+    toast.error("Please enter your address.");
+    return;
+  }
+
+  if (!guestDetails.city.trim()) {
+    toast.error("Please enter your city.");
+    return;
+  }
+
+  if (!guestDetails.state.trim()) {
+    toast.error("Please enter your state.");
+    return;
+  }
+
+  if (!pincodeValid) {
+    toast.error("Please enter a valid 6-digit pincode.");
+    return;
+  }
+
+  if (!guestDetails.country.trim()) {
+    toast.error("Please enter your country.");
+    return;
+  }
+
+  // Reset debounce timer before first checkout click
   setLastPaymentAttempt(0);
 
   // Close guest form
   setShowGuestCheckout(false);
 
-  // Continue to payment
+  // Continue to Razorpay
   setTimeout(() => {
     handlePayment();
   }, 100);
@@ -810,28 +858,35 @@ const handleGuestPayment = async () => {
         />
 
         <Input
-          type="email"
-          placeholder="Email Address"
-          value={guestDetails.customer_email}
-          onChange={(e) =>
-            setGuestDetails({
-              ...guestDetails,
-              customer_email: e.target.value,
-            })
-          }
-        />
+  type="email"
+  placeholder="Email Address"
+  value={guestDetails.customer_email}
+  onChange={(e) =>
+    setGuestDetails({
+      ...guestDetails,
+      customer_email: e.target.value,
+    })
+  }
+  required
+/>
 
         <Input
-          type="tel"
-          placeholder="Phone Number"
-          value={guestDetails.customer_phone}
-          onChange={(e) =>
-            setGuestDetails({
-              ...guestDetails,
-              customer_phone: e.target.value,
-            })
-          }
-        />
+  type="tel"
+  placeholder="Phone Number"
+  value={guestDetails.customer_phone}
+  maxLength={10}
+  inputMode="numeric"
+  pattern="[6-9][0-9]{9}"
+  onChange={(e) => {
+    const phone = e.target.value.replace(/\D/g, "").slice(0, 10);
+
+    setGuestDetails({
+      ...guestDetails,
+      customer_phone: phone,
+    });
+  }}
+  required
+/>
 
         <Input
           placeholder="Address"
@@ -868,17 +923,22 @@ const handleGuestPayment = async () => {
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <Input
-            placeholder="Pincode"
-            value={guestDetails.pincode}
-            onChange={(e) =>
-              setGuestDetails({
-                ...guestDetails,
-                pincode: e.target.value,
-              })
-            }
-          />
+        <Input
+  placeholder="Pincode"
+  value={guestDetails.pincode}
+  maxLength={6}
+  inputMode="numeric"
+  pattern="[0-9]{6}"
+  onChange={(e) => {
+    const pincode = e.target.value.replace(/\D/g, "").slice(0, 6);
+
+    setGuestDetails({
+      ...guestDetails,
+      pincode,
+    });
+  }}
+  required
+/>
 
           <Input
             placeholder="Country"
