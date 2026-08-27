@@ -962,7 +962,6 @@ const handleGuestPayment = async () => {
 
       </div>
     </div>
-  </div>
 )}
       {/* AUTH MODAL */}
       {showAuthModal && (
