@@ -214,7 +214,15 @@ if (activeSession) {
       setLoading(false);
       return;
     }
-
+console.log("[Checkout] Customer details before API request:", {
+  hasName: Boolean(guestDetails?.customer_name?.trim()),
+  hasEmail: Boolean(guestDetails?.customer_email?.trim()),
+  hasPhone: Boolean(guestDetails?.customer_phone?.trim()),
+  hasAddress: Boolean(guestDetails?.address?.trim()),
+  hasCity: Boolean(guestDetails?.city?.trim()),
+  hasState: Boolean(guestDetails?.state?.trim()),
+  hasPincode: Boolean(guestDetails?.pincode?.trim()),
+});
     // -------------------------------------------------
     // CREATE RAZORPAY ORDER (UNCHANGED)
     // -------------------------------------------------
