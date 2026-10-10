@@ -162,7 +162,16 @@ export function BuyNowModal({ product, onClose }: BuyNowModalProps) {
       console.log('[BuyNow] Fetching user profile for user ID:', session!.user.id)
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
-        .select('full_name, email, phone')
+        .select(`
+  full_name,
+  email,
+  phone,
+  address_line_1,
+  city,
+  state,
+  pincode,
+  country
+`)
         .eq('id', session!.user.id)
         .maybeSingle()
 
