@@ -45,6 +45,19 @@ export async function POST(req: NextRequest) {
   country = "India",
 } = await req.json();
 
+  
+console.log("[API /razorpay POST] Customer fields received:", {
+  hasName: Boolean(customer_name),
+  hasEmail: Boolean(customer_email),
+  hasPhone: Boolean(customer_phone),
+  hasAddress: Boolean(address),
+  hasCity: Boolean(city),
+  hasState: Boolean(state),
+  hasPincode: Boolean(pincode),
+  hasCountry: Boolean(country),
+});
+
+
   console.log('[API /razorpay POST] Received request:', {
     amount,
     currency,
