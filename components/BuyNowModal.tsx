@@ -205,7 +205,7 @@ export function BuyNowModal({ product, onClose }: BuyNowModalProps) {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${(session as any).access_token}`,
         },
-        ```tsx
+        tsx
 body: JSON.stringify({
   amount: Math.round(totalAmount),
   currency: 'INR',
