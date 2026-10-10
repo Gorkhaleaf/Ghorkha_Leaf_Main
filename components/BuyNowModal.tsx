@@ -205,12 +205,34 @@ export function BuyNowModal({ product, onClose }: BuyNowModalProps) {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${(session as any).access_token}`,
         },
-        body: JSON.stringify({
-          amount: Math.round(totalAmount),
-          currency: 'INR',
-          items: singleItem,
-          user_id: session!.user.id
-        }),
+        ```tsx
+body: JSON.stringify({
+  amount: Math.round(totalAmount),
+  currency: 'INR',
+  items: singleItem,
+  user_id: session!.user.id,
+
+  customer_name:
+    profile?.full_name ||
+    session!.user.user_metadata?.full_name ||
+    null,
+
+  customer_email:
+    profile?.email ||
+    session!.user.email ||
+    null,
+
+  customer_phone:
+    profile?.phone ||
+    session!.user.phone ||
+    null,
+
+  address: profile?.address_line_1 || null,
+  city: profile?.city || null,
+  state: profile?.state || null,
+  pincode: profile?.pincode || null,
+  country: profile?.country || 'India',
+}),
       })
 
       const order = await response.json()
