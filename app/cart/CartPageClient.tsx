@@ -193,10 +193,12 @@ if (activeSession) {
 if (activeSession) {
   try {
     const { data } = await supabase
-      .from("profiles")
-      .select("full_name, email, phone")
-      .eq("id", activeSession.user.id)
-      .maybeSingle();
+  .from("profiles")
+  .select(
+    "full_name, email, phone, address_line_1, city, state, pincode, country"
+  )
+  .eq("id", activeSession.user.id)
+  .maybeSingle();
 
     profile = data;
   } catch {}
